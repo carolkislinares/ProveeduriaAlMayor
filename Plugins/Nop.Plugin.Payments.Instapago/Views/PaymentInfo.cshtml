@@ -1,0 +1,262 @@
+﻿@{
+    Layout = "";
+}
+@model Nop.Plugin.Payments.InstaPago.Models.PaymentInfoModel
+<table width="100%" cellspacing="2" cellpadding="1" border="0">
+    <tr>
+        <td>
+            <label asp-for="CardNumber">@T("Payment.CardNumber"):</label>
+        </td>
+        <td>
+            <input type="password" asp-for="CardNumber" style="width:165px;" autocomplete="off" maxlength="20" onblur="creditCard()" />
+            <button type="button" class="button-1 view-box-button" id="show-card" style="padding: 4.2% 5.3%"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>
+            <span id="CardNumberValidate" asp-validation-for="CardNumber"></span>
+        </td>
+
+
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="CardCode">@T("Payment.CardCode"):</label>
+        </td>
+        <td>
+            <input type="password" asp-for="CardCode" style="width:60px;" autocomplete="off" maxlength="3" onblur="onlyNumberCVV()" />
+            <button type="button" class="button-1 view-box-button" id="show-cardcode" style="padding: 4.2% 5.3%"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></button>
+            <span id="CardCodeValidate" asp-validation-for="CardCode"></span>
+
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+            <label asp-for="ExpireMonth">@T("Payment.ExpirationDate"):</label>
+        </td>
+        <td>
+            <select asp-for="ExpireMonth" asp-items="Model.ExpireMonths"></select>
+            /
+            <select asp-for="ExpireYear" asp-items="Model.ExpireYears" onblur="validateDate()"></select>
+            <span id="ExpireDateValidate" asp-validation-for="ExpireMonth"></span>
+        </td>
+    </tr>
+
+
+    <tr>
+        <td>
+            <label asp-for="CardholderName">@T("Payment.CardholderName"):</label>
+        </td>
+        <td>
+            <input type="text" asp-for="CardholderName" style="width:165px;" autocomplete="off" onblur="alphanumeric()" />
+            <span asp-validation-for="CardholderName" id="CardholderNameValidate"></span>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <label asp-for="DocumentNumber">@T("Payment.DocumentNumber"):</label>
+        </td>
+        <td>
+            <input type="text" asp-for="DocumentNumber" style="width:165px;" autocomplete="off" maxlength="9" onblur="onlyNumberCedula()" />
+            <span id="DocumentNumberValidate" asp-validation-for="DocumentNumber"></span>
+        </td>
+    </tr>
+
+</table>
+<br />
+<table width="100%" cellspacing="1" cellpadding="1" border="0">
+    <tr>
+        <td>
+            <label>
+                Esta transacción será procesada de forma segura gracias a la plataforma de:
+            </label>
+        </td>
+
+    </tr>
+    <tr> <td><img src="~/plugins/Payments.InstaPago/logo.png" alt="logoInstapago" /></td></tr>
+</table>
+
+<script src="~/js/jquery.mask.min.js"></script>
+<script type="text/javascript">
+
+    $('#CardNumber').mask('0000 0000 0000 0000');
+
+    function messageInputInvalido(inputtxt) {
+        return "El " + inputtxt + " es inválido."
+    }
+
+    function messageInputVacio(inputtxt) {
+        return "Se requiere el " + inputtxt + "."
+    }
+
+    function alphanumeric() {
+        var letters = /^([\s.]?[a-zA-Z0-9\d\.\s]+)+$/;
+        var inputtxt = document.getElementById('CardholderName').value;
+        if (inputtxt.match(letters)) {
+            $("#CardholderNameValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("CardholderNameValidate").innerHTML = "";
+            $("#CardholderName").removeClass("input-validation-error");;
+            return true;
+        }
+        else {
+            $("#CardholderName").addClass("input-validation-error");;
+            $("#CardholderNameValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+
+            if ($("#CardholderName").val().length == 0) {
+                document.getElementById("CardholderNameValidate").innerHTML = messageInputVacio("Nombre del titular de la tarjeta");
+
+            } else {
+                document.getElementById("CardholderNameValidate").innerHTML = messageInputInvalido("Nombre del titular de la tarjeta");
+
+            }
+            return false;
+        }
+    }
+
+    function creditCard() {
+        var inputtxt = document.getElementById('CardNumber').value;
+        var cardnumber = /^((?:(?:4\d{3})|(?:5[1-5]\d{2}))(?:-?|\040?)(?:\d{4}(?:-?|\040?)){3}|(?:3[47]\d{2})(?:-?|\040?)\d{6}(?:-?|\040?)\d{5})$/;
+
+        if (cardnumber.test(inputtxt)) {
+            $("#CardNumberValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("CardNumberValidate").innerHTML = "";
+            $("#CardNumber").removeClass("input-validation-error");;
+            return true;
+        }
+        else {
+            $("#CardNumber").addClass("input-validation-error");;
+            $("#CardNumberValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+
+            if ($("#CardNumber").val().length == 0) {
+                document.getElementById("CardNumberValidate").innerHTML = messageInputVacio("Número de tarjeta");
+            }
+            else {
+                document.getElementById("CardNumberValidate").innerHTML = messageInputInvalido("Número de tarjeta");
+            }
+            return false;
+        }
+    }
+
+    function onlyNumberCVV() {
+        var numbers = /^[0-9]{3}$/;
+        var inputtxt = document.getElementById("CardCode").value;
+
+        if (numbers.test(inputtxt)) {
+            $("#CardCodeValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("CardCodeValidate").innerHTML = "";
+            $("#CardCode").removeClass("input-validation-error");;
+            return true;
+        }
+        else {
+            $("#CardCode").addClass("input-validation-error");;
+            $("#CardCodeValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+
+            if ($("#CardCode").val().length == 0) {
+                document.getElementById("CardCodeValidate").innerHTML = messageInputVacio("Código de tarjeta");
+            }
+            else {
+                if ($("#CardCode").val().length < 3) {
+                    document.getElementById("CardCodeValidate").innerHTML = "Mínimo 3 carácteres";
+                }
+                else {
+                    document.getElementById("CardCodeValidate").innerHTML = "Solo se admiten números.";
+                }
+            }
+
+            return false;
+        }
+    }
+
+   function onlyNumberCedula() {
+        var numbers = /^[0-9]{7,9}$/;
+        var inputtxt = document.getElementById("DocumentNumber").value;
+        if (numbers.test(inputtxt)) {
+            $("#DocumentNumberValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            $("#DocumentNumber").removeClass("input-validation-error");
+            document.getElementById("DocumentNumberValidate").innerHTML = "";
+        }
+        else {
+            $("#DocumentNumber").addClass("input-validation-error");
+            $("#DocumentNumberValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+            if ($("#DocumentNumber").val().length == 0) {
+                document.getElementById("DocumentNumberValidate").innerHTML = messageInputVacio("Número de Cédula");
+                return;
+            }
+            if ($("#DocumentNumber").val().length < 8) {
+                document.getElementById("DocumentNumberValidate").innerHTML = "Mínimo 7 carácteres";
+                return;
+            } else {
+                document.getElementById("DocumentNumberValidate").innerHTML = "Solo se admiten números.";
+                return;
+            }
+
+        }
+    }
+
+    function validateDate() {
+
+        var mes = $("#ExpireMonth").val();
+        var anno = $("#ExpireYear").val();
+        var f1 = new Date();
+        var fechaActual = new Date(f1.getFullYear(), f1.getMonth(), f1.getDate());
+        var fechaExpiracion = new Date(anno, mes - 1, fechaActual.getDate());
+
+        if (fechaActual > fechaExpiracion) {
+
+            $("#ExpireMonth").addClass("input-validation-error");;
+            $("#ExpireYear").addClass("input-validation-error");;
+            document.getElementById("ExpireDateValidate").innerHTML = "La fecha de caducidad debe ser mayor a la actual.";
+            $("#ExpireDateValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+
+        } else {
+            document.getElementById("ExpireDateValidate").innerHTML = "";
+            $("#ExpireMonth").removeClass("input-validation-error");;
+            $("#ExpireYear").removeClass("input-validation-error");;
+            $("#ExpireDateValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+        }
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    $(document).on('click', '#show-card', function () {
+
+        var timeoutId = 0;
+        var $button = $("#show-card");
+        var $box = $("#CardNumber");
+
+        $button.mousedown(function () {
+            timeoutId = setTimeout(function () {
+                showPass('text');
+            }, 0);
+        }).bind('mouseup', function () {
+            clearTimeout(timeoutId);
+            showPass('password');
+        });
+
+        function showPass(val) {
+            $box.prop('type', val);
+
+        }
+    });
+    $(document).on('click', '#show-cardcode', function () {
+
+        var timeoutId = 0;
+        var $button = $("#show-cardcode");
+        var $box = $("#CardCode");
+
+        $button.mousedown(function () {
+            timeoutId = setTimeout(function () {
+                showPass('text');
+            }, 0);
+        }).bind('mouseup', function () {
+            clearTimeout(timeoutId);
+            showPass('password');
+        });
+
+        function showPass(val) {
+            $box.prop('type', val);
+
+        }
+    });
+</script>
+

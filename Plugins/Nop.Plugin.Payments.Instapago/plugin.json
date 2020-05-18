@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Instapago Banesco",
+  "SystemName": "Payments.InstaPago",
+  "Version": "1.47",
+  "SupportedVersions": [ "4.10" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.InstaPago.dll",
+  "Description": "This plugin enables instapago payment"
+}

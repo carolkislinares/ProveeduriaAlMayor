@@ -1,0 +1,168 @@
+﻿@model Nop.Plugin.Payments.Transfer.Models.PaymentTransferSearch
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@*
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="bank-grid"></div>
+                    <script>
+                        $(document).ready(function() {
+                            $("#bank-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List", "Bank"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        },
+                                        destroy: {
+                                            url: "@Html.Raw(Url.Action("Delete", "Bank"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id"
+                                        }
+                                    },
+                                    requestEnd: function (e) {
+                                        if (e.type == "update") {
+                                            this.read();
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                        pageSize: @(defaultGridPageSize),
+                                        serverPaging: true,
+                                        serverFiltering: true,
+                                        serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [ {
+                                    field: "Name",
+                                    width: 200,
+                                    title: "Banco"
+                                }, {
+                                    field: "IsReceiver",
+                                    width: 50,
+                                    title: "Es Receptor"
+                                }, {
+                                    field: "AccountNumber",
+                                    width: 200,
+                                    title: "Nro. de Cuenta"
+                                }, {
+                                    field: "Id",
+                                    title: "@T("Admin.Common.Edit")",
+                                    width: 100,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                    template: "<button onclick=\"javascript:OpenWindow('@Url.Content("~/Admin/Bank/Edit/")?id=#=Id#&btnId=btnRefresh&formId=bank-form', 800, 800, true); return false;\" class='btn btn-default'><i class=\"fa fa-pencil\"></i>@T("Admin.Common.Edit")</button>"
+                                }, {
+                                    command: { name: "destroy", text: "@T("Admin.Common.Delete")" },
+                                    title: "@T("Admin.Common.Delete")",
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                    width: 100
+                                }]
+                            });
+                        });
+                    </script>
+                </div>
+                <div class="panel-footer">
+                    <input type="submit" id="btnAddNewOption" class="btn btn-primary" value="Nuevo" onclick="javascript:OpenWindow('@(Url.Action("Create", "Bank",  new { btnId = "btnRefresh", formId = "bank-form" }))', 800, 800, true); return false;" />
+                    <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none" />
+                </div>
+                <script>
+                    $(document).ready(function () {
+                        $('#btnRefresh').click(function () {
+                            //refresh grid
+                            var grid = $("#bank-grid").data('kendoGrid');
+                            //grid.dataSource.page(1); //new search. Set page size to 1
+                            grid.dataSource.read();
+
+                            //return false to don't reload a page
+                            return false;
+                        });
+                    });
+                </script>
+            </div>
+
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Active</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">Disabled</a>
+                </li>
+            </ul>
+
+
+        </div>
+    </form>*@
+
+<form asp-controller="PaymentTransfer" asp-action="Configure" method="post" id="bank-form">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="content">
+                <div class="form-horizontal">
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item active">
+                                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Transferencia</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Bancos</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="myTabContent">
+
+                            <div class="tab-pane fade active in" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                @await Html.PartialAsync("~/Plugins/Payments.Transfer/Views/_Transfers.cshtml", Model)
+                            </div>
+                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+
+                                @await Html.PartialAsync("~/Plugins/Payments.Transfer/Views/_Banks.cshtml")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
+
+

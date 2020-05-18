@@ -1,0 +1,282 @@
+﻿@model AddressModel
+@using Nop.Core.Infrastructure;
+@using Nop.Services.Directory;
+@{
+    var enabledProvinces = EngineContext.Current.Resolve<IStateProvinceService>().GetStateProvincesByCountryId(86).ToList();
+
+    if (ViewData.TemplateInfo.HtmlFieldPrefix.Equals("ShippingNewAddress"))
+    {
+       enabledProvinces = enabledProvinces.Where(x => !string.IsNullOrEmpty(x.Abbreviation)).ToList();
+    }
+
+        foreach (var state in enabledProvinces)
+        {
+            var item = Model.AvailableStates.Where(x => x.Value.Equals(state.Id)).FirstOrDefault();
+            if (item == null)
+            {
+                Model.AvailableStates.Add(new SelectListItem { Text = state.Name, Value = state.Id.ToString() });
+            }
+        }
+
+}
+
+@if (Model.CountryEnabled && Model.StateProvinceEnabled)
+{
+    //we don't move this script to the footer as it's used in Ajax requests where footer is not available
+    <script>
+        $(document).ready(function () {
+            $("#@Html.IdFor(model => model.CountryId)").on('change', function () {
+            var selectedItem = $(this).val();
+                var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
+            var statesProgress = $("#states-loading-progress");
+            statesProgress.show();
+                $.ajax({
+                cache: false,
+                    type: "GET",
+                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                    data: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                          ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                    statesProgress.hide();
+                },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve states.');
+                    statesProgress.hide();
+                }
+            });
+        });
+
+            $("#@Html.IdFor(model => model.CountryId)").on('submit', function () {
+
+               });
+
+
+        });
+    </script>
+}
+
+<input asp-for="Id" type="hidden" />
+<div class="edit-address">
+    <div class="inputs">
+        <label asp-for="FirstName" asp-postfix=":"></label>
+        <input asp-for="FirstName" />
+        <nop-required />
+        <span asp-validation-for="FirstName"></span>
+    </div>
+    <div class="inputs">
+        <label asp-for="LastName" asp-postfix=":"></label>
+        <input asp-for="LastName" />
+        <nop-required />
+        <span asp-validation-for="LastName"></span>
+    </div>
+    <div class="inputs">
+        <label asp-for="Email" asp-postfix=":"></label>
+        <input asp-for="Email" />
+        <nop-required />
+        <span asp-validation-for="Email"></span>
+    </div>
+    @if (Model.CompanyEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="Company" asp-postfix=":"></label>
+            <input asp-for="Company" />
+            @if (Model.CompanyRequired)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="Company"></span>
+        </div>
+    }
+    @if (Model.CountryEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="CountryId" asp-postfix=":"></label>
+            <select asp-for="CountryId" asp-items="Model.AvailableCountries" disabled></select>
+            <nop-required />
+            <span asp-validation-for="CountryId"></span>
+        </div>
+    }
+
+    @if (Model.CountryEnabled && Model.StateProvinceEnabled)
+    {
+        <div class="inputs">
+
+            <label asp-for="StateProvinceId" asp-postfix=":"></label>
+            <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"></select>
+            <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
+            <span asp-validation-for="StateProvinceId" id="StateProvinceIdValidate"></span>
+        </div>
+    }
+    @if (Model.CountyEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="County" asp-postfix=":"></label>
+            <input asp-for="County" />
+            @if (Model.CountyRequired)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="County"></span>
+        </div>
+    }
+    @if (Model.CityEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="City" asp-postfix=":"></label>
+            <input asp-for="City" />
+            @if (Model.CityRequired)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="City"></span>
+        </div>
+    }
+    @if (Model.StreetAddressEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="Address1" asp-postfix=":"></label>
+            <input asp-for="Address1" />
+            @if (Model.StreetAddressRequired)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="Address1"></span>
+        </div>
+    }
+    @if (Model.StreetAddress2Enabled)
+    {
+        <div class="inputs">
+            <label asp-for="Address2" asp-postfix=":"></label>
+            <input asp-for="Address2" />
+            @if (Model.StreetAddress2Required)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="Address2"></span>
+        </div>
+    }
+    @if (Model.ZipPostalCodeEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="ZipPostalCode" asp-postfix=":"></label>
+            <input asp-for="ZipPostalCode" />
+            @if (Model.ZipPostalCodeRequired)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="ZipPostalCode"></span>
+        </div>
+    }
+    @if (Model.PhoneEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="PhoneNumber" asp-postfix=":"></label>
+            <input asp-for="PhoneNumber" />
+            @if (Model.PhoneRequired)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="PhoneNumber"></span>
+        </div>
+    }
+    @if (Model.FaxEnabled)
+    {
+        <div class="inputs">
+            <label asp-for="FaxNumber" asp-postfix=":"></label>
+            <input asp-for="FaxNumber" />
+            @if (Model.FaxRequired)
+            {
+                <nop-required />
+            }
+            <span asp-validation-for="FaxNumber"></span>
+        </div>
+    }
+    @if (Model.CustomAddressAttributes.Count > 0)
+    {
+        @await Html.PartialAsync("_AddressAttributes", Model.CustomAddressAttributes)
+    }
+</div>
+
+<script src="~/js/jquery.mask.min.js"></script>
+<script type="text/javascript">
+    $('#@Html.IdFor(model => model.PhoneNumber)').mask('(0000)000-0000');
+     var enviar = true;
+     @*var input = document.getElementById('ShippingNewAddress_StateProvinceId');
+    if (input != null) {
+        $("#@Html.IdFor(model => model.StateProvinceId)").on('change', function () {
+            var selectedItemName = $('select[id="@Html.IdFor(model => model.StateProvinceId)"] option:selected').text();
+            if ($(this).val() > 0) {
+                if (selectedItemName.toUpperCase() == "Díaz".toUpperCase() ||
+                    selectedItemName.toUpperCase() == "Arismendi".toUpperCase() ||
+                    selectedItemName.toUpperCase() == "García".toUpperCase() ||
+                    selectedItemName.toUpperCase() == "Maneiro".toUpperCase() ||
+                    selectedItemName.toUpperCase() == "Mariño".toUpperCase()) {
+
+                    $("#StateProvinceIdValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+                    $("#@Html.IdFor(model => model.StateProvinceId)").removeClass("input-validation-error");
+                    document.getElementById("StateProvinceIdValidate").innerHTML = "";
+                    enviar = true;
+                } else {
+
+                    $("#@Html.IdFor(model => model.StateProvinceId)").addClass("input-validation-error");
+                    $("#StateProvinceIdValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+                    document.getElementById("StateProvinceIdValidate").innerHTML = "El municipio seleccionado no admite envíos.";
+                    enviar = false;
+                }
+            } else {
+                  $("#@Html.IdFor(model => model.StateProvinceId)").addClass("input-validation-error");
+                    $("#StateProvinceIdValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+                    document.getElementById("StateProvinceIdValidate").innerHTML = "Seleccione un municipio"
+                    enviar = false;
+            }
+
+
+        });
+    }*@
+
+
+
+    $(document).ready(function () {
+
+        if (document.getElementById("@Html.IdFor(model => model.CountryId)") != null) {
+            document.getElementById('@Html.IdFor(model => model.CountryId)').value = 86;
+        }
+                    @*var selectedItem = 86;
+                    var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
+                    var statesProgress = $("#states-loading-progress");
+                    statesProgress.show();
+                    $.ajax({
+                        cache: false,
+                        type: "GET",
+                        url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                        data: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                        success: function (data) {
+                            ddlStates.html('');
+                              console.log(data);
+                            $.each(data, function (id, option) {
+
+                                ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                            });
+                            statesProgress.hide();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Failed to retrieve states.');
+                            statesProgress.hide();
+                        }
+                    });*@
+
+        });
+
+      function HabilitarCombo() {
+          $("#@Html.IdFor(model => model.CountryId)").removeAttr('disabled');
+
+          @*if ($("#@Html.IdFor(model => model.StateProvinceId)").val() == 0) {
+              enviar = false;
+          }*@
+
+          return enviar;
+          }
+</script>

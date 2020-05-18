@@ -1,0 +1,132 @@
+﻿@{
+    Layout = "";
+}
+@model Nop.Plugin.Payments.Zelle.Models.PaymentInfoModel
+<div class="page  registration-page">
+    <div class="panel-body">
+        <form asp-controller="Admin/PaymentZelle" asp-action="RegisterPayment"
+              asp-route-btnId="@Context.Request.Query["btnId"]"
+              asp-route-formId="@Context.Request.Query["formId"]" onsubmit="return submit()">
+
+            <div class="content-header clearfix">
+                <h1 class="pull-left">
+                    @if (!string.IsNullOrWhiteSpace(Model.Reference))
+                    {
+                        <strong><small style="color:#ff4f60;">@T("Payment.RegisteredPayment")</small></strong>
+                    }
+
+                </h1>
+
+            </div>
+            <div class="content">
+                <div class="form-fields">
+                    <div class="panel-body">
+                        <div class="inputs">
+                            <input type="hidden" asp-for="IdZelle" />
+                            <input type="hidden" asp-for="PaymentStatusOrder" />
+                            <input type="hidden" asp-for="IssuingEmail" value="CORREOZELLE@ZELLE.COM" />
+                        </div>
+                        <div class="inputs">
+                            <label asp-for="Order">@T("Plugins.Payments.Zelle.Fields.Order"):</label>
+                            <input type="text" asp-for="Order" readonly autocomplete="off" />
+                            <span asp-validation-for="Order"></span>
+                        </div>
+                        @if (Model.PaymentStatusOrder < 30)
+                        {
+                            @*<div class="inputs">
+                                    <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
+                                    <input type="email" asp-for="IssuingEmail" autocomplete="off" maxlength="50" />
+                                    <nop-required />
+                                    <span asp-validation-for="IssuingEmail"></span>
+
+                                </div>*@
+                            <div class="inputs">
+                                <label asp-for="Reference">@T("Plugins.Payments.Zelle.Fields.Reference"):</label>
+                                <input type="text" asp-for="Reference" autocomplete="off" maxlength="10" onblur="onlyNumber()" />
+                                <nop-required />
+                                <span asp-validation-for="Reference" id="ReferenciaValidate"></span>
+                            </div>
+                        }
+                        else
+                        {
+                            @*<div class="inputs">
+
+                                    <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
+                                    <input type="email" asp-for="IssuingEmail" readonly autocomplete="off" maxlength="50" />
+                                    <nop-required />
+                                    <span asp-validation-for="IssuingEmail"></span>
+
+                                </div>*@
+                            <div class="inputs">
+
+                                <label asp-for="Reference">@T("Plugins.Payments.Zelle.Fields.Reference"):</label>
+                                <input type="text" asp-for="Reference" autocomplete="off" readonly maxlength="10" onblur="onlyNumber()" />
+                                <nop-required />
+                                <span asp-validation-for="Reference" id="ReferenciaValidate"></span>
+
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="button" name="back" class="button-1" onclick="setLocation('@(Url.Action("BackOrder", "PaymentZelle", new {id = Model.Order, Area="Admin"}))')">
+                    <i class="fa fa-floppy-o"></i>
+                    @T("Admin.Common.Back")
+                </button>
+                @if (Model.PaymentStatusOrder < 30)
+                {
+                    <button type="submit" name="save" class="button-1">
+                        <i class="fa fa-floppy-o"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                }
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+
+<script src="http://igorescobar.github.io/jQuery-Mask-Plugin/js/jquery.mask.min.js"></script>
+
+<script type="text/javascript">
+    function messageInputVacio(inputtxt) {
+        return "Se requiere " + inputtxt + "."
+    }
+    function onlyNumber() {
+        var numbers = /^[a-zA-Z0-9]{4,10}$/;
+        var inputtxt = document.getElementById("Reference").value;
+        if (numbers.test(inputtxt)) {
+            $("#ReferenciaValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            $("#Reference").removeClass("input-validation-error");
+            document.getElementById("ReferenciaValidate").innerHTML = "";
+        }
+        else {
+            $("#Reference").addClass("input-validation-error");
+            $("#ReferenciaValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+            if ($("#Reference").val().length == 0) {
+                document.getElementById("ReferenciaValidate").innerHTML = messageInputVacio("la Referencia de Pago");
+                return;
+            }
+            if ($("#Reference").val().length < 8) {
+                document.getElementById("ReferenciaValidate").innerHTML = "Mínimo 4 carácteres";
+                return;
+            } else {
+                document.getElementById("ReferenciaValidate").innerHTML = "Solo se admiten números.";
+                return;
+            }
+        }
+    }
+
+    function submitForm() {
+
+        var testElements = document.getElementsByClassName('input-validation-error');
+        if (testElements.length > 0) {
+            return false;
+        } return true;
+
+    }
+</script>

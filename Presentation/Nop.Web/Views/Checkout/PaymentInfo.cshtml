@@ -1,0 +1,91 @@
+﻿@model CheckoutPaymentInfoModel
+@{
+    Layout = "_ColumnsOne";
+     
+    //title
+    Html.AddTitleParts(T("PageTitle.Checkout").Text);
+    //page class
+    Html.AppendPageCssClassParts("html-checkout-page");
+    Html.AppendPageCssClassParts("html-payment-info-page");
+}
+<div class="page checkout-page payment-info-page">
+    @await Component.InvokeAsync("CheckoutProgress", new { step = CheckoutProgressStep.Payment })
+    <div class="page-title">
+        <h1>@T("Checkout.PaymentInfo")</h1>
+    </div>
+    <div class="page-body checkout-data">
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutPaymentInfoTop })
+        <div class="section payment-info">
+            @if (Model.PaymentViewComponentName.Contains("Payments.InstaPago"))
+            {
+                <form asp-route="CheckoutPaymentInfo" id="CheckoutPaymentInfo" method="post" onsubmit="return checkForm(this);">
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div class="info">
+                        @await Component.InvokeAsync(Model.PaymentViewComponentName)
+                    </div>
+                    <div class="buttons">
+                        <button type="button" name="back" class="button-1" onclick="setLocation('@(Url.Action("PaymentMethod", "Checkout"))')">
+                            <i class="fa fa-floppy-o"></i>
+                            @T("Admin.Common.Back")
+                        </button>
+                        <input type="submit" name="nextstep" value="@T(" Checkout.NextButton")" class="button-1 payment-info-next-step-button" />
+                    </div>
+                </form>
+
+            }
+            else
+            {
+                <form asp-route="CheckoutPaymentInfo" id="CheckoutPaymentInfo" method="post">
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div class="info">
+                        @await Component.InvokeAsync(Model.PaymentViewComponentName)
+                    </div>
+                    <div class="buttons">
+                        <button type="button" name="back" class="button-1" onclick="setLocation('@(Url.Action("PaymentMethod", "Checkout"))')">
+                            <i class="fa fa-floppy-o"></i>
+                            @T("Admin.Common.Back")
+                        </button>
+                        <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 payment-info-next-step-button" />
+                    </div>
+                </form>
+            }
+
+        </div>
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutPaymentInfoBottom })
+        <div class="section order-summary">
+            <div class="title">
+                <strong>@T("Checkout.OrderSummary")</strong>
+            </div>
+            @await Component.InvokeAsync("OrderSummary", "ShoppingCart")
+        </div>
+    </div>
+</div>
+@if (Model.PaymentViewComponentName.Contains("Payments.InstaPago"))
+{
+    <script type="text/javascript">
+        function checkForm(form) {
+            searchinput(form);
+            var testElements = document.getElementsByClassName('input-validation-error');
+            if (testElements.length > 0) {
+                return false;
+            }
+            return true;
+        }
+
+        function searchinput(form) {
+            var elements = form.elements;
+            for (var i = 0; i < elements.length; i++) {
+                if ((elements[i].type.toLowerCase() == "text" || elements[i].type.toLowerCase() == "password") && elements[i].value.length == 0) {
+
+                    if (elements[i].labels != null && elements[i].labels.length > 0) {
+                        for (var j = 0; j < elements[i].labels.length; j++) {
+                            $("#" + elements[i].id).addClass("input-validation-error");
+                            $("#" + elements[i].id + "Validate").removeClass("field-validation-valid").addClass("field-validation-error");
+                            document.getElementById(elements[i].id + "Validate").innerHTML = "El " + elements[i].labels[j].innerHTML.slice(0, -1) + " es requerido"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+}

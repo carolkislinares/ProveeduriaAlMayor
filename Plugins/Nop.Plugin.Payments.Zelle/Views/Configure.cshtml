@@ -1,0 +1,171 @@
+﻿@inject Nop.Core.Domain.Common.AdminAreaSettings adminAreaSettings
+@using Nop.Core
+@inject IWorkContext workContext
+@{
+    Layout = "_ConfigurePlugin";
+
+    var defaultGridPageSize = adminAreaSettings.DefaultGridPageSize;
+    var gridPageSizes = adminAreaSettings.GridPageSizes;
+    var WorkingCurrencyCode = workContext.WorkingCurrency.CurrencyCode;
+}
+
+<form asp-controller="PaymentZelle" asp-action="Configure" method="post" id="zelle-form">
+    <div class="panel-group">
+        <div class="panel panel-default panel-search">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="col-sm-3">
+                                <label id="lblReferenceSearch">@T("Plugins.Payments.Zelle.Fields.Reference")</label>
+                            </div>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control text-box single-line" id="referencia"/>
+                                <span id="ReferenceValidate"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-8 col-md-offset-4">
+                        <button type="button" id="search-zelle-local" class="btn btn-primary btn-search">
+                            <i class="fa fa-search"></i>
+                            @T("Admin.Common.Search")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="zelle-grid"></div>
+                <script>
+                    $(document).ready(function() {
+                        $("#zelle-grid").kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "@Html.Raw(Url.Action("List", "paymentzelle"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data:   function() {
+                                            var data = {
+                                                referencia: $('#referencia').val(),
+                                                    };
+                                                   addAntiForgeryToken(data);
+                                                    return data;
+                                                }
+                                    },
+                                    destroy: {
+                                        @*url: "@Html.Raw(Url.Action("Delete", "PickupInStore"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: addAntiForgeryToken*@
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors",
+                                    model: {
+                                        id: "Id"
+                                    }
+                                },
+                                requestEnd: function (e) {
+                                    if (e.type == "update") {
+                                        this.read();
+                                    }
+                                },
+                                error: function(e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                            },
+                            pageable: {
+                                refresh: true,
+                                pageSizes: [@(gridPageSizes)],
+                                @await Html.PartialAsync("_GridPagerMessages")
+                            },
+                            editable: {
+                                confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                mode: "inline"
+                            },
+                            scrollable: false,
+                            columns: [
+                                {
+                                field: "OrderId",
+                                width: 50,
+                               title: "@T("Plugins.Payments.Zelle.Fields.Order")",
+                                 headerAttributes: { style: "text-align:center" },
+                                attributes: { style: "text-align:center" },
+                                title: "@T("Plugins.Payments.Transfer.Fields.Order")",
+                                template: "<a href=@Url.Action("Edit", "Order")/#=OrderId# name='order#:OrderId#' id='OrderId#:OrderId#'>#:OrderId#</a>"
+
+
+                            }, {
+                                field: "ReferenceNumber",
+                                width: 200,
+                                title: "@T("Plugins.Payments.Zelle.Fields.Reference")"
+                                },
+                                {
+                                    field: "OrderTotal",
+                                    width: 200,
+                                 format: "{0:n2}",
+                                title: "@T("Plugins.Payments.Zelle.Fields.OrderTotal") (US)"
+                                },
+                                {
+                                field: "OrderId",
+                                title: "@T("Admin.Common.Pay")",
+                                width: 100,
+                                headerAttributes: { style: "text-align:center" },
+                                attributes: { style: "text-align:center" },
+                                template:"# if(PaymentStatusOrder==10) {#<a href=@Url.Action("UpdateStateOrder", "PaymentZelle")?orderid=#:OrderId# name='markorderaspaid#:OrderId#' id='markorderaspaid#:OrderId#' class='btn btn-primary'>@T("Admin.Orders.Fields.MarkAsPaid")</a> #} else {# <span class='grid-report-item green'>Consolidado</span> #}# "
+
+                            }]
+                        });
+                    });
+                </script>
+            </div>
+            <div class="panel-footer">
+                <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none" />
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $('#btnRefresh').click(function () {
+                        //refresh grid
+                        var grid = $("#zelle-grid").data('kendoGrid');
+                        //grid.dataSource.page(1); //new search. Set page size to 1
+                        grid.dataSource.read();
+
+                        //return false to don't reload a page
+                        return false;
+                    });
+
+
+                            $('#search-zelle-local').click(function () {
+                        //refresh grid
+                        var grid = $("#zelle-grid").data('kendoGrid');
+                        //grid.dataSource.page(1); //new search. Set page size to 1
+                        grid.dataSource.read();
+
+                        //return false to don't reload a page
+                        return false;
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</form>
+
+<script src="~/js/jquery.mask.min.js"></script>
+<script type="text/javascript">
+    $('#referencia').mask('0000000000');
+</script>

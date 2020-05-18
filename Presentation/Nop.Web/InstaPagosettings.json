@@ -1,0 +1,5 @@
+﻿{
+    "URLConnection": "https://api.instapago.com/payment",
+    "KeyId": "EBBDF23B-F6FD-41B2-AD5C-354D63CB0D3F",
+    "PublicKey": "a662c923203710539aee024a09ec06ed"
+}

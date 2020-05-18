@@ -1,0 +1,166 @@
+﻿@model Nop.Plugin.Payments.Transfer.Models.BankModel
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+
+<div class="panel-group">
+    <div class="panel panel-default panel-popup">
+
+        @*<script>
+                $(document).ready(function() {
+                    $("#@Html.IdFor(model => model.Address.CountryId)").change(function(){
+                        var selectedItem = $(this).val();
+                        var ddlStates = $("#@Html.IdFor(model => model.Address.StateProvinceId)");
+                        $.ajax({
+                            cache: false,
+                            type: "GET",
+                            url: "@(Url.Action("GetStatesByCountryId", "Country"))",
+                            data: { "countryId": selectedItem},
+                            success: function(data) {
+                                ddlStates.html('');
+                                $.each(data, function(id, option) {
+                                    ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                                });
+                            },
+                            error: function(xhr, ajaxOptions, thrownError) {
+                                alert('Failed to retrieve states.');
+                            }
+                        });
+                    });
+                });
+            </script>*@
+
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="col-sm-3">
+                    <label asp-for="Name">@T("Plugins.Payments.Transfer.Fields.Name")</label>
+                </div>
+                <div class="col-sm-9">
+                    <nop-editor asp-for="Name" onblur="alphanumeric()" />
+                    <span asp-validation-for="Name" id="NameValidate"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-3">
+                    <label asp-for="IsReceiver">@T("Plugins.Payments.Transfer.Fields.IsReceiver")</label>
+                </div>
+                <div class="col-sm-9">
+                    <input type="checkbox" asp-for="IsReceiver" onclick="check();" />
+                    <span asp-validation-for="IsReceiver"></span>
+                </div>
+            </div>
+            <div class="form-group hidden" id="inputsAccountNumber">
+                <div class="col-sm-3">
+                    <label asp-for="AccountNumber">@T("Plugins.Payments.Transfer.Fields.AccountNumber")</label>
+                </div>
+                <div class="col-sm-9">
+                    <nop-editor asp-for="AccountNumber" autocomplete="off" maxlength="20" onblur="ValidateNumberAcount()" />
+                    <span asp-validation-for="AccountNumber" id="AccountNumberValidate"></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="~/js/jquery.mask.min.js"></script>
+<script type="text/javascript">
+
+    $('#AccountNumber').mask('0000 0000 00 0000000000');
+    function messageInputVacio(inputtxt) {
+        return "Se requiere el " + inputtxt + "."
+    }
+    function messageInputInvalido(inputtxt) {
+        return "El " + inputtxt + " es inválido."
+    }
+
+    function ValidateNumberAcount() {
+        var numbers = /^([\s.]?[0-9]){10,23}$/;
+        var inputtxt = document.getElementById("AccountNumber").value;
+        if (numbers.test(inputtxt)) {
+            $("#AccountNumberValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            $("#AccountNumber").removeClass("input-validation-error");
+            document.getElementById("AccountNumberValidate").innerHTML = "";
+        }
+        else {
+            if (document.getElementById('IsReceiver').checked) {
+                $("#AccountNumber").addClass("input-validation-error");
+                $("#AccountNumberValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+                if ($("#AccountNumber").val().length == 0) {
+                    document.getElementById("AccountNumberValidate").innerHTML = messageInputVacio("Nro. de Cuenta");
+                    return;
+                } else {
+                    document.getElementById("AccountNumberValidate").innerHTML = "Solo se admiten números.";
+                    return;
+                }
+            }
+        }
+    }
+
+
+    function check() {
+        if (document.getElementById('IsReceiver').checked) {
+            $("#inputsAccountNumber").removeClass("hidden");
+        } else {
+            $("#inputsAccountNumber").addClass("hidden");
+        }
+    }
+
+
+
+
+    function submitForm() {
+        if (!document.getElementById('IsReceiver').checked) {
+            $("#AccountNumber").value = "";
+        }
+
+        if ($("#Name").val().length == 0) {
+            $("#Name").addClass("input-validation-error");;
+            $("#NameValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+            document.getElementById("NameValidate").innerHTML = messageInputVacio("Banco");
+        }
+         if (document.getElementById('IsReceiver').checked && $("#AccountNumber").val().length == 0) {
+             $("#AccountNumber").addClass("input-validation-error");
+             $("#AccountNumberValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+             document.getElementById("AccountNumberValidate").innerHTML = messageInputVacio("Número de Cuenta");
+        }
+
+        var testElements = document.getElementsByClassName('input-validation-error');
+        if (testElements.length > 0) {
+            return false;
+        } return true;
+
+    }
+
+    function alphanumeric() {
+        var letters = /^([\s.]?[a-zA-Z0-9]?[0-9%a-zA-Z\s]+)+$/;
+        var inputtxt = document.getElementById('Name').value;
+        if (inputtxt.match(letters)) {
+            $("#NameValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("NameValidate").innerHTML = "";
+            $("#Name").removeClass("input-validation-error");;
+            return true;
+        }
+        else {
+            $("#Name").addClass("input-validation-error");;
+            $("#NameValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+
+            if ($("#Name").val().length == 0) {
+                document.getElementById("NameValidate").innerHTML = messageInputVacio("Banco");
+
+            } else {
+                document.getElementById("NameValidate").innerHTML = messageInputInvalido("Banco");
+
+            }
+            return false;
+        }
+    }
+
+</script>

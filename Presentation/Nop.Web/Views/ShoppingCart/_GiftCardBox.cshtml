@@ -1,0 +1,46 @@
+﻿@model ShoppingCartModel.GiftCardBoxModel
+@if (Model.Display)
+{
+    <div class="giftcard-box">
+        <div class="title">
+            <strong>@T("ShoppingCart.GiftCardCouponCode")</strong>
+        </div>
+        <div class="hint">@T("ShoppingCart.GiftCardCouponCode.Tooltip")</div>
+        <div class="coupon-code">
+            <input name="giftcardcouponcode" id="giftcardcouponcode" type="text" class="gift-card-coupon-code" aria-label="@T("ShoppingCart.GiftCardCouponCode.Label")" />
+            <input type="submit" name="applygiftcardcouponcode" id="applygiftcardcouponcode"
+                   value="@T("ShoppingCart.GiftCardCouponCode.Button")" class="button-2 apply-gift-card-coupon-code-button" onclick="Habilitar()"  />
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <div class="@(Model.IsApplied ? "message-success" : "message-failure")">
+                @Model.Message
+            </div>
+        }
+    </div>
+    <script asp-location="Footer">
+        $(document).ready(function () {
+            $('#giftcardcouponcode').on('keydown', function (event) {
+                if (event.keyCode == 13 && document.getElementById("giftcardcouponcode").value != "") {
+                    $('#applygiftcardcouponcode').trigger("click");
+                    return false;
+                }
+            });
+        });
+
+        function Habilitar() {
+                    $("#shopping-cart-form").submit(function (e) {
+            if (document.getElementById("giftcardcouponcode").value == "") {
+                return false;
+            } else {
+                return true;
+            }
+        });
+
+
+        }
+
+
+
+    </script>
+}

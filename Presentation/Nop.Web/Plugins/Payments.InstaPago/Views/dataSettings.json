@@ -1,0 +1,5 @@
+﻿{
+  "DataProvider": "sqlserver",
+  "DataConnectionString": "Data Source=PProveeduriasCloudSQL.sigocorp.com,1460;Initial Catalog=Ecommerce_Supermarket;Integrated Security=False;Persist Security Info=False;User ID=UserEcommerce;Password=.*Us3r3c0mm3rc3*.",
+  "RawDataSettings": {}
+}

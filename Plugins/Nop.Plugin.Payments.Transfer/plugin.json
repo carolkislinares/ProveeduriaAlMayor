@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Transferencia Bancaria",
+  "SystemName": "Payments.Transfer",
+  "Version": "1.47",
+  "SupportedVersions": [ "4.10" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.Transfer.dll",
+  "Description": "Este plugin permite procesar pagos a traves de transferencias bancarias en Bolivares."
+}

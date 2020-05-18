@@ -1,0 +1,105 @@
+﻿@{
+    Layout = "";
+}
+@model Nop.Plugin.Payments.Transfer.Models.PaymentInfoModel
+@*<table width="100%" cellspacing="2" cellpadding="1" border="0">
+        <tr>
+            <td>
+                <label asp-for="BancoReceptor">Banco Receptor:</label>
+            </td>
+            <td>
+                <select asp-for="BancoReceptorId" asp-items="Model.BancoReceptor" class="dropdownlists"></select>
+                <span asp-validation-for="BancoReceptorId"></span>
+                <label>Nombre: Sigo S.A.</label>
+                <label> Rif Nº J-08003048-6</label>
+                <label>Tipo de cuenta: Corriente</label>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label asp-for="BancoEmisor">Banco Emisor:</label>
+            </td>
+            <td>
+                <select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" class="dropdownlists"></select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="Referencia">Referencia:</label>
+            </td>
+            <td>
+                <input type="text" asp-for="Referencia" style="width:165px;" autocomplete="off" />
+                <span asp-validation-for="Referencia"></span>
+            </td>
+        </tr>
+    </table>*@
+<div class="title">
+    <h2>@T("Plugin.Payment.Transfer.InstructionTransferTitle")</h2>
+    <br />
+    <strong>@T("Plugin.Payment.Transfer.AccountTitle")</strong>
+    <div class="title">
+        <strong><small style="color:#ff4f60;">@T("Payment.PartialPayment")</small></strong>
+    </div>
+</div>
+<table width="100%" cellspacing="2" cellpadding="1" border="0">
+
+    <tr>
+        <td>
+            <strong>@T("Plugin.Payment.Transfer.NameTitle"):</strong>
+        </td>
+        <td>
+            <label>@T("Plugin.Payment.Transfer.ValueName")</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <strong>@T("Plugin.Payment.Transfer.RIFTitle"):</strong>
+        </td>
+        <td>
+            <label>@T("Plugin.Payment.Transfer.ValueRIF")</label>
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <strong>@T("Plugin.Payment.Transfer.AccountTypeTitle"):</strong>
+        </td>
+        <td>
+            <label>@T("Plugin.Payment.Transfer.ValueAccountType")</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label></label>
+        </td>
+        <td>
+            <label></label>
+        </td>
+    </tr>
+
+    <tr class="order-total">
+        <td>
+            <h3 asp-for="BancoReceptor">@T("Plugin.Payment.Transfer.BankTitle")</h3>
+        </td>
+        <td>
+            <h3>@T("Plugin.Payment.Transfer.AccountNumberTitle")</h3>
+        </td>
+    </tr>
+    @foreach (var bank in Model.BancoReceptor)
+    {
+        <tr>
+            <td>
+                <strong>@bank.Text</strong>
+            </td>
+            <td>
+                <label>@bank.Value</label>
+            </td>
+        </tr>
+    }
+
+</table>
+<br />
+<div class="title">
+    <label>@T("Plugin.Payment.Transfer.InstructionTransferValue")</label>
+</div>

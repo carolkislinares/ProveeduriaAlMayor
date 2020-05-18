@@ -1,0 +1,25 @@
+﻿@model OrderDetailsModel
+@{
+    Layout = "_ColumnsOne";
+    //title
+    Html.AddTitleParts(T("PageTitle.ShipmentDetails").Text);
+    //page class
+    Html.AppendPageCssClassParts("html-shipment-details-page");
+}
+<div class="page shipment-details-page">
+    <div class="page-title">
+        <h1>
+            @if (Model.PaymentMethodStatus.Contains("Pendiente"))
+            {@T("Plugins.Payments.RegisterPaymentTitle")}
+        else
+         { @T("Plugins.Title.RegisteredPayment")}
+            </h1>
+    </div>
+    <div class="page-body">
+        <div class="section payment-info">
+            <div class="info">
+                @await Component.InvokeAsync(Model.VatNumber, new { id = Model.Id })
+            </div>
+        </div>
+    </div>
+</div>
