@@ -357,6 +357,9 @@ namespace Nop.Core
         /// </summary>
         public static INopFileProvider DefaultFileProvider { get; set; }
 
+
+
+
         #endregion
     }
 }
