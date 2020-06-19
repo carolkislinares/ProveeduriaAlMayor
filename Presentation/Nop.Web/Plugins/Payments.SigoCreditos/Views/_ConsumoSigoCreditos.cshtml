@@ -1,0 +1,123 @@
+﻿<style>
+    #consumoSigoCreditosContainer {
+        display: none;
+    }
+
+    .sigo-creditos-data {
+        margin: 0 auto 10px;
+        max-width: 750px;
+        /*border: 1px solid #eee;*/
+        border-radius: 3px;
+        padding: 0 30px;
+    }
+
+    #pinContainer {
+        margin-top: 0;
+    }
+
+    #buttonContainerRow {
+        margin-top: 20px;
+    }
+
+    #buttonContainerCol {
+        display: flex;
+        padding-top: 10px;
+        margin: 0 auto !important;
+    }
+
+    #usarButton {
+        padding-top: 10px;
+        width: inherit;
+        color: white;
+        text-align: center;
+    }
+
+    #montoContainer > label, #pinContainer > label {
+        font-weight: 700;
+        color: #444;
+        font-size: 18px;
+    }
+
+    #checkContainer > div {
+        text-align: left;
+    }
+
+    @@media screen and (max-width: 376px) {
+        .sigo-creditos-data {
+            padding: 0 10px;
+        }
+    }
+</style>
+
+<div class="sigo-creditos-data">
+    @* @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0) {*@
+    @*@if (Model.RewardPointsEnoughToPayForOrder) {
+            <input asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
+        } else {
+            <input asp-for="UseRewardPoints" />
+        }
+        <label asp-for="UseRewardPoints">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsAmount)</label>
+        @if (Model.RewardPointsEnoughToPayForOrder) {
+            <script>
+                $(document).ready(function() {
+                    PaymentMethod.toggleUseRewardPoints($('#@Html.IdFor(model => model.UseRewardPoints)'));
+                });
+            </script>
+        }*@
+    @*////////////////////////////////////////////////////////////////////////*@
+
+    <div class="row" id="checkContainer">
+        <div class="col-12">
+            <input id="checkConsumo" type="checkbox" />
+            @*<label for="checkConsumo">Usar mis Sigo Créditos, @Model.AccountsList.FirstOrDefault().AccountTypeQuantity disponibles para este pedido.</label>*@
+            <label for="checkConsumo">Usar mis Sigo Créditos, 10000000 disponibles para este pedido.</label>
+        </div>
+    </div>
+    <div id="consumoSigoCreditosContainer" class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="inputs col-6" id="montoContainer">
+                    <label>Monto</label>
+                    <input id="montoConsumo" type="text" autocomplete="off" />
+                    <span for="montoConsumo"> </span>
+                </div>
+                <div class="inputs col-6" id="pinContainer">
+                    <label>PIN</label>
+                    <input id="pinConsumo" type="password" autocomplete="off" />
+                    <span for="pinConsumo" id=""> </span>
+                </div>
+            </div>
+            <div class="row" id="buttonContainerRow">
+                <div class="col-4" id="buttonContainerCol" style="display: flex;">
+                    <a class="button-1" id="usarButton">Usar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*  }*@
+</div>
+
+<script>
+
+    $("#checkConsumo").on("change", function () {
+        if ($("#checkConsumo").is(':checked')) {
+            $("#consumoSigoCreditosContainer").show();
+            clearConsumoSigoCreditos();
+        } else {
+            $("#consumoSigoCreditosContainer").hide();
+            clearConsumoSigoCreditos();
+        }
+    });
+
+    $(document).ready(function () {
+        $("#montoConsumo").inputmask({
+            alias: 'numeric',
+            allowMinus: false,
+            digits: 2,
+            max: 9999.99,
+            radixPoint: ',',
+            groupSeparator: '.'
+        });
+     });
+
+</script>

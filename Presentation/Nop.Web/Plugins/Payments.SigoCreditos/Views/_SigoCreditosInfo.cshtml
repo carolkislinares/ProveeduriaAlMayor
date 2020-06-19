@@ -1,0 +1,674 @@
+﻿@{
+    Layout = "";
+}
+@model Nop.Plugin.Payments.SigoCreditos.Models.SigoCreditosInfoModel
+@using Nop.Core
+@inject IWorkContext workContext
+@{
+
+    var CustomerIdEcommerce = workContext.CurrentCustomer.Id;
+}
+<style>
+    .fieldset {
+        padding: 0 10px;
+    }
+
+        .fieldset .row {
+            padding-bottom: 5px;
+        }
+
+    #abonoCustomerDocumentInputContainer > .required,
+    #abonoCustomerDocumentLabelContainer .required {
+        right: inherit;
+    }
+
+    #abonoCustomerSearchContainer .abonoCustomerSearchContainer {
+        margin-bottom: .5rem;
+    }
+
+    #abonoCustomerSearchContainer > div {
+        padding-left: 0 !important;
+    }
+
+    .account-page .fieldset {
+        margin-bottom: 20px;
+    }
+
+    .option-list li {
+        margin: 0 0 15px 0 !important;
+        padding: 0px;
+    }
+
+    .amountpaypalview {
+        margin: 10px auto 5px;
+        text-align: center;
+    }
+
+    @@media screen and (min-width:426px) {
+        .OwnerBalance.inputs.row > label {
+            width: 40% !important;
+        }
+
+        .OwnerBalance.inputs.row .option-list {
+            width: 60% !important;
+        }
+
+        .option-list li {
+            /*            width: 45% !important;*/
+        }
+    }
+
+    @@media screen and (max-width:425px) {
+        .OwnerBalance.inputs.row {
+            flex-direction: column;
+        }
+
+            .OwnerBalance.inputs.row > label {
+                width: 100% !important;
+            }
+
+            .OwnerBalance.inputs.row .option-list {
+                width: 100% !important;
+            }
+    }
+</style>
+
+<!-- ///////////////////////////    ABONOS      ////////////////////////////////////////////////////////////////////////////////////////////// -->
+@*<form asp-route="SigoCreditosInfo" method="post">*@
+<form asp-controller="Admin/SigoCreditosInfo" asp-action="Abonar" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-success="SuccessAbono" data-ajax-failure="FailureAbono">
+    <!-- <div asp-validation-summary="ModelOnly" class="message-error"></div> -->
+    <div class="fieldset">
+        <div class="form-fields" style="text-align: left;">
+            <div class="inputs">
+
+                <div style="display:none">
+                    <input asp-for="IdTransaccion" />
+                    <span asp-validation-for="IdTransaccion"></span>
+                    <input asp-for="CustomerID" value="@CustomerIdEcommerce" />
+                </div>
+
+
+                <input asp-for="AddBalanceModel.OwnerBalance" style="display:none" />
+            </div>
+
+            <div class="OwnerBalance inputs row" style="display: flex;">
+                <label class="col-sm-12" style="text-align: center!important; font-weight: 300;color: #8c8c8c;">@T("SigoCreditos.input.OwnerBalance")</label>
+                <ul class="option-list col-sm-12" style="margin-bottom: 0;">
+
+                    <li class="col-sm-6">
+                        <div class="OwnerBalanceSpan">
+                            <div class="inputs">
+                                <input type="radio" name="OwnerBalanceGroup" value="true" checked id="OwnerBalanceTrue" />
+                                <label class="forcheckbox" for="OwnerBalanceTrue">@T("SigoCreditos.input.OwnerBalanceTrue")</label>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="col-sm-6">
+                        <div class="OwnerBalanceSpan">
+                            <div class="inputs">
+                                <input type="radio" name="OwnerBalanceGroup" value="false" id="OwnerBalanceFalse" />
+                                <label class="forcheckbox" for="OwnerBalanceFalse">@T("SigoCreditos.input.OwnerBalanceFalse")</label>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <div style="margin: 10px 0;margin-bottom: 0px;">
+                    <div class="row" id="abonoCustomerDocumentLabelContainer" style="display: none;padding-bottom: 0px !important;">
+                        <label class="col-lg-5 col-md-5" asp-for="CustomerDocumentValue" asp-postfix=":" style="font-weight: 300;color: #8c8c8c; ">@T("SigoCreditos.input.CustomerDocumentValue")</label>
+                        <input class="col-lg-7 col-md-7" asp-for="CustomerDocumentValue" readonly style="background-color: #fafafa;" />
+                        <span asp-for="CustomerDocumentValue" id="CustomerDocumentValueValidate" />
+                    </div>
+                    <div class="row" id="abonoCustomerSearchContainer" style="display: none;">
+                        <div class="col-md-12" style="padding-right: 0;">
+                            <div class="inputs row">
+                                <div class="col-lg-6 col-md-6 inputs">
+                                    <label for="TipoDocumento" style="font-weight: 300;color: #8c8c8c;">@T("SigoCreditos.input.DocumentType") </label>
+                                    <select class="validate initilized" id="TipoDocumento">
+                                        <optgroup label="Persona Natural">
+                                            <option value="1">Venezolano</option>
+                                            <option value="4">Pasaporte</option>
+                                            <option value="5">Extranjero</option>
+                                        </optgroup>
+                                        <optgroup label="Persona Jurídica">
+                                            <option value="2">Jurídico</option>
+                                            <option value="3">Gobierno</option>
+                                            <option value="6">Venezolano</option>
+                                            <option value="7">Extranjero</option>
+                                            <option value="8">Comuna</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="inputs col-lg-6 col-md-6" id="abonoCustomerDocumentInputContainer" style="margin-top: 0px">
+                                    <label asp-for="AddBalanceModel.ReceiverDocumentValue" asp-postfix=":" style="font-weight: 300;color: #8c8c8c;">@T("SigoCreditos.input.CustomerDocumentValue")</label>
+                                    <input asp-for="AddBalanceModel.ReceiverDocumentValue" onblur="validarDocumento()" />
+                                    <span asp-for="AddBalanceModel.ReceiverDocumentValue" id="AddBalanceModel_ReceiverDocumentValueValidate" />
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12" style="padding: 0; ">
+                                <div style="display: flex;" class="button-1 search-box-button">
+                                    <a class="" id="abonoCustomerSearch" style=" margin: 0 auto !important; color: white;">@T("SigoCreditos.Button.CustomerSearch")</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="ConsumerNameContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="CostumerName" asp-postfix=":">@T("SigoCreditos.input.CostumerName")</label>
+                <input class="col-lg-7 col-md-7" asp-for="CostumerName" readonly style="background-color: #fafafa;" />
+            </div>
+
+            <div class="row" id="ConsumerLastNameInputContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="CostumerLastName" asp-postfix=":">@T("SigoCreditos.input.CostumerLastName")</label>
+                <input class="col-lg-7 col-md-7" asp-for="CostumerLastName" readonly style="background-color: #fafafa;" />
+            </div>
+
+            <div class="row" id="ConsumerPhoneInputContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="CostumerPhone" asp-postfix=":">@T("SigoCreditos.input.CostumerPhone")</label>
+                <input class="col-lg-7 col-md-7" asp-for="CostumerPhone" disabled />
+            </div>
+            <div class="inputs" style="display:none">
+                <input asp-for="AddBalanceModel.CustomerSigoClubId" />
+            </div>
+            <div class="inputs" style="display:none">
+                <input asp-for="AddBalanceModel.CustomerEntityId" />
+            </div>
+            <div class="row" id="ConsumerAmountContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="AddBalanceModel.TransactionAmount" asp-postfix=":">@T("SigoCreditos.input.AddBalanceModel.TransactionAmount") </label>
+                <input class="col-lg-7 col-md-7" asp-for="AddBalanceModel.TransactionAmount" />
+                <span class="amountpaypalview" id="AddBalanceModel_TransactionAmountValidate"></span>
+            </div>
+
+        </div>
+    </div>
+    <div class="buttons" style="display:none">
+        <input type="submit" id="save-info-buttonA" value="@T("Common.Save")" name="save-info-buttonA" class="button-1 save-customer-info-button" />
+    </div>
+</form>
+
+<div id="paypal-button-container"></div>
+
+<!-- Modal clienteNoEncontrado -->
+<div class="modal fade" id="clienteNoEncontrado" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align: center;" class="modal-title" id="exampleModalLabel">@T("SigoCreditos.Modal.Warning")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 style="text-align: center;">@T("SigoCreditos.Modal.CustomerNotFound")</h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("SigoCreditos.Modal.Closed")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal errorBuscarCliente -->
+<div class="modal fade" id="errorBuscarCliente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align: center;" class="modal-title" id="exampleModalLabel">@T("SigoCreditos.Modal.Warning") </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 style="text-align: center;">@T("SigoCreditos.Modal.MessageError") </h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("SigoCreditos.Modal.Closed") </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ///////////////////////////    Seccion Boton PayPal VentasO    ////////////////////////////////////////////////////////////////////////////////////////////// -->
+<script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD"
+        data-sdk-integration-source="button-factory">
+
+</script>
+<!-- ///////////////////////////    Seccion Boton PayPal Sandox    ////////////////////////////////////////////////////////////////////////////////////////////// -->
+@*<script src="https://www.paypal.com/sdk/js?client-id=AfbVJuARzopmc5Yqw6LnuMZGsvgUbjW2Z4omie4CRjBVsJ3lXV5tcrrVA1VTPi7SplXpK2nu6poae-qp&currency=USD"
+            data-sdk-integration-source="button-factory">
+    </script>*@
+
+
+<script>
+//$(".nopAjaxCartPanelAjaxBusy").attr("style", "display:inline-block!important;");
+    //loaderShow();
+$(document).ready(function () {
+        if ($("#OwnerBalanceTrue").is(':checked')) {
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+            $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+        } else {
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+            $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+        }
+
+        if ($("#OwnerBalanceFalse").is(':checked')) {
+            $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+        } else {
+            $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+        }
+
+        $('#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)').mask('00000000');
+        $('#@Html.IdFor(model => model.AddBalanceModel.OwnerBalance)').val(1);
+        localStorage.setItem("CustomerDocumentValue",$('#@Html.IdFor(model => model.CustomerDocumentValue)').val());
+        localStorage.setItem("CostumerName",$('#@Html.IdFor(model => model.CostumerName)').val());
+        localStorage.setItem("CostumerLastName",$('#@Html.IdFor(model => model.CostumerLastName)').val());
+        localStorage.setItem("CostumerPhone",$('#@Html.IdFor(model => model.CostumerPhone)').val());
+
+          $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").inputmask({
+             alias: 'numeric',
+             allowMinus: false,
+             digits: 2,
+             max: 9999.99,
+             radixPoint: ',',
+             groupSeparator: '.'
+          });
+
+       // loaderHide();
+    });
+    $(document).on("keypress", "input", function (e) {
+    var code = e.keyCode || e.which;
+    if (code == 13) {
+        e.preventDefault();
+        return false;
+    }
+});
+    $("#OwnerBalanceTrue").on("change", function () {
+        clearAbono();
+        if ($("#OwnerBalanceTrue").is(':checked')) {
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+            $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+            $("#@Html.IdFor(model=>model.AddBalanceModel.OwnerBalance)").val(1);
+
+            $("#@Html.IdFor(model=>model.CostumerName)").val(localStorage.getItem("CostumerName"));
+            $("#@Html.IdFor(model=>model.CostumerLastName)").val(localStorage.getItem("CostumerLastName"));
+            $("#@Html.IdFor(model=>model.CostumerPhone)").val(localStorage.getItem("CostumerPhone"));
+             $("#@Html.IdFor(model=>model.CustomerDocumentValue)").val(localStorage.getItem("CustomerDocumentValue"));
+
+        } else {
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+            $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+        }
+    });
+
+    $("#OwnerBalanceFalse").on("change", function () {
+        clearAbono();
+        if ($("#OwnerBalanceFalse").is(':checked')) {
+            $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+            $("#AddBalanceModel_OwnerBalance").val(0);
+        } else {
+            $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+        }
+    });
+
+    function clearAbono() {
+       // $("#OwnerBalanceTrue").trigger("click");
+        document.getElementById("TipoDocumento").selectedIndex = "0";
+        $("#@Html.IdFor(model=>model.AddBalanceModel.ReceiverDocumentValue)").val("");
+        $("#@Html.IdFor(model=>model.CustomerDocumentValue)").val("");
+        $("#@Html.IdFor(model=>model.CostumerName)").val("");
+        $("#@Html.IdFor(model=>model.CostumerLastName)").val("");
+        $("#@Html.IdFor(model=>model.CostumerPhone)").val("");
+        $("#@Html.IdFor(model=>model.AddBalanceModel.TransactionAmount)").val("");
+        $("#@Html.IdFor(model=>model.AddBalanceModel.CustomerSigoClubId)").val("");
+        $("#AddBalanceModel_TransactionAmount").val("");
+        document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "";
+
+    }
+
+       function clearCustomer() {
+       // $("#OwnerBalanceTrue").trigger("click");
+
+        $("#@Html.IdFor(model=>model.CustomerDocumentValue)").val("");
+        $("#@Html.IdFor(model=>model.CostumerName)").val("");
+        $("#@Html.IdFor(model=>model.CostumerLastName)").val("");
+        $("#@Html.IdFor(model=>model.CostumerPhone)").val("");
+        $("#@Html.IdFor(model=>model.AddBalanceModel.TransactionAmount)").val("");
+        $("#@Html.IdFor(model=>model.AddBalanceModel.CustomerSigoClubId)").val("");
+        $("#AddBalanceModel_TransactionAmount").val("");
+        document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "";
+
+    }
+
+
+
+     $("#abonoCustomerSearch").on("click", function () {
+
+         if (validarDocumento()) {
+                var route = '@Html.Raw(Url.Action("BuscarClienteSigo", "Admin/SigoCreditosInfo", new { @tipoDocumento = "TD", @documento = "DC" }))';
+                route = route.replace("TD", $("#TipoDocumento").val());
+                route = route.replace("DC", $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val());
+               loaderShow();
+                $.ajax({
+                    type: "POST",
+                    traditional: true,
+                    async: false,
+                    cache: false,
+                    url: route,
+                    context: document.body,
+                    success: function (result) {
+                        loaderHide();
+                        console.log(result);
+                        if (result == null) {
+                            //alert("Cliente no encontrado")
+                            $('#clienteNoEncontrado').modal('show');
+                            clearCustomer();
+                        } else {
+                            $("#@Html.IdFor(model => model.CostumerName)").val(result.CostumerName);
+                            $("#@Html.IdFor(model => model.CostumerLastName)").val(result.CostumerLastName);
+                            $("#@Html.IdFor(model => model.CostumerPhone)").val(result.CostumerPhone);
+                            $("#@Html.IdFor(model => model.AddBalanceModel.CustomerSigoClubId)").val(result.SigoClubId);
+                            $("#@Html.IdFor(model => model.AddBalanceModel.CustomerEntityId)").val(result.EntityId);
+                        }
+
+                    //alert(result.);
+                    },
+                    error: function (xhr) {
+                    //debugger;
+                     console.log(xhr.responseText);
+                  //  alert("Error has occurred..");
+                        $('#errorBuscarCliente').modal('show');
+                        clearCustomer();
+                    }
+                    });
+        }
+        });
+
+        $("#TipoDocumento").on("change", function () {
+           $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").removeClass("input-validation-error");
+           $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)" + "Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = "";
+            @*switch ($("#TipoDocumento").val()) {
+                case "1": case "5": {
+                    ('#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)').mask('00000000');
+                    break;
+                } case "4": {
+                    ('#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)').mask('000000000000');
+                    break;
+                } default: {
+                    ('#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)').mask('000000000');
+                    break;
+                }
+            }*@
+
+        });
+
+        function validarDocumento() {
+
+            var numbersRif = /^[0-9]{7,9}$/;
+            var numbersCed = /^[0-9]{6,8}$/;
+            var numbersPas = /^[a-zA-Z0-9]{6,12}$/;
+            var mensaje = "";
+            var isValid;
+
+
+            switch ($("#TipoDocumento").val()) {
+                case "1": case "5": {
+                    isValid = $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().match(numbersCed);
+
+                    if (isValid == null) {
+                        if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length == 0) {
+                            mensaje = "Se requiere la Cédula.";
+                        } else {
+                            if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length < 7) {
+                                mensaje = "Mínimo 6 carácteres";
+                            } else {
+                                if ($("#@Html.IdFor(model=>model.AddBalanceModel.ReceiverDocumentValue)").val().length > 8) {
+                                    mensaje = "Máximo 8 carácteres";
+                                }
+                            }
+                        }
+                    }
+                    else
+                        mensaje = "";
+                    break;
+                }
+                case "4": {
+                    isValid = $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().match(numbersPas);
+                    if (isValid == null) {
+                        if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length == 0) {
+                            mensaje = "Se requiere el Pasaporte.";
+                        } else {
+                            if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length < 7) {
+                                mensaje = "Mínimo 6 carácteres";
+                            } else {
+                                if ($("#@Html.IdFor(model=>model.AddBalanceModel.ReceiverDocumentValue)").val().length > 12) {
+                                    mensaje = "Máximo 12 carácteres";
+                                }
+                            }
+                        }
+                    }
+                    else
+                        mensaje = "";
+                    break;
+                }
+                default: {
+                   isValid = $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().match(numbersRif);
+                    if (isValid == null) {
+                        if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length == 0) {
+                            mensaje = "Se requiere el Pasaporte.";
+                        } else {
+                           if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length < 8) {
+                                mensaje = "Mínimo 7 carácteres";
+                            } else {
+                                if ($("#@Html.IdFor(model=>model.AddBalanceModel.ReceiverDocumentValue)").val().length > 10) {
+                                    mensaje = "Máximo 9 carácteres";
+                                }
+                            }
+                        }
+                    }
+                    else
+                        mensaje = "";
+                    break;
+                }
+            }
+            if (isValid != null) {
+                $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").removeClass("input-validation-error");
+                $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)" + "Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+                document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = ""
+            } else {
+                 $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").addClass("input-validation-error");
+                 $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)"   + "Validate").removeClass("field-validation-valid").addClass("field-validation-error");
+                 document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = mensaje;
+            }
+
+
+            @*isValid = $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().match(numbersCed);
+            if ($("#TipoDocumento").val()=="1" || $("#TipoDocumento").val()=="4" || $("#TipoDocumento").val()=="5") {
+                isValid = $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().match(numbersCed);
+                isRIF = false;
+                mensaje =" la Cédula."
+            }
+            else {
+                isValid = $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().match(numbersRif);
+                mensaje = " el R.I.F.";
+                isRIF =  true;
+            }
+            if (isValid != null) {
+            $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").removeClass("input-validation-error");
+            $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)"+"Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = ""
+            }
+
+            else {
+                $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").addClass("input-validation-error");
+                $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)"   + "Validate").removeClass("field-validation-valid").addClass("field-validation-error");
+
+                if ( $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length == 0) {
+                document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = "Se requiere " + mensaje;
+                return;
+                } else {
+                    if (!isRIF) {
+                    if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length < 7) {
+                        mensaje = "Mínimo 6 carácteres";
+                        } else {
+                            if ($("#@Html.IdFor(model=>model.AddBalanceModel.ReceiverDocumentValue)").val().length > 8) {
+                            mensaje = "Máximo 8 carácteres";
+                        }
+                    }
+                    } else {
+                        if ( $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length < 9) {
+                        mensaje = "Mínimo 7 carácteres";
+                        } else {
+                        if ( $("#@Html.IdFor(model=>model.AddBalanceModel.ReceiverDocumentValue)").val().length > 10) {
+                            mensaje = "Máximo 9 carácteres";
+                        }
+                        }
+                    }
+                }
+                document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = mensaje;
+
+            }*@
+
+            if (isValid == null) {
+            return false;
+            } else {
+            return true;
+            }
+        }
+
+        function calcularcomisionpaypal() {
+            Valor = $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").val();
+
+            if (Valor.length > 0) {
+                Valor = Valor.replace(',', '.');
+               @*if (Valor.includes(',')) {
+                     $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").removeClass("input-validation-error");
+                }*@
+
+                console.log(Valor);
+                console.log(parseFloat(Valor));
+                Comision = parseFloat(parseFloat(0.3) + (parseFloat(Valor) * parseFloat(0.034)));
+                total = parseFloat((parseFloat(Valor) + parseFloat(0.3) +(parseFloat(Valor) * parseFloat(0.035))));
+               document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "@T("SigoCreditosPaypal.Comision.Message") " + Comision.toFixed(2).replace(/\D/g, "").replace(/([0-9])([0-9]{2})$/, '$1,$2').replace(/\B(?=(\d{3})+(?!\d)\,?)/g, ".") + "</br> <strong class='totalpaypalview'>@T("SigoCreditosPaypal.AmountTotal.Message") " + total.toFixed(2).replace(/\D/g, "").replace(/([0-9])([0-9]{2})$/, '$1,$2').replace(/\B(?=(\d{3})+(?!\d)\,?)/g, "."); + "</strong>";
+
+            } else {
+                document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "";
+            }
+        }
+
+    $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").on("blur", function () {
+         $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").removeClass("input-validation-error");
+    });
+
+
+
+</script>
+
+
+
+
+
+<script>
+
+    paypal.Buttons({
+       onInit: function(data, actions) {
+      // Disable the buttons
+            actions.disable();
+            document.querySelector('#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)')
+             .addEventListener('keyup', function (event) {
+                       calcularcomisionpaypal();
+                       var habilitarBoton = evaluarSubmitPaypal();
+                      // Enable or disable the button when it is checked or unchecked
+                        console.log(habilitarBoton);
+                       if (parseFloat(event.target.value) > 0 && habilitarBoton) {
+                           console.log("enable");
+                          actions.enable();
+                      } else {
+                      console.log("disable");
+                        actions.disable();
+                      }
+                    });
+            //inhabilitar();
+            loaderHide();
+                 },
+                   style: {
+                    shape: 'rect',
+                    color: 'silver',
+                    layout: 'horizontal',
+                    label: 'pay',
+
+                }, createOrder: function (data, actions) {
+
+                    Valor = $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").val();
+                        Valor = Valor.replace('.', '');
+                       total = parseFloat((parseFloat(Valor) + parseFloat(0.3) +
+                        (parseFloat(Valor) * parseFloat(0.034))));
+                       console.log(total.toFixed(2));
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount:
+                                { value: total.toFixed(2) }
+                        }]
+                    });
+                }, onApprove: function (data, actions) {
+                       return actions.order.capture().then(function (details) {
+                        if (details.status.toUpperCase() === "COMPLETED".toUpperCase()) {
+                           // alert('Transacción Exitosa ' + details.payer.name.given_name + '!');
+                            loaderShow();
+                            var g_id = details.id.toString();
+                            $("#@Html.IdFor(model => model.IdTransaccion)").val(g_id);
+                            $("#save-info-buttonA").click();
+
+                        } else {
+			                 $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Fallida")' + details.status + '!');
+                             $('#paypalTransaction').modal('show');
+
+                        }
+                    });
+                }
+                }).render('#paypal-button-container');
+
+
+
+
+
+  function evaluarSubmitPaypal(){
+         var evaluar = false;
+           if ($('#@Html.IdFor(model => model.AddBalanceModel.OwnerBalance)').val() == 1) {
+                     if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length > 0)
+                     {
+                         evaluar = true;
+                      }
+                     else
+                     {
+                          $("#@Html.IdFor(model => model.CustomerDocumentValue)").addClass("input-validation-error");
+                          $("#@Html.IdFor(model => model.CustomerDocumentValue)"   + "Validate").removeClass("field-validation-valid").addClass("field-validation-error");
+                          document.getElementById("CustomerDocumentValueValidate").innerHTML = "@T("SigoCreditosPaypal.CustomerCRM.NotFound") ";
+                         evaluar = false;
+                     }
+                 }
+                 else
+                   {
+                     evaluar = validarDocumento();
+                     if ($("#@Html.IdFor(model => model.CostumerName)").val().length == 0) {
+                         $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").addClass("input-validation-error");
+                         $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)"   + "Validate").removeClass("field-validation-valid").addClass("field-validation-error");
+                         document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = "@T("SigoCreditosPaypal.CustomerCRM.NotFound") ";
+                         evaluar = false;
+                     }
+                 }
+
+                 return evaluar;
+  }
+
+</script>

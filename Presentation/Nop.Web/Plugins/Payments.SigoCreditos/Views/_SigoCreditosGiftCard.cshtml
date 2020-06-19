@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "";
+}
+@model Nop.Plugin.Payments.SigoCreditos.Models.SigoCreditosInfoModel
+@* //////////////////////////////////////////////////// *@
+
+@*  formulario de abono *@
+<form asp-controller="Admin/SigoCreditosInfo" asp-action="AbonarGiftCard">
+
+    @*<form asp-controller="SigoCreditosInfo" asp-action="Abonar" data-ajax="true" data-ajax-method="POST" method="post">*@
+    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+
+    <div class="fieldset">
+        <div class="title">
+            <strong>@T("Account.YourPersonalDetails")</strong>
+        </div>
+        <div class="form-fields">
+
+            <div class="inputs">
+                <label asp-for="SigoCreditosGiftCardModel.DocumentType" asp-postfix=":"></label>
+                <select asp-for="SigoCreditosGiftCardModel.DocumentType" style="width:90%">
+                    <option value="0">Venezolano</option>
+                    <option value="1">Extranjero</option>
+                </select>
+                <nop-required />
+                <span asp-validation-for="SigoCreditosGiftCardModel.DocumentType"></span>
+            </div>
+            <div class="inputs">
+                <label asp-for="SigoCreditosGiftCardModel.DocumentValue" asp-postfix=":"></label>
+                <input asp-for="SigoCreditosGiftCardModel.DocumentValue" />
+                <nop-required />
+                <span asp-validation-for="SigoCreditosGiftCardModel.DocumentValue"></span>
+            </div>
+
+
+            <div class="inputs">
+                <label asp-for="SigoCreditosGiftCardModel.Amount" asp-postfix=":"></label>
+                <input asp-for="SigoCreditosGiftCardModel.Amount" />
+                <nop-required />
+                <span asp-validation-for="SigoCreditosGiftCardModel.Amount"></span>
+            </div>
+
+            <div class="inputs">
+                <label asp-for="SigoCreditosGiftCardModel.Amount" asp-postfix=":"></label>
+                <select asp-for="SigoCreditosGiftCardModel.Amount" asp-items="Model.SigoCreditosGiftCardModel.AmountStr" class="form-control"></select>
+                <nop-required />
+                <span asp-validation-for="SigoCreditosGiftCardModel.Amount"></span>
+            </div>
+        </div>
+    </div>
+    <div class="buttons">
+        <input type="submit" id="save-info-button" value="@T("Common.Save")" name="save-info-button" class="button-1 save-customer-info-button" />
+    </div>
+</form>
+
+<div id="paypal-button-containerA"></div>
+
