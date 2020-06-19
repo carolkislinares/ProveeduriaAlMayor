@@ -21,7 +21,7 @@ namespace Nop.Plugin.Payments.Manual.Components
                     new SelectListItem { Text = "Visa", Value = "visa" },
                     new SelectListItem { Text = "Master card", Value = "MasterCard" },
                     new SelectListItem { Text = "Discover", Value = "Discover" },
-                    new SelectListItem { Text = "Amex", Value = "Amex" },
+                   
                 }
             };
 
