@@ -1,18 +1,36 @@
 ﻿@model CheckoutShippingAddressModel
 @using Nop.Core.Infrastructure;
 @using Nop.Services.Directory;
+@using Nop.Services.Configuration;
+@using Nop.Services.Orders;
+@using Nop.Core;
+@inject IWorkContext workContext;
+@inject IStoreContext storeContext;
 @{
-    Layout = "_ColumnsOne";
 
+    Layout = "_ColumnsOne";
+    var EnabledProvinces = EngineContext.Current.Resolve<IStateProvinceService>().GetStateProvincesByCountryId(86).Where(x => x.Abbreviation != string.Empty).ToList();
+    var ShippingDaySettings = EngineContext.Current.Resolve<ISettingService>().GetAllSettings().Where(x => x.Name.ToLowerInvariant().Contains("norkutshippingday".ToLowerInvariant())).ToList();
     //title
     Html.AddTitleParts(T("PageTitle.Checkout").Text);
     //page class
     Html.AppendPageCssClassParts("html-checkout-page");
-    Html.AppendPageCssClassParts("html-shipping-address-page");
-    var enabledProvinces = EngineContext.Current.Resolve<IStateProvinceService>().GetStateProvincesByCountryId(86).Where(x=>!string.IsNullOrEmpty(x.Abbreviation)).ToList();
-
 }
+@{
+    var wordcont = workContext.CurrentCustomer.ShoppingCartItems.Where(sci => sci.ShoppingCartType == Nop.Core.Domain.Orders.ShoppingCartType.ShoppingCart).LimitPerStore(storeContext.CurrentStore.Id).ToList();
+    var Cantidad = wordcont.Sum(x => x.Quantity);
+    var CantidadMinima = EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("minimumQuantityOrderProduct".ToLower(), 0, storeContext.CurrentStore.Id, true);
+    int a = (int)CantidadMinima;
+}
+
+<style>
+    .address-box > li > label {
+        margin-bottom: 0px !important;
+    }
+</style>
+
 <div class="page checkout-page shipping-address-page">
+
     @await Component.InvokeAsync("CheckoutProgress", new { step = CheckoutProgressStep.Address })
     <div class="page-title">
         <h1>@T("Checkout.ShippingAddress")</h1>
@@ -21,10 +39,13 @@
         <form asp-route="CheckoutShippingAddress" method="post" onsubmit="return HabilitarCombo()">
             @if (Model.AllowPickUpInStore && !Model.PickUpInStoreOnly && Model.PickupPoints.Any())
             {
-                <div class="section pickup-in-store">
+                <div class="section pickup-in-store" style="margin-bottom: 10px">
                     <div class="selector">
                         <input asp-for="PickUpInStore" />
                         <label asp-for="PickUpInStore">@T("Checkout.PickupPoints")</label>
+                    </div>
+                    <div>
+
                     </div>
                     <div class="description">
                         @T("Checkout.PickupPoints.Description")
@@ -216,179 +237,218 @@
                 </div>
             }
 
+            @* Validacion para determinar si se muestra la opcion de PickUp *@
+
             @if (!Model.PickUpInStoreOnly)
             {
+               
                 <div class="shipping-addresses" id="shipping-addresses-form">
-                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutShippingAddressTop })
-                    <div class="section select-shipping-address">
-                        <div class="title">
-                            <strong>@T("Checkout.SelectShippingAddress")</strong>
-                        </div>
-                        <div class="address-grid">
-                            @foreach (var item in Model.ExistingAddresses)
-                            {
-                                <div class="address-item">
-                                    <ul class="address-box">
-                                        <li class="name">
-                                            @item.FirstName @item.LastName
-                                        </li>
-                                        <li class="email">
-                                            <label>@T("Address.Fields.Email"):</label>
-                                            <span>@item.Email</span>
-                                        </li>
-                                        @if (item.PhoneEnabled)
+                    @if (Cantidad >= CantidadMinima)
+                    {
+                        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutShippingAddressTop })
+                        <div class="section select-shipping-address">
+                            <div class="title">
+                                <strong>@T("Checkout.SelectShippingAddress")</strong>
+                            </div>
+
+                            <div class="title">
+                                @{
+                                    @if (ShippingDaySettings != null && ShippingDaySettings.Count > 0)
+                                    {
+
+                                        List<SelectListItem> DaysList = new List<SelectListItem>();
+                                        @foreach (var SP in ShippingDaySettings)
                                         {
-                                            <li class="phone">
-                                                <label>@T("Address.Fields.PhoneNumber"):</label>
-                                                <span>@item.PhoneNumber</span>
-                                            </li>
+                                            string[] words = SP.Value.Split(',');
+                                            DaysList.Add(new SelectListItem
+                                            {
+                                                Text = words[0].ToString(),
+                                                Value = words[1].ToString()
+                                            });
                                         }
-                                        @if (item.FaxEnabled)
-                                        {
-                                            <li class="fax">
-                                                <label>@T("Address.Fields.FaxNumber"):</label>
-                                                <span>@item.FaxNumber</span>
+                                        <select id="CbShp" asp-for="NorkutShippingDay" asp-items="@(new SelectList(DaysList.OrderBy(x=>x.Value), "Value", "Text"))" class="selectpicker" data-live-search="true"></select>
+                                    }
+
+                                }
+                            </div>
+
+                            <div class="address-grid">
+                                @foreach (var item in Model.ExistingAddresses)
+                                {
+                                    <div class="address-item">
+                                        <ul class="address-box">
+                                            <li class="name">
+                                                @item.FirstName @item.LastName
                                             </li>
-                                        }
-                                        @if (item.CompanyEnabled && !string.IsNullOrEmpty(item.Company))
-                                        {
-                                            <li class="company">
-                                                @item.Company
+                                            <li class="email">
+                                                <label>@T("Address.Fields.Email"):</label>
+                                                <span>@item.Email</span>
                                             </li>
-                                        }
-                                        @if (item.StreetAddressEnabled)
-                                        {
-                                            <li class="address1">
-                                                @item.Address1
-                                            </li>
-                                        }
-                                        @if (item.StreetAddress2Enabled && !string.IsNullOrEmpty(item.Address2))
-                                        {
-                                            <li class="address2">
-                                                @item.Address2
-                                            </li>
-                                        }
-                                        @if (item.CityEnabled && !string.IsNullOrEmpty(item.City) ||
-                                        item.CountyEnabled && !string.IsNullOrEmpty(item.County) ||
-                                        item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName) ||
-                                        item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
-                                        {
-                                            <li class="city-state-zip">
-                                                @if (item.CityEnabled && !string.IsNullOrEmpty(item.City))
-                                                {
-                                                    @item.City
-                                                    @if (item.CountyEnabled && !string.IsNullOrEmpty(item.County) ||
-                                                    item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName) ||
-                                                    item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
+                                            @if (item.PhoneEnabled)
+                                            {
+                                                <li class="phone">
+                                                    <label>@T("Address.Fields.PhoneNumber"):</label>
+                                                    <span>@item.PhoneNumber</span>
+                                                </li>
+                                            }
+                                            @if (item.FaxEnabled)
+                                            {
+                                                <li class="fax">
+                                                    <label>@T("Address.Fields.FaxNumber"):</label>
+                                                    <span>@item.FaxNumber</span>
+                                                </li>
+                                            }
+                                            @if (item.CompanyEnabled && !string.IsNullOrEmpty(item.Company))
+                                            {
+                                                <li class="company">
+                                                    @item.Company
+                                                </li>
+                                            }
+                                            @if (item.StreetAddressEnabled)
+                                            {
+                                                <li class="address1">
+                                                    @item.Address1
+                                                </li>
+                                            }
+                                            @if (item.StreetAddress2Enabled && !string.IsNullOrEmpty(item.Address2))
+                                            {
+                                                <li class="address2">
+                                                    @item.Address2
+                                                </li>
+                                            }
+                                            @if (item.CityEnabled && !string.IsNullOrEmpty(item.City) ||
+        item.CountyEnabled && !string.IsNullOrEmpty(item.County) ||
+        item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName) ||
+        item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
+                                            {
+                                                <li class="city-state-zip">
+                                                    @if (item.CityEnabled && !string.IsNullOrEmpty(item.City))
                                                     {
-                                                        <text>,</text>
+                                                        @item.City
+                                                        @if (item.CountyEnabled && !string.IsNullOrEmpty(item.County) ||
+        item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName) ||
+        item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
+                                                        {
+                                                            <text>,</text>
+                                                        }
                                                     }
-                                                }
-                                                @if (item.CountyEnabled && !string.IsNullOrEmpty(item.County))
-                                                {
-                                                    @item.County
-                                                    @if (item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName) ||
-                                                    item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
+                                                    @if (item.CountyEnabled && !string.IsNullOrEmpty(item.County))
                                                     {
-                                                        <text>,</text>
+                                                        @item.County
+                                                        @if (item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName) ||
+        item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
+                                                        {
+                                                            <text>,</text>
+                                                        }
                                                     }
-                                                }
-                                                @if (item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName))
-                                                {
-                                                    @item.StateProvinceName
+                                                    @if (item.StateProvinceEnabled && !string.IsNullOrEmpty(item.StateProvinceName))
+                                                    {
+                                                        @item.StateProvinceName
+                                                        @if (item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
+                                                        {
+                                                            <text>,</text>
+                                                        }
+                                                    }
                                                     @if (item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
                                                     {
-                                                        <text>,</text>
+                                                        @item.ZipPostalCode
                                                     }
-                                                }
-                                                @if (item.ZipPostalCodeEnabled && !string.IsNullOrEmpty(item.ZipPostalCode))
-                                                {
-                                                    @item.ZipPostalCode
-                                                }
-                                            </li>
-                                        }
-                                        @if (item.CountryEnabled && !string.IsNullOrEmpty(item.CountryName))
+                                                </li>
+                                            }
+                                            @if (item.CountryEnabled && !string.IsNullOrEmpty(item.CountryName))
+                                            {
+                                                <li class="country">
+                                                    @item.CountryName
+                                                </li>
+                                            }
+                                            @if (!string.IsNullOrEmpty(item.FormattedCustomAddressAttributes))
+                                            {
+                                                <li class="custom-attributes-view">
+                                                    @Html.Raw(item.FormattedCustomAddressAttributes)
+                                                </li>
+                                            }
+                                        </ul>
+                                        @*@{
+                                        List<SelectListItem> DaysList = new List<SelectListItem>();
+                                        @foreach (var SP in ShippingDaySettings)
                                         {
-                                            <li class="country">
-                                                @item.CountryName
-                                            </li>
+                                            string[] words = SP.Value.Split(',');
+                                            DaysList.Add(new SelectListItem
+                                            {
+                                                Text = words[0].ToString(),
+                                                Value = words[1].ToString()
+                                            });
                                         }
-                                        @if (!string.IsNullOrEmpty(item.FormattedCustomAddressAttributes))
-                                        {
-                                            <li class="custom-attributes-view">
-                                                @Html.Raw(item.FormattedCustomAddressAttributes)
-                                            </li>
-                                        }
-                                    </ul>
+                                        <select id="CbShp"  asp-items="@(new SelectList(DaysList, "Value", "Text"))" class="selectpicker" data-live-search="true"></select>
 
-                                    @if (!string.IsNullOrEmpty(item.StateProvinceName) &&
-                                      (enabledProvinces.Exists(x=> x.Id==item.StateProvinceId)))
-                                    {
+                                    }*@
                                         <div class="select-button">
-                                            <input type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="setLocation('@Url.RouteUrl("CheckoutSelectShippingAddress", new {addressid = item.Id})') " />
+                                            @*<input id="btnShp" type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="setLocation('@Url.RouteUrl("CheckoutSelectShippingAddress", new { addressid = item.Id ,NorkutShippingDay = "0" })') " />*@
+
+                                            <input id="btnShp" type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="ObtenerIdDireccion(@item.Id) " />
+
                                         </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="title">
-                                            <strong>@T("Checkout.ShippingAddressInvalid")</strong>
+                                    </div>
+                                }
+
+                                <div class="add-button">
+                                    <div class="btn-holder">
+                                        <label class="button-1 open-address-form"><span>@T("Common.AddNew")</span></label>
+                                        <label class="button-2 close-address-form"><span>@T("SevenSpikes.Themes.Emporium.Common.Close")</span></label>
+                                    </div>
+                                    <div class="enter-address">
+                                        <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                                        @{
+                                            var dataDictAddress = new ViewDataDictionary(ViewData);
+                                            dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
+                                            @await Html.PartialAsync("_CreateOrUpdateAddress", Model.ShippingNewAddress, dataDictAddress)
+                                        }
+                                        <div class="buttons">
+                                            <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" />
                                         </div>
-
-                                    }
-                                    @*<div class="select-button">
-                                            <input type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="setLocation('@Url.RouteUrl("CheckoutSelectShippingAddress", new {addressid = item.Id})') " />
-                                        </div>*@
-                                </div>
-                            }
-
-                            <div class="add-button">
-                                <div class="btn-holder">
-                                    <label class="button-1 open-address-form"><span>@T("Common.AddNew")</span></label>
-                                    <label class="button-2 close-address-form"><span>@T("SevenSpikes.Themes.Emporium.Common.Close")</span></label>
-                                </div>
-                                <div class="enter-address">
-                                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
-                                    @{
-                                        var dataDictAddress = new ViewDataDictionary(ViewData);
-                                        dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
-                                        @await Html.PartialAsync("_CreateOrUpdateAddress", Model.ShippingNewAddress, dataDictAddress)
-                                    }
-                                    <div class="buttons">
-
-                                        <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" />
                                     </div>
                                 </div>
-                            </div>
 
+                            </div>
                         </div>
-                    </div>
-                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutShippingAddressMiddle })
-                    @*<div class="section new-shipping-address">
-                            <div class="title">
-                                @if (Model.ExistingAddresses.Count > 0)
-                                {
-                                    <strong>@T("Checkout.OrEnterNewAddress")</strong>
-                                }
-                                else
-                                {
-                                    <strong>@T("Checkout.EnterShippingAddress")</strong>
-                                }
-                            </div>
-                            <div class="enter-address">
-                                <div asp-validation-summary="ModelOnly" class="message-error"></div>
-                                @{
-                                    var dataDictAddress = new ViewDataDictionary(ViewData);
-                                    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
-                                    @await Html.PartialAsync("_CreateOrUpdateAddress", Model.ShippingNewAddress, dataDictAddress)
-                                }
-                            </div>
-                        </div>*@
-                    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutShippingAddressBottom })
+                        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutShippingAddressMiddle })
+                        @*<div class="section new-shipping-address">
+                        <div class="title">
+                            @if (Model.ExistingAddresses.Count > 0)
+                            {
+                                <strong>@T("Checkout.OrEnterNewAddress")</strong>
+                            }
+                            else
+                            {
+                                <strong>@T("Checkout.EnterShippingAddress")</strong>
+                            }
+                        </div>
+                        <div class="enter-address">
+                            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                            @{
+                                var dataDictAddress = new ViewDataDictionary(ViewData);
+                                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
+                                @await Html.PartialAsync("_CreateOrUpdateAddress", Model.ShippingNewAddress, dataDictAddress)
+                            }
+                        </div>
+                    </div>*@
+                        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutShippingAddressBottom })
+
+                    }
+                    else
+                    {
+                        <div style="display: flex;">
+                            <div class="minimumrequiredMG" style="margin:20px auto;">@T("shoppingcart.minimumquantity") @CantidadMinima</div>
+                        </div>
+                    }
                 </div>
+             
             }
+
+
             @*<div class="buttons">
-                    <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" />
-                </div>*@
+            <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" />
+        </div>*@
 
         </form>
         <div class="section order-summary">
@@ -399,4 +459,28 @@
         </div>
     </div>
 </div>
+
+<script>
+
+    var CodigoEnvio;
+    $(document).on('change', '#CbShp', function () {
+        var an = $('#CbShp').val();
+        CodigoEnvio = an;
+    });
+
+    function ObtenerIdDireccion(Id)
+    {
+         var adrresId = Id;
+        var an = $('#CbShp').val() == null ? "0" : $('#CbShp').val();
+        var route = '@Url.RouteUrl("CheckoutSelectShippingAddresss", new { addressid = "Adr"  , NorkutShippingDay = "SP"  })';
+        route = route.replace("Adr", adrresId);
+        route = route.replace("SP", an);
+        setLocation(route);
+
+    }
+
+
+</script>
+
+
 

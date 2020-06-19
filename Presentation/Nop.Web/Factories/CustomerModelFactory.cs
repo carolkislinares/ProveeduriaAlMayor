@@ -651,6 +651,18 @@ namespace Nop.Web.Factories
                 ItemClass = "customer-addresses"
             });
 
+            ////////////////////////////////////////////
+            //if () {
+            model.CustomerNavigationItems.Add(new CustomerNavigationItemModel
+            {
+                RouteName = "CustomerSigoCreditos",
+                Title = _localizationService.GetResource("Account.SigoCreditos"),
+                ////el nombre lo carga de un registro ya existente en la tabla [dbo].[LocaleStringResource]
+                Tab = CustomerNavigationEnum.SigoCreditos,
+                ItemClass = "sigo-creditos"
+            });
+            //}
+            ////////////////////////////////////////////
             model.CustomerNavigationItems.Add(new CustomerNavigationItemModel
             {
                 RouteName = "CustomerOrders",
@@ -775,6 +787,8 @@ namespace Nop.Web.Factories
                     ItemClass = "customer-check-gift-card-balance"
                 });
             }
+
+
 
             model.SelectedTab = (CustomerNavigationEnum)selectedTabId;
 

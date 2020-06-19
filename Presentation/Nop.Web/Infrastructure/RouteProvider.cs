@@ -174,6 +174,11 @@ namespace Nop.Web.Infrastructure
             routeBuilder.MapLocalizedRoute("CheckoutSelectShippingAddress", "checkout/selectshippingaddress",
 				new { controller = "Checkout", action = "SelectShippingAddress" });
 
+            routeBuilder.MapLocalizedRoute("CheckoutSelectShippingAddresss", "checkout/selectshippingaddresss/{addressId}/{NorkutShippingDay}",
+               new { controller = "Checkout", action = "SelectShippingAddresss" });
+
+
+
             routeBuilder.MapLocalizedRoute("CheckoutBillingAddress", "checkout/billingaddress",
 				new { controller = "Checkout", action = "BillingAddress" });
 
@@ -194,6 +199,11 @@ namespace Nop.Web.Infrastructure
 
             routeBuilder.MapLocalizedRoute("CheckoutCompleted", "checkout/completed/{orderId:regex(\\d*)}",
 				new { controller = "Checkout", action = "Completed" });
+
+
+
+           
+
 
             //subscribe newsletters
             routeBuilder.MapLocalizedRoute("SubscribeNewsletter", "subscribenewsletter",
@@ -261,6 +271,11 @@ namespace Nop.Web.Infrastructure
 
             routeBuilder.MapLocalizedRoute("CustomerRewardPoints", "rewardpoints/history",
 				new { controller = "Order", action = "CustomerRewardPoints" });
+
+            ///////////////////////////////////////////////////////////////////
+            routeBuilder.MapLocalizedRoute("CustomerSigoCreditos", "sigocreditos",
+                new { controller = "Order", action = "CustomerSigoCreditos" });
+            ///////////////////////////////////////////////////////////////////
 
             routeBuilder.MapLocalizedRoute("CustomerRewardPointsPaged", "rewardpoints/history/page/{pageNumber:min(0)}",
 				new { controller = "Order", action = "CustomerRewardPoints" });

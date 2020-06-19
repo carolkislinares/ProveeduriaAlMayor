@@ -27,6 +27,7 @@
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
     <script type="text/javascript" asp-location="Footer">
+       
         $(document).ready(function () {
             $("#@Html.IdFor(model => model.CountryId)").on('change', function () {
                 var selectedItem = $(this).val();
@@ -82,15 +83,15 @@
                     }
                     <div class="inputs">
                         <label asp-for="FirstName" asp-postfix=":"></label>
-                        <input asp-for="FirstName"  onblur="alphanumeric(this,'El')"  />
+                        <input asp-for="FirstName" onblur="alphanumeric(this,'El')" />
                         <nop-required />
                         <span asp-validation-for="FirstName" id="FirstNameValidate"></span>
                     </div>
                     <div class="inputs">
                         <label asp-for="LastName" asp-postfix=":"></label>
-                        <input asp-for="LastName" onblur="alphanumeric(this,'El')"  />
+                        <input asp-for="LastName" onblur="alphanumeric(this,'El')" />
                         <nop-required />
-                        <span asp-validation-for="LastName"  id="LastNameValidate"></span>
+                        <span asp-validation-for="LastName" id="LastNameValidate"></span>
                     </div>
                     @if (Model.DateOfBirthEnabled)
                     {
@@ -188,11 +189,11 @@
                 </div>
             }
             @if (Model.StreetAddressEnabled ||
-                  Model.StreetAddress2Enabled ||
-                  Model.ZipPostalCodeEnabled ||
-                  Model.CityEnabled ||
-                  Model.CountyEnabled ||
-                  Model.CountryEnabled)
+                 Model.StreetAddress2Enabled ||
+                 Model.ZipPostalCodeEnabled ||
+                 Model.CityEnabled ||
+                 Model.CountyEnabled ||
+                 Model.CountryEnabled)
             {
                 <div class="fieldset">
                     <div class="title">
@@ -203,7 +204,7 @@
                         {
                             <div class="inputs">
                                 <label asp-for="StreetAddress" asp-postfix=":"></label>
-                                <input asp-for="StreetAddress" onblur="alphanumericAddress(this, 'La')"  />
+                                <input asp-for="StreetAddress" onblur="alphanumericAddress(this, 'La')" />
                                 @if (Model.StreetAddressRequired)
                                 {
                                     <nop-required />
@@ -215,12 +216,12 @@
                         {
                             <div class="inputs">
                                 <label asp-for="StreetAddress2" asp-postfix=":"></label>
-                                <input asp-for="StreetAddress2"  onblur="alphanumericAddress(this, 'La')"/>
+                                <input asp-for="StreetAddress2" onblur="alphanumericAddress(this, 'La')" />
                                 @if (Model.StreetAddress2Required)
                                 {
                                     <nop-required />
                                 }
-                                <span asp-validation-for="StreetAddress2"  id="StreetAddress2Validate"></span>
+                                <span asp-validation-for="StreetAddress2" id="StreetAddress2Validate"></span>
                             </div>
                         }
                         @if (Model.ZipPostalCodeEnabled)
@@ -239,12 +240,12 @@
                         {
                             <div class="inputs">
                                 <label asp-for="City" asp-postfix=":"></label>
-                                <input asp-for="City"  onblur="alphanumeric(this, 'La')" />
+                                <input asp-for="City" onblur="alphanumeric(this, 'La')" />
                                 @if (Model.CityRequired)
                                 {
                                     <nop-required />
                                 }
-                                <span asp-validation-for="City"  id="CityValidate"></span>
+                                <span asp-validation-for="City" id="CityValidate"></span>
                             </div>
                         }
                         @if (Model.CountyEnabled)
@@ -338,7 +339,7 @@
                         }
                         @if (Model.CustomerAttributes.Count > 0)
                         {
-                            @await Html.PartialAsync("_CustomerAttributes", Model.CustomerAttributes)
+                            @await Html.PartialAsync("_CustomerAttributesInfo", Model.CustomerAttributes)
                         }
                     </div>
                 </div>
@@ -504,75 +505,86 @@
 
 <script src="~/js/jquery.mask.min.js"></script>
 <script type="text/javascript">
-        $(document).ready(function () {
-            document.getElementById('customer_attribute_1').style.textTransform = "uppercase";
-            $('#customer_attribute_8_1').click();  
-        });
-
-        for (var i = 2; i < 6; i++) {
-                $(document.getElementsByClassName('custom-attributes')[i]).hide();
+    $(document).ready(function () {
+        document.getElementById('customer_attribute_1').style.textTransform = "uppercase";
+         document.getElementById('customer_attribute_1').style.textTransform = "uppercase";
+    });
+    if (document.getElementById('customer_attribute_8_2').checked) {
+        for (var i = 2; i < 7; i++) {
+            $(document.getElementsByClassName('custom-attributes')[i]).show();
         }
-       $('#Phone').mask('(0000)000-0000');
 
-        $('#customer_attribute_8_1').click(function () {
-            for (var i = 2; i < 7; i++) {
-                $(document.getElementsByClassName('custom-attributes')[i]).hide();
-            }
-            document.getElementById('customer_attribute_1_1').innerHTML = "Cédula";
+        document.getElementById('customer_attribute_1_1').innerHTML = "R.I.F."
+    }
+    else {
 
-            //Limpia los input
-            $("#customer_attribute_5").removeClass("input-validation-error");
-            $("#customer_attribute_6").removeClass("input-validation-error");
-            $("#customer_attribute_5Validate").removeClass("field-validation-error").addClass("field-validation-valid");
-            document.getElementById("customer_attribute_5Validate").innerHTML = ""
-            $("#customer_attribute_6Validate").removeClass("field-validation-error").addClass("field-validation-valid");
-            document.getElementById("customer_attribute_6Validate").innerHTML = ""
-            $("#customer_attribute_1").removeClass("input-validation-error");
-            $("#customer_attribute_1Validate").removeClass("field-validation-error").addClass("field-validation-valid");
-            document.getElementById("customer_attribute_1Validate").innerHTML = ""
+        for (var i = 2; i < 7; i++) {
+            $(document.getElementsByClassName('custom-attributes')[i]).hide();
+        }
+        document.getElementById('customer_attribute_1_1').innerHTML = "Cédula";
+    }
 
-            $("#customer_attribute_1").focus();
-        })
-        $('#customer_attribute_8_2').click(function () {
-            for (var i = 2; i < 7; i++) {
-                $(document.getElementsByClassName('custom-attributes')[i]).show();
-            }
+    $('#Phone').mask('(0000)000-0000');
 
-            document.getElementById('customer_attribute_1_1').innerHTML = "R.I.F."
-            $("#customer_attribute_1").removeClass("input-validation-error");
-            $("#customer_attribute_1Validate").removeClass("field-validation-error").addClass("field-validation-valid");
-            document.getElementById("customer_attribute_1Validate").innerHTML = ""
+    $('#customer_attribute_8_1').click(function () {
+        for (var i = 2; i < 7; i++) {
+            $(document.getElementsByClassName('custom-attributes')[i]).hide();
+        }
+        document.getElementById('customer_attribute_1_1').innerHTML = "Cédula";
 
-            $("#customer_attribute_1").focus();
+        //Limpia los input
+        $("#customer_attribute_5").removeClass("input-validation-error");
+        $("#customer_attribute_6").removeClass("input-validation-error");
+        $("#customer_attribute_5Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+        document.getElementById("customer_attribute_5Validate").innerHTML = ""
+        $("#customer_attribute_6Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+        document.getElementById("customer_attribute_6Validate").innerHTML = ""
+        $("#customer_attribute_1").removeClass("input-validation-error");
+        $("#customer_attribute_1Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+        document.getElementById("customer_attribute_1Validate").innerHTML = ""
 
-        })
+        $("#customer_attribute_1").focus();
+    })
+    $('#customer_attribute_8_2').click(function () {
+        for (var i = 2; i < 7; i++) {
+            $(document.getElementsByClassName('custom-attributes')[i]).show();
+        }
+
+        document.getElementById('customer_attribute_1_1').innerHTML = "R.I.F."
+        $("#customer_attribute_1").removeClass("input-validation-error");
+        $("#customer_attribute_1Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+        document.getElementById("customer_attribute_1Validate").innerHTML = ""
+
+        $("#customer_attribute_1").focus();
+
+    })
 
 </script>
 
 
 <script type="text/javascript">
-      function numberPhone() {
-            var regexp = /^((\(\d{4}\)?)|(\d{3}-))?\d{3}-\d{4}$/;
-            var inputtxt = document.getElementById('Phone').value;
-            if (regexp.test(inputtxt)) {
-                $("#Phone").removeClass("input-validation-error");
-                $("#PhoneValidate").removeClass("field - validation - error").addClass("field - validation - valid");
-                document.getElementById("Phone").innerHTML = "";
-            }
-            else {
-                $("#Phone").addClass("input-validation-error");
-                $("#PhoneValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+    function numberPhone() {
+        var regexp = /^((\(\d{4}\)?)|(\d{3}-))?\d{3}-\d{4}$/;
+        var inputtxt = document.getElementById('Phone').value;
+        if (regexp.test(inputtxt)) {
+            $("#Phone").removeClass("input-validation-error");
+            $("#PhoneValidate").removeClass("field - validation - error").addClass("field - validation - valid");
+            document.getElementById("Phone").innerHTML = "";
+        }
+        else {
+            $("#Phone").addClass("input-validation-error");
+            $("#PhoneValidate").removeClass("field-validation-valid").addClass("field-validation-error");
 
-                if (document.getElementById("Phone").value.length > 0 && document.getElementById("Phone").value.length != 14) {
-                    document.getElementById("PhoneValidate").innerHTML = "El Teléfono es inválido.";
-                } else {
-                    if (document.getElementById("Phone").value.length == 0)
-                        document.getElementById("PhoneValidate").innerHTML = "Se requiere el Teléfono.";
-                }
+            if (document.getElementById("Phone").value.length > 0 && document.getElementById("Phone").value.length != 14) {
+                document.getElementById("PhoneValidate").innerHTML = "El Teléfono es inválido.";
+            } else {
+                if (document.getElementById("Phone").value.length == 0)
+                    document.getElementById("PhoneValidate").innerHTML = "Se requiere el Teléfono.";
             }
+        }
     }
 
-      function alphanumeric(input, articulo) {
+    function alphanumeric(input, articulo) {
         var letters = /^([\s.]?[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+)+$/;
         if (input.value.match(letters)) {
             $("#" + input.id).removeClass("input-validation-error");
@@ -602,7 +614,7 @@
         }
     }
 
-      function alphanumericAddress(input, articulo) {
+    function alphanumericAddress(input, articulo) {
         var letters = /^([\s.]?[a-zA-ZñÑáéíóúÁÉÍÓÚ0-9\d\#%&*'",.()-_/\s]+)+$/;
         if (input.value.match(letters)) {
             $("#" + input.id).removeClass("input-validation-error");
@@ -632,7 +644,7 @@
         }
     }
 
-      function alphanumericCompany(input) {
+    function alphanumericCompany(input) {
         var letters = /^([\s.]?[a-zA-Z0-9\d\.\s]+)+$/;
         var numbers = /^[0-9]{6,8}$/;
         var numbersRif = /^[VJGC]{1}[0-9]{7,9}$/;
@@ -644,11 +656,11 @@
         var mensaje;
         switch (input.id) {
             case 'customer_attribute_1': {
-                   if (document.getElementById('customer_attribute_8_2').checked) {
-                      isValid = input.value.toUpperCase().match(numbersRif);
-                   }
-                   else {
-                      isValid = input.value.toUpperCase().match(numbersCed);
+                if (document.getElementById('customer_attribute_8_2').checked) {
+                    isValid = input.value.toUpperCase().match(numbersRif);
+                }
+                else {
+                    isValid = input.value.toUpperCase().match(numbersCed);
                 }
 
                 if (isValid == null) {
@@ -735,20 +747,23 @@
                 }
             }
         }
-        }
+    }
 
-      function checkForm(form) {
+    function checkForm(form) {
         searchinputcOMPANY();
+        document.getElementById("customer_attribute_8_1").removeAttribute("disabled"); 
+        document.getElementById("customer_attribute_8_2").removeAttribute("disabled"); 
+
         var testElements = document.getElementsByClassName('input-validation-error');
         if (testElements.length > 0) {
             return false;
         }
         return true;
-        }
+    }
 
 
     function searchinputcOMPANY() {
-    
+
         if (document.getElementById('customer_attribute_8_2').checked) {
             var element5 = document.getElementById("customer_attribute_5").value;
             if (element5.length == 0) {
@@ -763,7 +778,11 @@
                 $("#customer_attribute_6Validate").removeClass("field-validation-valid").addClass("field-validation-error");
                 document.getElementById("customer_attribute_6Validate").innerHTML = "La Razón comercial es requerida"
             }
+        } else {
+            document.getElementById("customer_attribute_3").value="";
+            document.getElementById("customer_attribute_4").value="";
+            document.getElementById("customer_attribute_5").value="";
+            document.getElementById("customer_attribute_6").value="";
         }
     }
 </script>
- 

@@ -11,7 +11,7 @@
 }
 
 @if (ViewBag.RefreshPage == true)
-{   
+{
     <script>
         try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
         catch (e){}
@@ -36,15 +36,15 @@
 
                     </div>
                     @*<div class="form-group">
-                        <div class="col-sm-3">
-                            <label asp-for="BancoEmisorId">@T("Plugins.Payments.Transfer.Fields.IssuingBank")</label>
-                        </div>
-                        <div class="col-sm-6">
-                            <nop-select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" />
-                            <span asp-validation-for="BancoEmisorId"></span>
-                        </div>
+                            <div class="col-sm-3">
+                                <label asp-for="BancoEmisorId">@T("Plugins.Payments.Transfer.Fields.IssuingBank")</label>
+                            </div>
+                            <div class="col-sm-6">
+                                <nop-select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" />
+                                <span asp-validation-for="BancoEmisorId"></span>
+                            </div>
 
-                    </div>*@
+                        </div>*@
 
                 </div>
                 <div class="col-md-6">
@@ -82,7 +82,23 @@
     </div>
 
     <div class="panel panel-default panel-popup">
-        <div id="transfer-grid"></div>
+        @* <div id="transfer-grid"></div>*@
+
+        <div id="grid"></div>
+        <script>
+            $("#grid").kendoGrid({
+                columns: [
+                    { sortable: false, field: "OrderId" },
+                    { field: "ReceiverBankName" }
+                ],
+                sortable: true,
+                dataSource: [
+                    { OrderId: 1, ReceiverBankName: "A" },
+                    { OrderId: 2, ReceiverBankName: "B" }
+                ]
+            });
+        </script>
+
         <div class="panel-footer">
             <input type="submit" id="btnRefreshTransfer" class="btn btn-default" style="display: none" />
         </div>
@@ -111,12 +127,52 @@
             });
         </script>
         @*<script src="https://kendo.cdn.telerik.com/2020.1.406/js/jszip.min.js"></script>
-        <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.js"></script>
-        <script src="https://kendo.cdn.telerik.com/2020.1.406/js/kendo.all.min.js"></script>*@
+            <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.js"></script>
+            <script src="https://kendo.cdn.telerik.com/2020.1.406/js/kendo.all.min.js"></script>*@
         <script type="text/javascript">
+
+              var result;
+
             $(document).ready(function () {
-                $("#transfer-grid").kendoGrid({
+
+
+
+
+    $.ajax({
+        type: "POST",
+
+                     url: "@Html.Raw(Url.Action("Search", "PaymentTransfer"))",
+                     contentType: "application/json; charset=utf-8",
+                      dataType: "json",
+                       data:   { data:  JSON.stringify(function() {
+                                   var data = {
+                                               BancoEmisorId: $('#@Html.IdFor(model => model.BancoEmisorId)').val(),
+                                               BancoReceptorId: $('#@Html.IdFor(model => model.BancoReceptorId)').val(),
+                                               ID:0,
+                                               referencia: $('#@Html.IdFor(model => model.referencia)').val(),
+                                               orden: $('#@Html.IdFor(model => model.orden)').val(),
+                                               PaymentStatus: 0,
+                                             };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                  })},
+
+
+        success: function(response) {
+            result = response;
+             console.log("result: "+result);
+        },
+        error: function (e) {
+               console.log(e);
+            },
+
+    });
+
+
+
+
+                @*$("#transfer-grid").kendoGrid({
                             dataSource: {
                                 type: "json",
                                 transport: {
@@ -142,7 +198,7 @@
                                         @*url: "@Html.Raw(Url.Action("Delete", "Bank"))",
                                         type: "POST",
                                         dataType: "json",
-                                        data: addAntiForgeryToken*@
+                                        data: addAntiForgeryToken
                                     },
                                     sort: {
                                         field: "orden",
@@ -214,7 +270,7 @@
                                 attributes: { style: "text-align:center" },
                                 template:"# if(PaymentStatusOrder==10) {#<a href=@Url.Action("UpdateStatePaymentTransfer", "PaymentTransfer")?orderid=#:OrderId# name='markorderaspaid#:OrderId#' id='markorderaspaid#:OrderId#' class='btn btn-primary'>@T("Admin.Orders.Fields.MarkAsPaid")</a> #} else {# <span class='grid-report-item green'>Consolidado</span> #}# "
                              }]
-                        });
+                        });*@
                     });
         </script>
 

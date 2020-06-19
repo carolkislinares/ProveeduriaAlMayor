@@ -94,7 +94,7 @@
                 $("#@(clientId + "value") input").val(responseJSON.pictureId);
                 $("#@(clientId + "remove")").show();
             }
-        });
+        }).on("error", function (responseJSON) { console.log(responseJSON) });
         $("#@(clientId + "remove")").click(function(e) {
             $("#@(clientId + "image")").html("<img src='@pictureService.GetDefaultPictureUrl(pictureSize)'/>");
             $("#@(clientId + "value") input").val(0);

@@ -58,14 +58,14 @@
                 @if (attribute.IsRequired)
                 {
                     <label id="@(controlId)_@(attribute.Id)">@attribute.Name</label>
-                    <input name="@(controlId)" asp-for="@(controlId)" type="text" data-val-required="Se requiere el @textPrompt" class="textbox" id="@(controlId)" onblur="alphanumericCompany(this)" value="@attribute.DefaultValue" />
+                    <input name="@(controlId)" asp-for="@(controlId)" type="text" data-val-required="Se requiere el @textPrompt" class="textbox" id="@(controlId)" onblur="alphanumericCompany(this)" value="@attribute.DefaultValue"  />
 
                     <nop-required />
                 }
                 else
                 {
                     <label id="@(controlId)_@(attribute.Id)">@attribute.Name</label>
-                    <input name="@(controlId)" asp-for="@(controlId)" type="text" class="textbox" id="@(controlId)" onblur="alphanumericCompany(this)" value="@attribute.DefaultValue" />
+                    <input name="@(controlId)" asp-for="@(controlId)" type="text" class="textbox" id="@(controlId)" onblur="alphanumericCompany(this)" value="@attribute.DefaultValue"/>
                 }
                 <span asp-validation-for="@(controlId)" id="@(controlId)Validate"></span>
 

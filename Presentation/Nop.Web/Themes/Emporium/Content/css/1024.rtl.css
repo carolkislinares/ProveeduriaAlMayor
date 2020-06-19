@@ -1445,8 +1445,10 @@ td.remove-from-cart label, td.add-to-cart label {
 	content: "\45";
 }
 
-.block-account-navigation .reward-points a:after {
-	content: "\50";
+.block-account-navigation .reward-points a:after,
+/*///////////*/
+.block-account-navigation .sigo-creditos a:after {
+    content: "\50";
 }
 
 .block-account-navigation .change-password a:after {

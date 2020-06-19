@@ -2,6 +2,16 @@
     Layout = "";
 }
 @model Nop.Plugin.Payments.Transfer.Models.PaymentInfoModel
+@using Nop.Core.Infrastructure
+@using Nop.Services.Orders
+@{
+    var order = EngineContext.Current.Resolve<IOrderService>().GetOrderById(Model.NroOrden);
+
+}
+
+
+
+
 <div class="page  registration-page">
     <div class="panel-body">
         <form asp-controller="Admin/PaymentTransfer" asp-action="RegisterPayment"
@@ -12,6 +22,10 @@
                     @if (!string.IsNullOrWhiteSpace(Model.Referencia))
                     {
                         <strong><small style="color:#ff4f60;">@T("Payment.RegisteredPayment")</small></strong>
+                    }
+                    @if (order.OrderStatusId == 40)
+                    {
+                        <strong><small style="color:#ff4f60;">@T("Payment.OrderCancel")</small></strong>
                     }
                 </h1>
             </div>
@@ -29,7 +43,7 @@
                             <input type="text" asp-for="NroOrden" readonly autocomplete="off" />
                             <span asp-validation-for="NroOrden"></span>
                         </div>
-                        @if (Model.StatusPayment < 30)
+                        @if (Model.StatusPayment < 30 && order.OrderStatusId < 30)
                         {
                             <div class="inputs">
                                 <label asp-for="BancoReceptor">@T("Plugins.Payments.Transfer.Fields.ReceiverBank"):</label>
@@ -38,10 +52,10 @@
 
                             </div>
                             @*<div class="inputs" style="display:none">
-                                <label asp-for="BancoEmisor">@T("Plugins.Payments.Transfer.Fields.IssuingBank"):</label>
-                                <select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" class="dropdownlists"></select>
-                                <span asp-validation-for="BancoReceptorId"></span>
-                            </div>*@
+                                    <label asp-for="BancoEmisor">@T("Plugins.Payments.Transfer.Fields.IssuingBank"):</label>
+                                    <select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" class="dropdownlists"></select>
+                                    <span asp-validation-for="BancoReceptorId"></span>
+                                </div>*@
                             <div class="inputs">
 
                                 <label asp-for="Referencia">@T("Plugins.Payments.Transfer.Fields.Reference"):</label>
@@ -60,14 +74,14 @@
 
                             </div>
                             @*<div class="inputs" style="display:none">
-                                <label asp-for="BancoEmisor">@T("Plugins.Payments.Transfer.Fields.IssuingBank"):</label>
-                                <select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" readonly class="dropdownlists"></select>
-                                <span asp-validation-for="BancoReceptorId"></span>
-                            </div>*@
+                                    <label asp-for="BancoEmisor">@T("Plugins.Payments.Transfer.Fields.IssuingBank"):</label>
+                                    <select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" readonly class="dropdownlists"></select>
+                                    <span asp-validation-for="BancoReceptorId"></span>
+                                </div>*@
                             <div class="inputs">
 
                                 <label asp-for="Referencia">@T("Plugins.Payments.Transfer.Fields.Reference"):</label>
-                                <input type="text" asp-for="Referencia" autocomplete="off" readonly maxlength="10" onblur="onlyNumber()" />
+                                <input type="text" asp-for="Referencia" autocomplete="off" readonly maxlength="10" />
                                 <nop-required />
                                 <span asp-validation-for="Referencia" id="ReferenciaValidate"></span>
 
@@ -82,7 +96,7 @@
                             <i class="fa fa-floppy-o"></i>
                             @T("Admin.Common.Back")
                         </button>
-                        @if (Model.StatusPayment < 30)
+                        @if (Model.StatusPayment < 30 && order.OrderStatusId < 30)
                         {
                             <button type="submit" name="save" class="button-1">
                                 <i class="fa fa-floppy-o"></i>
@@ -100,7 +114,7 @@
 <script type="text/javascript">
 
     $(document).ready(function () {
-        document.getElementById("BancoEmisorId").value=$("#BancoReceptorId").val();
+        document.getElementById("BancoEmisorId").value = $("#BancoReceptorId").val();
     });
 
 
@@ -109,7 +123,7 @@
     }
 
     $("#BancoReceptorId").on('change', function () {
-        document.getElementById("BancoEmisorId").value=$(this).val();
+        document.getElementById("BancoEmisorId").value = $(this).val();
     });
 
 
@@ -151,4 +165,3 @@
     }
 
 </script>
-

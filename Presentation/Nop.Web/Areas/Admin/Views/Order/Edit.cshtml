@@ -8,64 +8,120 @@
     Html.SetActiveMenuItemSystemName("Orders");
 }
 
-<form asp-controller="Order" asp-action="Edit" method="post" id="order-form">
-    <div class="content-header clearfix">
-        <h1 class="pull-left">
-            @T("Admin.Orders.EditOrderDetails") - @Model.CustomOrderNumber
-            <small>
-                <i class="fa fa-arrow-circle-left"></i>
-                <a asp-action="List">@T("Admin.Orders.BackToList")</a>
-            </small>
-        </h1>
-        <div class="pull-right">
-            <a asp-action="PdfInvoice" asp-route-orderId="@Model.Id" class="btn bg-purple">
-                <i class="fa fa-file-pdf-o"></i>
-                @T("Admin.Orders.PdfInvoice")
-            </a>
-            @if (!Model.IsLoggedInAsVendor)
-            {
-                <span id="order-delete" class="btn bg-red">
-                    <i class="fa fa-trash-o"></i>
-                    @T("Admin.Common.Delete")
-                </span>
-            }
-            <input type="submit" id="btnRefreshPage" style="display: none" />
-            <script>
-                $(document).ready(function () {
-                    $('#btnRefreshPage').click(function () {
-                        //refresh pageed
-                        location.reload();
-                    });
-                });
-            </script>
-            @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.OrderDetailsButtons, additionalData = Model })
-        </div>
-    </div>
-
-    <div asp-validation-summary="All"></div>
-
-    <div class="content">
-        <div class="form-horizontal">
-            <nop-tabs id="order-edit">
-                <nop-tab asp-name="tab-info" asp-title="@T("Admin.Orders.Info")" asp-default="true">@await Html.PartialAsync("_OrderDetails.Info", Model)</nop-tab>
-                <nop-tab asp-name="tab-billing-shipping-info" asp-title="@T("Admin.Orders.BillingShippingInfo")">@await Html.PartialAsync("_OrderDetails.BillingShipping", Model)</nop-tab>
-                <nop-tab asp-name="tab-products" asp-title="@T("Admin.Orders.Products")">@await Html.PartialAsync("_OrderDetails.Products", Model)</nop-tab>
+    <form asp-controller="Order" asp-action="Edit" method="post" id="order-form">
+        <div class="content-header clearfix">
+            <h1 class="pull-left">
+                @T("Admin.Orders.EditOrderDetails") - @Model.CustomOrderNumber
+                <small>
+                    <i class="fa fa-arrow-circle-left"></i>
+                    <a asp-action="List">@T("Admin.Orders.BackToList")</a>
+                </small>
+            </h1>
+            <div class="pull-right">
+                <a asp-action="PdfInvoice" asp-route-orderId="@Model.Id" class="btn bg-purple">
+                    <i class="fa fa-file-pdf-o"></i>
+                    @T("Admin.Orders.PdfInvoice")
+                </a>
                 @if (!Model.IsLoggedInAsVendor)
                 {
-                    <nop-tab asp-name="tab-order-notes" asp-title="@T("Admin.Orders.OrderNotes")">@await Html.PartialAsync("_OrderDetails.Notes", Model)</nop-tab>
+                    <span id="order-delete" class="btn bg-red">
+                        <i class="fa fa-trash-o"></i>
+                        @T("Admin.Common.Delete")
+                    </span>
                 }
-            </nop-tabs>
-        </div>
-    </div>
+                <input type="submit" id="btnRefreshPage" style="display: none" />
+                <script>
+                    $(document).ready(function () {
+                        $('#btnRefreshPage').click(function () {
+                            //refresh pageed
+                            location.reload();
+                        });
+                    });
+                </script>
+                @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.OrderDetailsButtons, additionalData = Model })
+            </div>
 
-    @{
-        //custom tabs
-        var eventMessage = new AdminTabStripCreated(this.Html, "order-edit");
-        eventPublisher.Publish(eventMessage);
-        foreach (var eventBlock in eventMessage.BlocksToRender)
-        {
-            @eventBlock
+        </div>
+
+        <div asp-validation-summary="All"></div>
+
+        <div class="content">
+            <div class="form-horizontal">
+                <nop-tabs id="order-edit">
+                    <nop-tab asp-name="tab-info" asp-title="@T("Admin.Orders.Info")" asp-default="true">@await Html.PartialAsync("_OrderDetails.Info", Model)</nop-tab>
+                    <nop-tab asp-name="tab-billing-shipping-info" asp-title="@T("Admin.Orders.BillingShippingInfo")">@await Html.PartialAsync("_OrderDetails.BillingShipping", Model)</nop-tab>
+                    <nop-tab asp-name="tab-products" asp-title="@T("Admin.Orders.Products")">@await Html.PartialAsync("_OrderDetails.Products", Model)</nop-tab>
+                    @if (!Model.IsLoggedInAsVendor)
+                    {
+                        <nop-tab asp-name="tab-order-notes" asp-title="@T("Admin.Orders.OrderNotes")">@await Html.PartialAsync("_OrderDetails.Notes", Model)</nop-tab>
+                    }
+                </nop-tabs>
+            </div>
+        </div>
+
+        @{
+            //custom tabs
+            var eventMessage = new AdminTabStripCreated(this.Html, "order-edit");
+            eventPublisher.Publish(eventMessage);
+            foreach (var eventBlock in eventMessage.BlocksToRender)
+            {
+                @eventBlock
+            }
         }
-    }
-</form>
+
+        <!-- Modal -->
+        <div class="container">
+            <!-- Modal -->
+            <div class="modal fade" id="Modal" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">@T("Admin.Orders.ModalValidateStateTitle")</h4>
+                        </div>
+                        <div class="modal-body">
+                           
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">@T("Admin.Orders.BtnModalValidateState")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </form>
 <nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="order-delete" />
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var orderStatusActual = $("#@Html.IdFor(model => model.OrderStatusId)").val(); // Status actual de la orden
+
+        $("#@Html.IdFor(model => model.OrderStatusId)").on('change', function () {
+            var OrderStatusId = $(this).val();   // Valor seleccionado
+            var orderStatePayment = document.getElementById('Pendiente'); // PaymentStatus Pendiente si existe.
+            // Si OrderStatusId es procesamiento/ completado y el pago esta pendiente
+            if (OrderStatusId > 10 && OrderStatusId < 40 && orderStatePayment != null) {
+                $('.modal-body').html('<p>@T("Admin.Orders.ModalValidateState")</p>');
+                $('#Modal').modal('show');
+                $("#btnSaveOrderStatus").prop('disabled', true);
+            } else {
+                 @*@*// Si OrderStatusId es cancelado, la orden(orderStatusActual)completado y el pago es distinto de pendiente
+                if (OrderStatusId == 40 && orderStatusActual == 30 && orderStatePayment==null) {
+                     //No se puede cancelar la orden completada, que ha sido pagada.
+
+                      $('.modal-body').html('<p>@T("Admin.Orders.ModalValidateState2")</p>');
+                      $('#myModal').modal('show');
+                     $("#btnSaveOrderStatus").prop('disabled', true);
+                } else {} *@
+                    $("#btnSaveOrderStatus").prop('disabled', false);
+
+            }
+          })
+        })
+
+</script>

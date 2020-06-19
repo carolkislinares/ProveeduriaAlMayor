@@ -51,11 +51,45 @@
     <Content Remove="Plugins\Payments.Transferenci\Nop.Plugin.Payments.Transfer.pdb" />
     <Content Remove="Plugins\Payments.Transfer\logo.png" />
     <Content Remove="wwwroot\lib\jquery\jquery-3.3.1.js" />
+    <None Remove="Themes\Emporium\Content\css\bootstrap.min.css" />
+    <None Remove="Themes\Emporium\Content\scripts\external.js" />
+    <None Remove="Themes\Emporium\Content\scripts\inputmask.min.js" />
+    <None Remove="Themes\Emporium\Content\scripts\jquery.inputmask.min.js" />
+    <None Remove="Themes\Emporium\Content\scripts\jquery.mask.js" />
+    <None Remove="Themes\Emporium\Content\scripts\jquery.mask.min.js" />
+    <None Remove="Themes\Emporium\Content\scripts\paypal.js" />
     <None Include="Plugins\Payments.Manual\Views\Configure.cshtml" />
     <None Include="Plugins\Payments.Manual\Views\PaymentInfo.cshtml" />
     <None Include="Plugins\Payments.Manual\Views\_ViewImports.cshtml" />
     <None Include="Plugins\Payments.Transfer\logo.png" />
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\Create.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\List.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\ProductAddPopup.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\_CreateOrUpdate.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\_CreateOrUpdate.Info.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\_CreateOrUpdate.Products.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\ConsolidatePayment\_CreateOrUpdate.SEO.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Areas\Admin\Views\Shared\_ColumnsOne.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Themes\Emporium\Views\Customer\_CustomerAttributesInfo.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Themes\Emporium\Views\Order\PaymentRegister.cshtml">

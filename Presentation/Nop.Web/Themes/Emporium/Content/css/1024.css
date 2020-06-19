@@ -1463,7 +1463,9 @@
         content: "\45";
     }
 
-    .block-account-navigation .reward-points a:after {
+    .block-account-navigation .reward-points a:after,
+    /*///////////*/
+    .block-account-navigation .sigo-creditos a:after {
         content: "\50";
     }
 

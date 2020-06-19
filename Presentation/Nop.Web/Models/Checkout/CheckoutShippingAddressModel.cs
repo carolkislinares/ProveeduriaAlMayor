@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Nop.Web.Framework.Models;
 using Nop.Web.Models.Common;
 
@@ -26,5 +27,11 @@ namespace Nop.Web.Models.Checkout
         public bool PickUpInStoreOnly { get; set; }
         public bool DisplayPickupPointsOnMap { get; set; }
         public string GoogleMapsApiKey { get; set; }
+
+
+        [NotMapped]
+        public string NorkutShippingDay { get; set; }
+
+
     }
 }

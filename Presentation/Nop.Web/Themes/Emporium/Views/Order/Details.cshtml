@@ -30,10 +30,10 @@
         <div class="page-title">
             <h1>@T("Order.OrderInformation")</h1>
             @*<a href="@Url.RouteUrl("PrintOrderDetails", new { orderId = Model.Id })" target="_blank" class="button-2 print-order-button">@T("Order.Print")</a>
-            @if (!Model.PdfInvoiceDisabled)
-            {
-                <a href="@Url.RouteUrl("GetOrderPdfInvoice", new { orderId = Model.Id })" class="button-2 pdf-invoice-button">@T("Order.GetPDFInvoice")</a>
-            }*@
+                @if (!Model.PdfInvoiceDisabled)
+                {
+                    <a href="@Url.RouteUrl("GetOrderPdfInvoice", new { orderId = Model.Id })" class="button-2 pdf-invoice-button">@T("Order.GetPDFInvoice")</a>
+                }*@
         </div>
     }
     <div class="page-body">
@@ -99,17 +99,17 @@
                             </li>
                         }
                         @if (Model.BillingAddress.CityEnabled && !string.IsNullOrEmpty(Model.BillingAddress.City) ||
-                          Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County) ||
-                          Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
-                          Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
+                         Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County) ||
+                         Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
+                         Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
                         {
                             <li class="city-state-zip">
                                 @if (Model.BillingAddress.CityEnabled && !string.IsNullOrEmpty(Model.BillingAddress.City))
                                 {
                                     @Model.BillingAddress.City
                                     @if (Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County) ||
-                                      Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
-                                      Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
+                                     Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
+                                     Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
                                     {
                                         <text>,</text>
                                     }
@@ -118,7 +118,7 @@
                                 {
                                     @Model.BillingAddress.County
                                     @if (Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
-                                      Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
+                                     Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
                                     {
                                         <text>,</text>
                                     }
@@ -227,8 +227,8 @@
                             {
                                 <li class="payment-method title">
                                     <div>
-                                         <input type="submit" id="btnRegisterPayment" class="button-1" value="@if (Model.PaymentMethodStatus.Contains("Pendiente")) { @T("Plugins.Title.RegisterPayment")} else { @T("Plugins.Title.RegisteredPayment")} " onclick="setLocation('@(Url.Action("RegisterPayment", "Order",  new { orderId = Model.Id, btnId = "btnRefresh", formId = "registerpaymenttransfer-form" }))')" />
-                                       
+                                        <input type="submit" id="btnRegisterPayment" class="button-1" value="@if (Model.PaymentMethodStatus.Contains("Pendiente")) { @T("Plugins.Title.RegisterPayment")} else { @T("Plugins.Title.RegisteredPayment")} " onclick="setLocation('@(Url.Action("RegisterPayment", "Order",  new { orderId = Model.Id, btnId = "btnRefresh", formId = "registerpaymenttransfer-form" }))')" />
+
 
                                     </div>
                                 </li>
@@ -238,10 +238,12 @@
                                 <li class="payment-method title">
                                     <div>
                                         <input type="submit" id="btnRegisterPaymentZelle" class="button-1" value="@if (Model.PaymentMethodStatus.Contains("Pendiente")) { @T("Plugins.Title.RegisterPayment")} else { @T("Plugins.Title.RegisteredPayment")} " onclick="setLocation('@(Url.Action("RegisterPaymentZelle", "Order",  new { orderId = Model.Id, btnId = "btnRefresh", formId = "registerpaymentZelle-form" }))')" />
-</div>
+                                    </div>
 
-</li>
+                                </li>
                             }
+
+
                         </ul>
                     </div>
 
@@ -294,17 +296,17 @@
                                     </li>
                                 }
                                 @if (Model.ShippingAddress.CityEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.City) ||
-                                   Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County) ||
-                                   Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
-                                   Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                                  Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County) ||
+                                  Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
+                                  Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
                                 {
                                     <li class="city-state-zip">
                                         @if (Model.ShippingAddress.CityEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.City))
                                         {
                                             @Model.ShippingAddress.City
                                             @if (Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County) ||
-                                               Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
-                                               Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                                              Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
+                                              Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
                                             {
                                                 <text>,</text>
                                             }
@@ -313,7 +315,7 @@
                                         {
                                             @Model.ShippingAddress.County
                                             @if (Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
-                                               Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                                              Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
                                             {
                                                 <text>,</text>
                                             }
@@ -363,8 +365,8 @@
                                         {
                                             @Model.PickupAddress.City
                                             @if (!string.IsNullOrEmpty(Model.PickupAddress.County) ||
-                                               !string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
-                                               !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                                              !string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
+                                              !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
                                             {
                                                 <text>,</text>
                                             }
@@ -373,7 +375,7 @@
                                         {
                                             @Model.PickupAddress.County
                                             @if (!string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
-                                               !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                                              !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
                                             {
                                                 <text>,</text>
                                             }

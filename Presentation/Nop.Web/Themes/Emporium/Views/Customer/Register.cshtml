@@ -35,6 +35,7 @@
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
     <script type="text/javascript" asp-location="Footer">
+         //inhabilitar();
             $(document).ready(function () {
                 $("#@Html.IdFor(model => model.CountryId)").on('change', function () {
                     var selectedItem = $(this).val();
@@ -537,6 +538,7 @@
             $("#customer_attribute_1").focus(); 
 
         })
+
         function numberPhone() {
             var regexp = /^((\(\d{4}\)?)|(\d{3}-))?\d{3}-\d{4}$/;
             var inputtxt = document.getElementById('Phone').value;
@@ -708,7 +710,7 @@
                         if (input.value.length == 8) {
                             mensaje = "El personal autorizado es inválido. Solo se admite el número de cédula.";
                         } else
-                            if (input.value.length < 6) {
+                            if (input.value.length < 7) {
                                 mensaje = "Mínimo 6 carácteres";
                             } else {
                                 if (input.value.length > 8) {
@@ -772,8 +774,15 @@
                 $("#customer_attribute_6Validate").removeClass("field-validation-valid").addClass("field-validation-error");
                 document.getElementById("customer_attribute_6Validate").innerHTML = "La Razón comercial es requerida"
             }
+        } else {
+            document.getElementById("customer_attribute_3").value="";
+            document.getElementById("customer_attribute_4").value="";
+            document.getElementById("customer_attribute_5").value="";
+            document.getElementById("customer_attribute_6").value="";
+                
+            }
         }
-    }
+    
 
 
 

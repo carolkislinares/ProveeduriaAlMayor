@@ -60,6 +60,7 @@ namespace Nop.Web.Controllers
         private readonly ShippingSettings _shippingSettings;
         private readonly ICurrencyService _currencyService;
         private readonly ISettingService _settingService;
+       
         #endregion
 
         #region Ctor
@@ -117,6 +118,7 @@ namespace Nop.Web.Controllers
             this._shippingSettings = shippingSettings;
             this._currencyService = currencyService;
             this._settingService = settingService;
+           
         }
 
         #endregion
@@ -433,17 +435,45 @@ namespace Nop.Web.Controllers
             return View(model);
         }
 
-        public virtual IActionResult SelectShippingAddress(int addressId)
+
+        public virtual IActionResult SelectShippingAddress(int addressId, string NorkutShippingDay)
         {
             //validation
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
-
+            var ShippingDay = NorkutShippingDay;
             var address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == addressId);
+
             if (address == null)
                 return RedirectToRoute("CheckoutShippingAddress");
 
             _workContext.CurrentCustomer.ShippingAddress = address;
+            _customerService.UpdateCustomer(_workContext.CurrentCustomer);
+
+            if (_shippingSettings.AllowPickUpInStore)
+            {
+                //set value indicating that "pick up in store" option has not been chosen
+                _genericAttributeService.SaveAttribute<PickupPoint>(_workContext.CurrentCustomer, NopCustomerDefaults.SelectedPickupPointAttribute, null, _storeContext.CurrentStore.Id);
+            }
+
+            return RedirectToRoute("CheckoutShippingMethod");
+        }
+
+
+        public virtual IActionResult SelectShippingAddresss(int addressId, string NorkutShippingDay)
+        {
+            //validation
+            if (_orderSettings.CheckoutDisabled)
+                return RedirectToRoute("ShoppingCart");
+            var address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == addressId);
+
+            if (address == null)
+                return RedirectToRoute("CheckoutShippingAddress");
+
+            _workContext.CurrentCustomer.ShippingAddress = address;
+            if (!string.IsNullOrEmpty(NorkutShippingDay) && int.Parse(NorkutShippingDay) < 0)
+                _workContext.CurrentCustomer.AdminComment = Convert.ToDecimal(NorkutShippingDay).ToString();
+
             _customerService.UpdateCustomer(_workContext.CurrentCustomer);
 
             if (_shippingSettings.AllowPickUpInStore)
@@ -479,6 +509,9 @@ namespace Nop.Web.Controllers
             if (!_shoppingCartService.ShoppingCartRequiresShipping(cart))
             {
                 _workContext.CurrentCustomer.ShippingAddress = null;
+                if (!string.IsNullOrEmpty(model.NorkutShippingDay) && int.Parse(model.NorkutShippingDay) < 0)
+                    _workContext.CurrentCustomer.AdminComment = Convert.ToDecimal(model.NorkutShippingDay).ToString();
+
                 _customerService.UpdateCustomer(_workContext.CurrentCustomer);
                 return RedirectToRoute("CheckoutShippingMethod");
             }
@@ -550,6 +583,11 @@ namespace Nop.Web.Controllers
                     _workContext.CurrentCustomer.CustomerAddressMappings.Add(new CustomerAddressMapping { Address = address });
                 }
                 _workContext.CurrentCustomer.ShippingAddress = address;
+
+                //Asignacion si tiene valor ShippingDay
+                if (!string.IsNullOrEmpty(model.NorkutShippingDay) && int.Parse(model.NorkutShippingDay) < 0)
+                    _workContext.CurrentCustomer.AdminComment = Convert.ToDecimal(model.NorkutShippingDay).ToString();
+
                 _customerService.UpdateCustomer(_workContext.CurrentCustomer);
 
                 return RedirectToRoute("CheckoutShippingMethod");
@@ -792,7 +830,7 @@ namespace Nop.Web.Controllers
         public virtual IActionResult PaymentInfo()
         {
             //validation
-             if (_orderSettings.CheckoutDisabled)
+            if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
 
             var cart = _workContext.CurrentCustomer.ShoppingCartItems
@@ -981,7 +1019,7 @@ namespace Nop.Web.Controllers
                         return Content("Redirected");
                     }
 
-                    return RedirectToRoute("CheckoutCompleted", new CheckoutCompletedModel { OrderId = placeOrderResult.PlacedOrder.Id } );
+                    return RedirectToRoute("CheckoutCompleted", new CheckoutCompletedModel { OrderId = placeOrderResult.PlacedOrder.Id });
                 }
 
                 foreach (var error in placeOrderResult.Errors)
@@ -1802,23 +1840,22 @@ namespace Nop.Web.Controllers
 
         #endregion
 
-         private void ChangeCurrencyPaymentMethod(string paymentmethod)
+        private void ChangeCurrencyPaymentMethod(string paymentmethod)
         {
-            string valueSettings = _settingService.GetSettingByKey(paymentmethod+".currency".ToLower(), "", _storeContext.CurrentStore.Id, true);
-            if(!string.IsNullOrEmpty(valueSettings))
+            string valueSettings = _settingService.GetSettingByKey(paymentmethod + ".currency".ToLower(), "", _storeContext.CurrentStore.Id, true);
+            if (!string.IsNullOrEmpty(valueSettings))
             {
                 _workContext.WorkingCurrency = _currencyService.GetCurrencyById(Convert.ToInt32(valueSettings));
             }
-            
+
         }
         private void ChangeCurrencyToBs()
         {
             string valueSettings = _settingService.GetSettingByKey("CurrencyBsID".ToLower(), "", _storeContext.CurrentStore.Id, true);
             if (!string.IsNullOrEmpty(valueSettings) && _workContext.WorkingCurrency.Id != Convert.ToInt32(valueSettings))
             {
-               // _workContext.WorkingCurrency = _currencyService.GetCurrencyById(Convert.ToInt32(valueSettings));
+                // _workContext.WorkingCurrency = _currencyService.GetCurrencyById(Convert.ToInt32(valueSettings));
             }
-
         }
 
 

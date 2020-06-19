@@ -530,18 +530,18 @@ input[type="checkbox"] + label {
 	cursor: pointer;
 }
 
-input[type="radio"] + label:before,
-input[type="checkbox"] + label:before {
-	content: "";
-	display: inline-block;
-	margin-right: 10px;
-	width: 17px;
-	height: 17px;
-	border-radius: 50%;
-	border: 1px solid #e7e7e7;
-	vertical-align: text-top;
-	background-color: #fff;
-}
+    input[type="radio"] + label:before,
+    input[type="checkbox"] + label:before {
+        content: "";
+        display: inline-block;
+        margin-right: 10px;
+        width: 17px;
+        height: 17px;
+        border-radius: 25% !important;
+        border: 2px solid #888784;
+        vertical-align: text-top;
+        background-color: #fff;
+    }
 
 input[type="checkbox"] + label:before {
 	border-radius: 0;

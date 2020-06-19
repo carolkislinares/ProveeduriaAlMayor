@@ -32,6 +32,7 @@ namespace Nop.Web.Controllers
         private readonly IWorkContext _workContext;
         private readonly RewardPointsSettings _rewardPointsSettings;
 
+
         #endregion
 
 		#region Ctor
@@ -282,6 +283,24 @@ namespace Nop.Web.Controllers
             //return RedirectToAction("RegisterPayment", "PaymentZelle", new { id = orderId, Area = "Admin" });
 
         }
+
+        /*  /////////////////////////////////////////////////////// */
+        //My account / Sigo points
+        [HttpsRequirement(SslRequirement.Yes)]
+        //public virtual IActionResult CustomerSigoCreditos(int? pageNumber)
+        public virtual IActionResult CustomerSigoCreditos() {
+            //if (!_workContext.CurrentCustomer.IsRegistered())
+            //    return Challenge();
+
+            //if (!_rewardPointsSettings.Enabled)
+            //    return RedirectToRoute("CustomerInfo");
+
+            //var model = _orderModelFactory.PrepareCustomerRewardPoints(pageNumber);
+            var model = _orderModelFactory.PrepareCustomerSigoCreditos();
+            //return View(model);
+            return View("CustomerSigoCreditos");
+        }
+        /*  /////////////////////////////////////////////////////// */
 
         #endregion
     }

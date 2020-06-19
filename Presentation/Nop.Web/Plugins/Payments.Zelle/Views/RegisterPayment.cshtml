@@ -2,6 +2,15 @@
     Layout = "";
 }
 @model Nop.Plugin.Payments.Zelle.Models.PaymentInfoModel
+@using Nop.Core.Infrastructure
+@using Nop.Services.Orders
+@{
+    var order = EngineContext.Current.Resolve<IOrderService>().GetOrderById(Model.Order);
+
+}
+
+
+
 <div class="page  registration-page">
     <div class="panel-body">
         <form asp-controller="Admin/PaymentZelle" asp-action="RegisterPayment"
@@ -14,6 +23,10 @@
                     {
                         <strong><small style="color:#ff4f60;">@T("Payment.RegisteredPayment")</small></strong>
                     }
+                    @if (order.OrderStatusId == 40)
+                    {
+                        <strong><small style="color:#ff4f60;">@T("Payment.OrderCancel")</small></strong>
+                    }
 
                 </h1>
 
@@ -24,22 +37,22 @@
                         <div class="inputs">
                             <input type="hidden" asp-for="IdZelle" />
                             <input type="hidden" asp-for="PaymentStatusOrder" />
-                            <input type="hidden" asp-for="IssuingEmail" value="CORREOZELLE@ZELLE.COM"/>
+                            <input type="hidden" asp-for="IssuingEmail" value="CORREOZELLE@ZELLE.COM" />
                         </div>
                         <div class="inputs">
                             <label asp-for="Order">@T("Plugins.Payments.Zelle.Fields.Order"):</label>
                             <input type="text" asp-for="Order" readonly autocomplete="off" />
                             <span asp-validation-for="Order"></span>
                         </div>
-                        @if (Model.PaymentStatusOrder < 30)
+                        @if (Model.PaymentStatusOrder < 30 && order.OrderStatusId < 30)
                         {
                             @*<div class="inputs">
-                                <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
-                                <input type="email" asp-for="IssuingEmail" autocomplete="off" maxlength="50" />
-                                <nop-required />
-                                <span asp-validation-for="IssuingEmail"></span>
+                                    <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
+                                    <input type="email" asp-for="IssuingEmail" autocomplete="off" maxlength="50" />
+                                    <nop-required />
+                                    <span asp-validation-for="IssuingEmail"></span>
 
-                            </div>*@
+                                </div>*@
                             <div class="inputs">
                                 <label asp-for="Reference">@T("Plugins.Payments.Zelle.Fields.Reference"):</label>
                                 <input type="text" asp-for="Reference" autocomplete="off" maxlength="10" onblur="onlyNumber()" />
@@ -51,16 +64,16 @@
                         {
                             @*<div class="inputs">
 
-                                <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
-                                <input type="email" asp-for="IssuingEmail" readonly autocomplete="off" maxlength="50" />
-                                <nop-required />
-                                <span asp-validation-for="IssuingEmail"></span>
+                                    <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
+                                    <input type="email" asp-for="IssuingEmail" readonly autocomplete="off" maxlength="50" />
+                                    <nop-required />
+                                    <span asp-validation-for="IssuingEmail"></span>
 
-                            </div>*@
+                                </div>*@
                             <div class="inputs">
 
                                 <label asp-for="Reference">@T("Plugins.Payments.Zelle.Fields.Reference"):</label>
-                                <input type="text" asp-for="Reference" autocomplete="off" readonly maxlength="10" onblur="onlyNumber()" />
+                                <input type="text" asp-for="Reference" autocomplete="off" readonly maxlength="10" />
                                 <nop-required />
                                 <span asp-validation-for="Reference" id="ReferenciaValidate"></span>
 
@@ -75,7 +88,7 @@
                     <i class="fa fa-floppy-o"></i>
                     @T("Admin.Common.Back")
                 </button>
-                @if (Model.PaymentStatusOrder < 30)
+                @if (Model.PaymentStatusOrder < 30 && order.OrderStatusId < 30)
                 {
                     <button type="submit" name="save" class="button-1">
                         <i class="fa fa-floppy-o"></i>

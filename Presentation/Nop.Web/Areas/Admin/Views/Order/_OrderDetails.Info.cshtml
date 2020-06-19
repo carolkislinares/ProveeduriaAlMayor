@@ -94,6 +94,7 @@
                             <div class="input-group-btn">
                                 @if (Model.CanCancelOrder)
                                 {
+                                    <div class="form-text-row">@Model.OrderStatusId</div>
                                     <button type="submit" name="cancelorder" id="cancelorder" class="btn bg-red" style="margin-right: 3px;">
                                         @T("Admin.Orders.Fields.OrderStatus.Cancel")
                                     </button>
@@ -717,7 +718,7 @@
                     <nop-label asp-for="PaymentStatus" />
                 </div>
                 <div class="col-md-9">
-                    <div class="form-text-row">@Model.PaymentStatus</div>
+                    <div class="form-text-row" id="@Model.PaymentStatus">@Model.PaymentStatus</div>
                 </div>
             </div>
             @if (Model.CanCapture || Model.CanMarkOrderAsPaid || Model.CanRefund || Model.CanRefundOffline ||

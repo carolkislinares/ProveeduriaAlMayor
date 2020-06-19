@@ -10,9 +10,15 @@
     //page class
     Html.AppendPageCssClassParts("html-checkout-page");
     Html.AppendPageCssClassParts("html-payment-method-page");
-    var WorkingCurrencyId= workContext.WorkingCurrency.Id;
+    var WorkingCurrencyId = workContext.WorkingCurrency.Id;
 
 }
+<style>
+    .cart-total-left > label {
+        margin-bottom: 0px !important;
+    }
+</style>
+
 <div class="page checkout-page payment-method-page">
     @await Component.InvokeAsync("CheckoutProgress", new { step = CheckoutProgressStep.Payment })
     <div class="page-title">
@@ -47,96 +53,101 @@
                         }
                     </div>
                 }
+
+                @*//////////////////////////////////////////////*@
+                @await Component.InvokeAsync("ConsumoSigoCreditos")
+                @*//////////////////////////////////////////////*@
+
                 @if (Model.PaymentMethods.Count > 0)
                 {
 
                     @*@if (WorkingCurrencyId == 13)
-                    {*@
-                        var modelo = Model.PaymentMethods;
+                        {*@
+                    var modelo = Model.PaymentMethods;
 
-                        <ul class="method-list" id="payment-method-block">
-                            @for (var i = 0; i < modelo.Count; i++)
+                    <ul class="method-list" id="payment-method-block">
+                        @for (var i = 0; i < modelo.Count; i++)
+                        {
+                            var paymentMethod = modelo[i];
+                            var paymentMethodName = paymentMethod.Name;
+                            if (!string.IsNullOrEmpty(paymentMethod.Fee))
                             {
-                                var paymentMethod = modelo[i];
-                                var paymentMethodName = paymentMethod.Name;
-                                if (!string.IsNullOrEmpty(paymentMethod.Fee))
-                                {
-                                    paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
-                                }
-                                <li>
-                                    <div class="method-name">
-                                        @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
-                                        {
-                                            <div class="payment-logo">
-                                                <label for="paymentmethod_@(i)">
-                                                    <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
-                                                </label>
-                                            </div>
-                                        }
-                                        <div class="payment-details">
-                                            <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
-                                            <label for="paymentmethod_@(i)">@paymentMethodName</label>
-                                            @if (!string.IsNullOrEmpty(paymentMethod.Description))
-                                            {
-                                                <div class="payment-description">@paymentMethod.Description</div>
-                                            }
-                                        </div>
-                                    </div>
-                                </li>
+                                paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
                             }
-                        </ul>
+                            <li>
+                                <div class="method-name">
+                                    @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                    {
+                                        <div class="payment-logo">
+                                            <label for="paymentmethod_@(i)">
+                                                <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                            </label>
+                                        </div>
+                                    }
+                                    <div class="payment-details">
+                                        <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
+                                        <label for="paymentmethod_@(i)">@paymentMethodName</label>
+                                        @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                                        {
+                                            <div class="payment-description">@paymentMethod.Description</div>
+                                        }
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
 
-                        @* }
-                else
-                 {
-                     var modelo = Model.PaymentMethods.Where(x => x.Name.Contains("Zelle") || x.Name.Contains("Cash")).ToList();
-
-                     <ul class="method-list" id="payment-method-block">
-                         @for (var i = 0; i < modelo.Count; i++)
+                    @* }
+                        else
                          {
-                             var paymentMethod = modelo[i];
-                             var paymentMethodName = paymentMethod.Name;
-                             if (!string.IsNullOrEmpty(paymentMethod.Fee))
-                             {
-                                 paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
-                             }
-                             <li>
-                                 <div class="method-name">
-                                     @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                             var modelo = Model.PaymentMethods.Where(x => x.Name.Contains("Zelle") || x.Name.Contains("Cash")).ToList();
+
+                             <ul class="method-list" id="payment-method-block">
+                                 @for (var i = 0; i < modelo.Count; i++)
+                                 {
+                                     var paymentMethod = modelo[i];
+                                     var paymentMethodName = paymentMethod.Name;
+                                     if (!string.IsNullOrEmpty(paymentMethod.Fee))
                                      {
-                                         <div class="payment-logo">
-                                             <label for="paymentmethod_@(i)">
-                                                 <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
-                                             </label>
-                                         </div>
+                                         paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
                                      }
-                                     <div class="payment-details">
-                                         <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
-                                         <label for="paymentmethod_@(i)">@paymentMethodName</label>
-                                         @if (!string.IsNullOrEmpty(paymentMethod.Description))
-                                         {
-                                             <div class="payment-description">@paymentMethod.Description</div>
-                                         }
-                                     </div>
-                                 </div>
-                             </li>
-                         }
-                     </ul>
+                                     <li>
+                                         <div class="method-name">
+                                             @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
+                                             {
+                                                 <div class="payment-logo">
+                                                     <label for="paymentmethod_@(i)">
+                                                         <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                                     </label>
+                                                 </div>
+                                             }
+                                             <div class="payment-details">
+                                                 <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
+                                                 <label for="paymentmethod_@(i)">@paymentMethodName</label>
+                                                 @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                                                 {
+                                                     <div class="payment-description">@paymentMethod.Description</div>
+                                                 }
+                                             </div>
+                                         </div>
+                                     </li>
+                                 }
+                             </ul>
 
-                 }*@
+                         }*@
 
 
-                        <div class="buttons">
-                            <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 payment-method-next-step-button" />
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="message-error">
-                            @T("Checkout.NoPaymentMethods")
-                        </div>
-                    }
-                </form>
+                    <div class="buttons">
+                        <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 payment-method-next-step-button" />
+                    </div>
+                }
+                else
+                {
+                    <div class="message-error">
+                        @T("Checkout.NoPaymentMethods")
+                    </div>
+                }
+            </form>
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutPaymentMethodBottom })
         <div class="section order-summary">

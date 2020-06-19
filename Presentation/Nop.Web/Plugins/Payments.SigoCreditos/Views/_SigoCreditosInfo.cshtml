@@ -235,10 +235,10 @@
 
 
 <!-- ///////////////////////////    Seccion Boton PayPal VentasO    ////////////////////////////////////////////////////////////////////////////////////////////// -->
-<script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD"
+@*<script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD"
         data-sdk-integration-source="button-factory">
 
-</script>
+</script>*@
 <!-- ///////////////////////////    Seccion Boton PayPal Sandox    ////////////////////////////////////////////////////////////////////////////////////////////// -->
 @*<script src="https://www.paypal.com/sdk/js?client-id=AfbVJuARzopmc5Yqw6LnuMZGsvgUbjW2Z4omie4CRjBVsJ3lXV5tcrrVA1VTPi7SplXpK2nu6poae-qp&currency=USD"
             data-sdk-integration-source="button-factory">
@@ -580,7 +580,7 @@ $(document).ready(function () {
 
 <script>
 
-    paypal.Buttons({
+    @*paypal.Buttons({
        onInit: function(data, actions) {
       // Disable the buttons
             actions.disable();
@@ -598,7 +598,7 @@ $(document).ready(function () {
                         actions.disable();
                       }
                     });
-            //inhabilitar();
+           // inhabilitar();
             loaderHide();
                  },
                    style: {
@@ -636,11 +636,11 @@ $(document).ready(function () {
                         }
                     });
                 }
-                }).render('#paypal-button-container');
+                }).render('#paypal-button-container');*@
 
 
 
-
+     loaderHide();
 
   function evaluarSubmitPaypal(){
          var evaluar = false;

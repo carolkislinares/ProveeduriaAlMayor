@@ -34,6 +34,13 @@ namespace Nop.Web.Factories
         /// </summary>
         /// <param name="page">Number of items page; pass null to load the first page</param>
         /// <returns>Customer reward points model</returns>
-        CustomerRewardPointsModel PrepareCustomerRewardPoints(int? page);
+        CustomerRewardPointsModel PrepareCustomerRewardPoints(int? page);/// <summary>
+
+        /// <summary>
+        /// Prepare the customer sigo points model
+        /// </summary>
+        /// <param name="page">Number of items page; pass null to load the first page</param>
+        /// <returns>Customer reward points model</returns>
+        CustomerSigoCreditosModel PrepareCustomerSigoCreditos();
     }
 }

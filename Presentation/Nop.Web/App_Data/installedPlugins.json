@@ -22,9 +22,7 @@
   "Payments.Manual",
   "Payments.Square",
   "Payments.WorldpayUS",
-  "Payments.PayPalStandard",
   "Pickup.PickupInStore",
-  "Shipping.FixedByWeightByTotal",
   "Shipping.UPS",
   "Tax.FixedOrByCountryStateZip",
   "Widgets.GoogleAnalytics",
@@ -32,5 +30,8 @@
   "Payments.InstaPago",
   "Payments.Cash",
   "Payments.Transfer",
-  "Payments.Zelle"
+  "Payments.Zelle",
+  "Shipping.FixedByWeightByTotal",
+  "Payments.PayPalStandard",
+  "Payments.SigoCreditos"
 ]

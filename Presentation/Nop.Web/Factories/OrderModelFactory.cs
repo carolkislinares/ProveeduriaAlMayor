@@ -491,7 +491,7 @@ namespace Nop.Web.Factories
                             {
                                 var shipmentStatusEventModel = new ShipmentDetailsModel.ShipmentStatusEventModel();
                                 var shipmentEventCountry = _countryService.GetCountryByTwoLetterIsoCode(shipmentEvent.CountryCode);
-                                shipmentStatusEventModel.Country = shipmentEventCountry != null 
+                                shipmentStatusEventModel.Country = shipmentEventCountry != null
                                     ? _localizationService.GetLocalized(shipmentEventCountry, x => x.Name) : shipmentEvent.CountryCode;
                                 shipmentStatusEventModel.Date = shipmentEvent.Date;
                                 shipmentStatusEventModel.EventName = shipmentEvent.EventName;
@@ -597,6 +597,22 @@ namespace Nop.Web.Factories
 
             return model;
         }
+
+        /////////////////////////////////////
+        public virtual CustomerSigoCreditosModel PrepareCustomerSigoCreditos(){
+            
+            //prepare model
+            var model = new Nop.Web.Models.Order.CustomerSigoCreditosModel(){
+                //SigoCreditos = new List(),
+                PagerModel = new PagerModel(),
+                SigoCreditosBalance = 1000,
+                SigoCreditosAmount = "1000",
+                MinimumSigoCreditosBalance = 1000,
+                MinimumSigoCreditosAmount = "1000"
+            };
+            return model;
+        }
+        /////////////////////////////////////
 
         #endregion
     }
