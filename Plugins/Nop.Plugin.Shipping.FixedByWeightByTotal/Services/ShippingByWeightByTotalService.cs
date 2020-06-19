@@ -91,13 +91,14 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Services
                 .ToList();
 
             //filter by order subtotal
-            var matchedBySubtotal = !orderSubtotal.HasValue ? existingRates :
-                existingRates.Where(sbw => orderSubtotal >= sbw.OrderSubtotalFrom && orderSubtotal <= sbw.OrderSubtotalTo);
+            //var matchedBySubtotal = !orderSubtotal.HasValue ? existingRates :
+            //    existingRates.Where(sbw => orderSubtotal >= sbw.OrderSubtotalFrom && orderSubtotal <= sbw.OrderSubtotalTo);
 
             //filter by store
             var matchedByStore = storeId == 0
-                ? matchedBySubtotal
-                : matchedBySubtotal.Where(r => r.StoreId == storeId || r.StoreId == 0);
+                ? existingRates
+                 :existingRates.Where(r => r.StoreId == storeId || r.StoreId == 0);
+               // : matchedBySubtotal.Where(r => r.StoreId == storeId || r.StoreId == 0);
 
             //filter by warehouse
             var matchedByWarehouse = warehouseId == 0

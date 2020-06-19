@@ -162,8 +162,22 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal
                     subTotal += _priceCalculationService.GetSubTotal(packageItem.ShoppingCartItem);
                 }
 
+                //Metodo Creado para filtrar por el peso.
+                decimal weight = decimal.MinusOne;
                 //get weight of shipped items (excluding items with free shipping)
-                var weight = _shippingService.GetTotalWeight(getShippingOptionRequest, ignoreFreeShippedItems: true);
+                if (!string.IsNullOrEmpty(getShippingOptionRequest.Customer.AdminComment))
+                {
+                    weight = decimal.Parse(getShippingOptionRequest.Customer.AdminComment);
+                    getShippingOptionRequest.Customer.AdminComment = null;
+                }
+                else weight = _shippingService.GetTotalWeight(getShippingOptionRequest, ignoreFreeShippedItems: true);
+
+
+
+
+
+                //get weight of shipped items (excluding items with free shipping)
+                // var weight = _shippingService.GetTotalWeight(getShippingOptionRequest, ignoreFreeShippedItems: true);
 
                 foreach (var shippingMethod in _shippingService.GetAllShippingMethods(countryId))
                 {

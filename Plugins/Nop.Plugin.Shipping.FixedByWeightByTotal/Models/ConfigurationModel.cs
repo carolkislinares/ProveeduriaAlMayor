@@ -39,6 +39,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Models
         [NopResourceDisplayName("Plugins.Shipping.FixedByWeightByTotal.Fields.ShippingMethod")]
         public int SearchShippingMethodId { get; set; }
 
+        [NopResourceDisplayName("Plugins.Shipping.FixedByWeightByTotal.Fields.MontoDolar")]
+        public decimal MontoDolar { get; set; }
 
         public IList<SelectListItem> AvailableCountries { get; set; }
         public IList<SelectListItem> AvailableStates { get; set; }

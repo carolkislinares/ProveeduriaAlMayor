@@ -76,5 +76,10 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Domain
         /// Gets or sets the lower weight limit
         /// </summary>
         public decimal LowerWeightLimit { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Dollar Amount
+        /// </summary>
+        public decimal MontoDolar { get; set; }
     }
 }

@@ -235,7 +235,9 @@ namespace Nop.Plugin.Payments.PayPalStandard.Controllers
 
                     //validate order total
                     var orderTotalSentToPayPal = _genericAttributeService.GetAttribute<decimal?>(order, PayPalHelper.OrderTotalSentToPayPal);
-                    if (orderTotalSentToPayPal.HasValue && mc_gross != orderTotalSentToPayPal.Value)
+                    // if (orderTotalSentToPayPal.HasValue &&  mc_gross != orderTotalSentToPayPal.Value) 
+
+                    if (!Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal * order.CurrencyRate, 2)))
                     {
                         var errorStr =
                             $"PayPal PDT. Returned order total {mc_gross} doesn't equal order total {order.OrderTotal}. Order# {order.Id}.";
@@ -455,9 +457,10 @@ namespace Nop.Plugin.Payments.PayPalStandard.Controllers
                             var order = _orderService.GetOrderByGuid(orderNumberGuid);
                             if (order != null)
                             {
-
-                                //order note
-                                order.OrderNotes.Add(new OrderNote
+                            sb.AppendLine("Returned order total: " + $" { mc_gross} order total { Math.Round(order.OrderTotal * order.CurrencyRate, 2)}. Order# {order.Id}.");
+                                                //log);
+                            //order note
+                            order.OrderNotes.Add(new OrderNote
                                 {
                                     Note = sb.ToString(),
                                     DisplayToCustomer = false,
@@ -474,7 +477,7 @@ namespace Nop.Plugin.Payments.PayPalStandard.Controllers
                                     case PaymentStatus.Authorized:
                                         {
                                             //validate order total
-                                            if (Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal, 2)))
+                                            if (Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal*order.CurrencyRate, 2)))
                                             {
                                                 //valid
                                                 if (_orderProcessingService.CanMarkOrderAsAuthorized(order))
@@ -486,7 +489,7 @@ namespace Nop.Plugin.Payments.PayPalStandard.Controllers
                                             {
                                                 //not valid
                                                 var errorStr =
-                                                    $"PayPal IPN. Returned order total {mc_gross} doesn't equal order total {order.OrderTotal}. Order# {order.Id}.";
+                                                    $"PayPal IPN Authorized. Returned order total {mc_gross} doesn't equal order total {order.OrderTotal}. Order# {order.Id}.";
                                                 //log
                                                 _logger.Error(errorStr);
                                                 //order note
@@ -503,7 +506,7 @@ namespace Nop.Plugin.Payments.PayPalStandard.Controllers
                                     case PaymentStatus.Paid:
                                         {
                                             //validate order total
-                                            if (Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal, 2)))
+                                            if (Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal*order.CurrencyRate, 2)))
                                             {
                                                 //valid
                                                 if (_orderProcessingService.CanMarkOrderAsPaid(order))
@@ -518,7 +521,7 @@ namespace Nop.Plugin.Payments.PayPalStandard.Controllers
                                             {
                                                 //not valid
                                                 var errorStr =
-                                                    $"PayPal IPN. Returned order total {mc_gross} doesn't equal order total {order.OrderTotal}. Order# {order.Id}.";
+                                                    $"PayPal IPN Paid. Returned order total {mc_gross} doesn't equal order total { Math.Round(order.OrderTotal * order.CurrencyRate, 2)}. Order# {order.Id}.";
                                                 //log
                                                 _logger.Error(errorStr);
                                                 //order note
@@ -535,7 +538,7 @@ namespace Nop.Plugin.Payments.PayPalStandard.Controllers
                                     case PaymentStatus.Refunded:
                                         {
                                             var totalToRefund = Math.Abs(mc_gross);
-                                            if (totalToRefund > 0 && Math.Round(totalToRefund, 2).Equals(Math.Round(order.OrderTotal, 2)))
+                                            if (totalToRefund > 0 && Math.Round(totalToRefund, 2).Equals(Math.Round(order.OrderTotal * order.CurrencyRate, 2)))
                                             {
                                                 //refund
                                                 if (_orderProcessingService.CanRefundOffline(order))
