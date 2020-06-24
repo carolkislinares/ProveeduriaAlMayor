@@ -355,7 +355,7 @@
 </div>
 
 <script>
-    //window.onload=inhabilitar();
+   // window.onload=inhabilitar();
 
 
     if (document.getElementById('paypal-button-container') == null) {
@@ -403,14 +403,21 @@
 
     function SuccessAbono(response)
     {
-        if (response.IdTransaccion== "undefined")
-        {
+        if (response.IdTransaccion == "undefined" && response.Cod_Abono != 0) {
             response.IdTransaccion = "";
-        }
+            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ');
+            $('#paypalTransaction').modal('show');
+            return;
+        } 
+        if (response.IdTransaccion != "undefined" && response.Cod_Abono == 0) {
+            response.IdTransaccion = "";
+            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+            $('#paypalTransaction').modal('show');
+            return;
+        } 
 
         if (response.Cod_Abono != 0) {
             $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.IdTransaccion);
-
         } else
         {
             $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
@@ -420,14 +427,23 @@
 
      function FailureAbono(response)
      {
-           if (response.IdTransaccion== "undefined ")
-            {
+       
+             if (response.IdTransaccion == "undefined" && response.Cod_Abono != 0) {
                 response.IdTransaccion = "";
-            }
-            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+                $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ');
+                $('#paypalTransaction').modal('show');
+                return;
+             } 
+            if (response.IdTransaccion != "undefined" && response.Cod_Abono == 0) {
+                response.IdTransaccion = "";
+                $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+                $('#paypalTransaction').modal('show');
+                return;
+            } 
 
-                 $('#paypalTransaction').modal('show');
-         console.log("Failure")
+            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+            $('#paypalTransaction').modal('show');
+            console.log("Failure")
 
     }
 

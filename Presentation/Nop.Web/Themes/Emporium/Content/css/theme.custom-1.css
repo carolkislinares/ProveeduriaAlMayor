@@ -312,99 +312,31 @@ input[type="checkbox"]:checked + label:before,
   }
 }
 .sale-of-the-day-offer { background-image: url(http://localhost:15536/images/thumbs/0000991.jpeg); }.ribbon-position:first-of-type {
-        z-index: 2;
+    z-index: 2;
 }
 
 .ribbon-position + .ribbon-position {
-        top: 80px;
+    top: 80px;
 }
+
 .footer-block .title {
-cursor: pointer;
+    cursor: pointer;
 }
 
-li.all-categories > div.plus-button {
-	margin-top: -16%;
+.pay-options {
+    display: none;
 }
 
-@media screen and (max-width: 320px){
-	.item-box. actual-price{
-		font-size: medium;
-	}
+.category-grid > .item-grid {
+    align-items: center;
+    display: flex;
+    justify-content: center
+}
+td > div, th > div{
+	margin: 0 auto;
+    padding-right: 0;
 }
 
-@media screen and (max-width: 320px){
-	.item-box .old-price + .actual-price{
-		margin-left: 0px;
-	}
-}
-
-@media (max-width: 481px){
-	.item-box:nth-child(2n+1) {
-    		margin-left: 0;
-	}
-}
-
-@media (max-width: 481px){
-	td.product > a.product-name{
-		text-align: justify;
-    		margin: 0 auto !important;
-	}
-	button.button-2.update-cart-button,
-	button.button-2.clear-cart-button,
-	button.button-2.continue-shopping-button,
-	input#applydiscountcouponcode,
-	input#applygiftcardcouponcode {
-		font-size: small;
-	}
-}
-
-@media (max-width: 320px){
-	select.qty-dropdown {
-    		height: 25px;
-		margin: 0;
-	}
-.mini-shopping-cart .count {
-    		float: left;
-    		padding: 20px 0px 20px 10px;
-	}
-}
-
-@media (min-width: 426px){
-#WidgetSlider-home_page_main_slider-4{
-	display: none !important;
-}
-div.slider-wrapper.anywhere-sliders-nivo-slider.theme-MainBanner.no-captions {
-	display: block !important;
-}
-}
-
-item-grid:first-child{
-	margin-left: 0;
-}
-
-@media (min-width: 481px) and (max-width:1024px){
-	.item-box:nth-child{
-		margin-left: 2%;
-	}
-}
-
-@media (max-width:426px){
-	.details-link > a {
-		padding: 0 5px;
-	}
-	.details {
-		padding: 30px 15px;
-	}
-#WidgetSlider-home_page_main_slider-4{
-	display: block !important;
-}
-div.slider-wrapper.anywhere-sliders-nivo-slider.theme-MainBanner.no-captions {
-display: none !important;
-}
-}
-
-@media (max-width:320px){
-	.total {
-		font-size: 16.5px;
-	}
+.MontoAbono > div{
+	float: right;
 }

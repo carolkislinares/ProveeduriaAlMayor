@@ -312,12 +312,31 @@ input[type="checkbox"]:checked + label:before,
   }
 }
 .sale-of-the-day-offer { background-image: url(http://localhost:15536/images/thumbs/0000991.jpeg); }.ribbon-position:first-of-type {
-        z-index: 2;
+    z-index: 2;
 }
 
 .ribbon-position + .ribbon-position {
-        top: 80px;
+    top: 80px;
 }
+
 .footer-block .title {
-cursor: pointer;
+    cursor: pointer;
+}
+
+.pay-options {
+    display: none;
+}
+
+.category-grid > .item-grid {
+    align-items: center;
+    display: flex;
+    justify-content: center
+}
+td > div, th > div{
+	margin: 0 auto;
+    padding-right: 0;
+}
+
+.MontoAbono > div{
+	float: right;
 }

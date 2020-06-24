@@ -4052,7 +4052,6 @@
       "Nop.Core/4.1.0": {
         "dependencies": {
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "5.0.1",
-          "Autofac": "4.2.0",
           "Autofac.Extensions.DependencyInjection": "4.2.2",
           "Microsoft.AspNetCore.App": "2.1.2",
           "Microsoft.AspNetCore.DataProtection.Redis": "0.4.1",

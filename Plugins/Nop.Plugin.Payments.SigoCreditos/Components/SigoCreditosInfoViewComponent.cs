@@ -25,10 +25,10 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
         Dictionary<int, string> TipoDocumentoJuridico = new Dictionary<int, string>()
             {
                 { 2, "J" },
-                { 3, "G" },
-                { 4, "P" },
-                { 5, "V" },
+                { 3, "G" },              
+                { 6, "V" },
                 { 7, "E" },
+                { 8, "C" },
             };
 
         public IViewComponentResult Invoke(string documento, string tipoDocumento, int CurrentCustomerId)
@@ -42,7 +42,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
                 }
                     // var model = new SigoCreditosInfoModel();
                 string pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
-                int pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.Substring(0, 1)).Key :
+                int pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.ToUpper().Substring(0, 1)).Key :
                                                         Convert.ToInt64(documento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
 
                 var model = ObtenerPuntosxCliente(pTipoCodTipo, pDocumento);
@@ -51,7 +51,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
                 {
                     model.CustomerDocumentValue = tipoDocumento.Equals("1") ? 
                                                  (Convert.ToInt64(documento) > 80000000 ? string.Format(TipoDocumentoNatural.E.ToString()+documento).ToString()  : string.Format(TipoDocumentoNatural.V.ToString()+ documento).ToString()) :
-                                                  documento;
+                                                  documento.ToUpper();
 
                     var ListaSigoCreditosPayPal = _SigoCreditosPaypalService.GetSigoCreditosPaypalAlls().ToList();
 

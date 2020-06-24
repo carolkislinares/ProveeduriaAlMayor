@@ -323,6 +323,8 @@ namespace Nop.Plugin.Payments.SigoCreditos
             _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.Transaccion.FailAbono", "Pero existió un problema al abonar, contacte al administrador");
             _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.CustomerCRM.NotFound", "Cliente no encontrado.");
             _localizationService.AddOrUpdatePluginLocaleResource("Account.CreateDate", "Fecha");
+            _localizationService.AddOrUpdatePluginLocaleResource("Account.SigoCreditos.Installed", "true");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.Transaccion.IdUndefined", "Ocurrio un error en su transaccion de PayPal por favor verifique.");
 
             _contextSCpaypal.Install();
 
@@ -388,8 +390,8 @@ namespace Nop.Plugin.Payments.SigoCreditos
             _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.Transaccion.FailAbono");
             _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.CustomerCRM.NotFound");
             _localizationService.DeletePluginLocaleResource("Account.CreateDate");
-
-
+            _localizationService.AddOrUpdatePluginLocaleResource("Account.SigoCreditos.Installed", "false");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.Transaccion.IdUndefined");
             _contextSCpaypal.Uninstall();
             base.Uninstall();
         }

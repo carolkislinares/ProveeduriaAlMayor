@@ -92,7 +92,7 @@
             </div>
 
             <div class="OwnerBalance inputs row" style="display: flex;">
-                <label class="col-sm-12" style="text-align: center!important; font-weight: 300;color: #8c8c8c;">@T("SigoCreditos.input.OwnerBalance")</label>
+                <label class="col-sm-12" style="text-align: center!important; font-weight: 300;color: #8c8c8c;margin-bottom: 15px;">@T("SigoCreditos.input.OwnerBalance")</label>
                 <ul class="option-list col-sm-12" style="margin-bottom: 0;">
 
                     <li class="col-sm-6">
@@ -121,7 +121,16 @@
                         <label class="col-lg-5 col-md-5" asp-for="CustomerDocumentValue" asp-postfix=":" style="font-weight: 300;color: #8c8c8c; ">@T("SigoCreditos.input.CustomerDocumentValue")</label>
                         <input class="col-lg-7 col-md-7" asp-for="CustomerDocumentValue" readonly style="background-color: #fafafa;" />
                         <span asp-for="CustomerDocumentValue" id="CustomerDocumentValueValidate" />
+
+                        @if (string.IsNullOrWhiteSpace(Model.CostumerName))
+                        {
+                        <div class="row">
+                            <label style="margin-left:42%;font-weight:100;color: #ff0404;" id="mensajeSigoCreditosPaypal">@T("SigoCreditosPaypal.CustomerCRM.NotFound")</label>
+                         </div>
+                       }
+
                     </div>
+                   
                     <div class="row" id="abonoCustomerSearchContainer" style="display: none;">
                         <div class="col-md-12" style="padding-right: 0;">
                             <div class="inputs row">
@@ -252,6 +261,19 @@ $(document).ready(function () {
         if ($("#OwnerBalanceTrue").is(':checked')) {
             $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
             $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+            if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length == 0 ||
+                $("#@Html.IdFor(model => model.CostumerName)").val().length == 0 ||
+                
+                $("#@Html.IdFor(model => model.CostumerPhone)").val().length == 0 ){
+                    $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").attr("disabled","disabled");
+            } else {
+                if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length > 0 &&
+                    $("#@Html.IdFor(model => model.CostumerName)").val().length > 0 &&
+                    
+                    $("#@Html.IdFor(model => model.CostumerPhone)").val().length > 0 ){
+                        $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").removeAttr("disabled");
+                    }
+            }
         } else {
             $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
             $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
@@ -260,12 +282,25 @@ $(document).ready(function () {
         if ($("#OwnerBalanceFalse").is(':checked')) {
             $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
             $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+            if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length == 0 ||
+                $("#@Html.IdFor(model => model.CostumerName)").val().length == 0 ||
+                
+                $("#@Html.IdFor(model => model.CostumerPhone)").val().length == 0 ){
+                    $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").attr("disabled","disabled");
+            } else {
+                if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length > 0 &&
+                    $("#@Html.IdFor(model => model.CostumerName)").val().length > 0 &&
+                   
+                    $("#@Html.IdFor(model => model.CostumerPhone)").val().length > 0 ){
+                        $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").removeAttr("disabled");
+                    }
+            }
         } else {
             $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
             $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
         }
 
-        $('#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)').mask('00000000');
+        $('#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)').mask('000000000000');
         $('#@Html.IdFor(model => model.AddBalanceModel.OwnerBalance)').val(1);
         localStorage.setItem("CustomerDocumentValue",$('#@Html.IdFor(model => model.CustomerDocumentValue)').val());
         localStorage.setItem("CostumerName",$('#@Html.IdFor(model => model.CostumerName)').val());
@@ -301,6 +336,19 @@ $(document).ready(function () {
             $("#@Html.IdFor(model=>model.CostumerLastName)").val(localStorage.getItem("CostumerLastName"));
             $("#@Html.IdFor(model=>model.CostumerPhone)").val(localStorage.getItem("CostumerPhone"));
              $("#@Html.IdFor(model=>model.CustomerDocumentValue)").val(localStorage.getItem("CustomerDocumentValue"));
+            if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length == 0 ||
+                $("#@Html.IdFor(model => model.CostumerName)").val().length == 0 ||
+               
+                $("#@Html.IdFor(model => model.CostumerPhone)").val().length == 0 ){
+                    $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").attr("disabled","disabled");
+            } else {
+                if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length > 0 &&
+                    $("#@Html.IdFor(model => model.CostumerName)").val().length > 0 &&
+                   
+                    $("#@Html.IdFor(model => model.CostumerPhone)").val().length > 0 ){
+                        $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").removeAttr("disabled");
+                }
+            }
 
         } else {
             $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
@@ -314,6 +362,21 @@ $(document).ready(function () {
             $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
             $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
             $("#AddBalanceModel_OwnerBalance").val(0);
+
+             if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length == 0 ||
+                $("#@Html.IdFor(model => model.CostumerName)").val().length == 0 ||
+              
+                $("#@Html.IdFor(model => model.CostumerPhone)").val().length == 0 ){
+                    $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").attr("disabled","disabled");
+            } else {
+                if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length > 0 &&
+                    $("#@Html.IdFor(model => model.CostumerName)").val().length > 0 &&
+                    
+                    $("#@Html.IdFor(model => model.CostumerPhone)").val().length > 0 ){
+                        $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").removeAttr("disabled");
+                }
+            }
+
         } else {
             $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
             $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
@@ -372,12 +435,15 @@ $(document).ready(function () {
                             //alert("Cliente no encontrado")
                             $('#clienteNoEncontrado').modal('show');
                             clearCustomer();
+                            $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").attr("disabled","disabled");
                         } else {
                             $("#@Html.IdFor(model => model.CostumerName)").val(result.CostumerName);
                             $("#@Html.IdFor(model => model.CostumerLastName)").val(result.CostumerLastName);
                             $("#@Html.IdFor(model => model.CostumerPhone)").val(result.CostumerPhone);
                             $("#@Html.IdFor(model => model.AddBalanceModel.CustomerSigoClubId)").val(result.SigoClubId);
                             $("#@Html.IdFor(model => model.AddBalanceModel.CustomerEntityId)").val(result.EntityId);
+                            $("#@Html.IdFor(model => model.AddBalanceModel.TransactionAmount)").removeAttr("disabled");
+
                         }
 
                     //alert(result.);
@@ -465,7 +531,7 @@ $(document).ready(function () {
                    isValid = $("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().match(numbersRif);
                     if (isValid == null) {
                         if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length == 0) {
-                            mensaje = "Se requiere el Pasaporte.";
+                            mensaje = "Se requiere el RIF.";
                         } else {
                            if ($("#@Html.IdFor(model => model.AddBalanceModel.ReceiverDocumentValue)").val().length < 8) {
                                 mensaje = "Mínimo 7 carácteres";
@@ -645,7 +711,9 @@ $(document).ready(function () {
   function evaluarSubmitPaypal(){
          var evaluar = false;
            if ($('#@Html.IdFor(model => model.AddBalanceModel.OwnerBalance)').val() == 1) {
-                     if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length > 0)
+                     if ($("#@Html.IdFor(model => model.CustomerDocumentValue)").val().length > 0 &&
+                         $("#@Html.IdFor(model => model.CostumerName)").val().length > 0 &&
+                         $("#@Html.IdFor(model => model.CostumerPhone)").val().length > 0)
                      {
                          evaluar = true;
                       }
@@ -653,7 +721,7 @@ $(document).ready(function () {
                      {
                           $("#@Html.IdFor(model => model.CustomerDocumentValue)").addClass("input-validation-error");
                           $("#@Html.IdFor(model => model.CustomerDocumentValue)"   + "Validate").removeClass("field-validation-valid").addClass("field-validation-error");
-                          document.getElementById("CustomerDocumentValueValidate").innerHTML = "@T("SigoCreditosPaypal.CustomerCRM.NotFound") ";
+                          //document.getElementById("CustomerDocumentValueValidate").innerHTML = "@T("SigoCreditosPaypal.CustomerCRM.NotFound") ";
                          evaluar = false;
                      }
                  }

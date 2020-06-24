@@ -34,6 +34,54 @@
             </td>
         </tr>
     </table>*@
+<style>
+    #paymentInfoAccounts {
+        max-width: 800px;
+        border: 1px solid #eee;
+        border-radius: 3px;
+        margin: 10px auto;
+        padding: 20px;
+    }
+
+        #paymentInfoAccounts > div.row > div {
+            padding-right: 0px;
+        }
+
+        #paymentInfoAccounts > div.row {
+            font-size: 14px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            letter-spacing: 0.4px;
+        }
+
+        #paymentInfoAccounts strong {
+            font-size: 14px !important;
+        }
+
+    #paymentInfoAccountsForEachTitle {
+        margin-top: 20px;
+    }
+
+    #paymentInfoAccountsForEach > div {
+        font-size: 15px !important;
+        margin: 5px 0;
+    }
+
+    .bankTextRight, .bankTitleTextRight {
+        text-align: right;
+    }
+
+    .bankTitleTextLeft {
+        text-align: left;
+    }
+
+    @@media screen and (max-width:426px) {
+        #paymentInfoAccounts {
+            display: flex;
+            flex-direction: column;
+        }
+    }
+</style>
 <div class="title">
     <h2>@T("Plugin.Payment.Transfer.InstructionTransferTitle")</h2>
     <br />
@@ -42,63 +90,127 @@
         <strong><small style="color:#ff4f60;">@T("Payment.PartialPayment")</small></strong>
     </div>
 </div>
-<table width="100%" cellspacing="2" cellpadding="1" border="0">
+@*<table width="100%" cellspacing="2" cellpadding="1" border="0">
 
-    <tr>
-        <td>
-            <strong>@T("Plugin.Payment.Transfer.NameTitle"):</strong>
-        </td>
-        <td>
-            <label>@T("Plugin.Payment.Transfer.ValueName")</label>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <strong>@T("Plugin.Payment.Transfer.RIFTitle"):</strong>
-        </td>
-        <td>
-            <label>@T("Plugin.Payment.Transfer.ValueRIF")</label>
-
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <strong>@T("Plugin.Payment.Transfer.AccountTypeTitle"):</strong>
-        </td>
-        <td>
-            <label>@T("Plugin.Payment.Transfer.ValueAccountType")</label>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label></label>
-        </td>
-        <td>
-            <label></label>
-        </td>
-    </tr>
-
-    <tr class="order-total">
-        <td>
-            <h3 asp-for="BancoReceptor">@T("Plugin.Payment.Transfer.BankTitle")</h3>
-        </td>
-        <td>
-            <h3>@T("Plugin.Payment.Transfer.AccountNumberTitle")</h3>
-        </td>
-    </tr>
-    @foreach (var bank in Model.BancoReceptor)
-    {
         <tr>
             <td>
-                <strong>@bank.Text</strong>
+                <strong>@T("Plugin.Payment.Transfer.NameTitle"):</strong>
             </td>
             <td>
-                <label>@bank.Value</label>
+                <label>@T("Plugin.Payment.Transfer.ValueName")</label>
             </td>
         </tr>
-    }
+        <tr>
+            <td>
+                <strong>@T("Plugin.Payment.Transfer.RIFTitle"):</strong>
+            </td>
+            <td>
+                <label>@T("Plugin.Payment.Transfer.ValueRIF")</label>
 
-</table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>@T("Plugin.Payment.Transfer.AccountTypeTitle"):</strong>
+            </td>
+            <td>
+                <label>@T("Plugin.Payment.Transfer.ValueAccountType")</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label></label>
+            </td>
+            <td>
+                <label></label>
+            </td>
+        </tr>
+
+        <tr class="order-total">
+            <td>
+                <h3 asp-for="BancoReceptor">@T("Plugin.Payment.Transfer.BankTitle")</h3>
+            </td>
+            <td>
+                <h3>@T("Plugin.Payment.Transfer.AccountNumberTitle")</h3>
+            </td>
+        </tr>
+        @foreach (var bank in Model.BancoReceptor)
+        {
+            <tr>
+                <td>
+                    <strong>@bank.Text</strong>
+                </td>
+                <td>
+                    <label>@bank.Value</label>
+                </td>
+            </tr>
+        }
+
+    </table>*@
+
+@**********************************************************@
+
+<div id="paymentInfoAccounts">
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="row">
+                <div class="col-6 bankTitleTextRight">
+                    <strong>@T("Plugin.Payment.Transfer.NameTitle"):</strong>
+                </div>
+                <div class="col-6 bankTitleTextLeft">
+                    <label>@T("Plugin.Payment.Transfer.ValueName")</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="row">
+                <div class="col-6 bankTitleTextRight">
+                    <strong>@T("Plugin.Payment.Transfer.RIFTitle"):</strong>
+                </div>
+                <div class="col-6 bankTitleTextLeft">
+                    <label>@T("Plugin.Payment.Transfer.ValueRIF")</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="row">
+                <div class="col-6 bankTitleTextRight">
+                    <strong>@T("Plugin.Payment.Transfer.AccountTypeTitle"):</strong>
+                </div>
+                <div class="col-6 bankTitleTextLeft">
+                    <label>@T("Plugin.Payment.Transfer.ValueAccountType")</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="paymentInfoAccountsForEachTitle">
+        <div class="order-total row">
+            <div class="col-6">
+                <h3 class="bankTextRight" asp-for="BancoReceptor">@T("Plugin.Payment.Transfer.BankTitle")</h3>
+            </div>
+            <div class="col-6">
+                <h3>@T("Plugin.Payment.Transfer.AccountNumberTitle")</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row" id="paymentInfoAccountsForEach">
+        @foreach (var bank in Model.BancoReceptor)
+        {
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-6 bankTextRight">
+                        <strong>@bank.Text:</strong>
+                    </div>
+                    <div class="col-6">
+                        <label>@bank.Value</label>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@**********************************************************@
 <br />
 <div class="title">
     <label>@T("Plugin.Payment.Transfer.InstructionTransferValue")</label>

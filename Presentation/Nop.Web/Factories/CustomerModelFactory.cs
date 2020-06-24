@@ -652,16 +652,18 @@ namespace Nop.Web.Factories
             });
 
             ////////////////////////////////////////////
-            //if () {
-            model.CustomerNavigationItems.Add(new CustomerNavigationItemModel
+            if (Convert.ToBoolean(_localizationService.GetResource("Account.SigoCreditos.Installed")))
             {
-                RouteName = "CustomerSigoCreditos",
-                Title = _localizationService.GetResource("Account.SigoCreditos"),
-                ////el nombre lo carga de un registro ya existente en la tabla [dbo].[LocaleStringResource]
-                Tab = CustomerNavigationEnum.SigoCreditos,
-                ItemClass = "sigo-creditos"
-            });
-            //}
+                model.CustomerNavigationItems.Add(new CustomerNavigationItemModel
+                {
+                    RouteName = "CustomerSigoCreditos",
+                    Title = _localizationService.GetResource("Account.SigoCreditos"),
+                    //el nombre lo carga de un registro ya existente en la tabla [dbo].[LocaleStringResource]
+                    Tab = CustomerNavigationEnum.SigoCreditos,
+                    ItemClass = "sigo-creditos"
+                });
+            }
+
             ////////////////////////////////////////////
             model.CustomerNavigationItems.Add(new CustomerNavigationItemModel
             {
