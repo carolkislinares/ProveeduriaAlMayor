@@ -6,7 +6,7 @@
   },
   "ExtendedData": {
     "inputs": [
-      "http://proveedurias.sigo.com.ve/CloudServices/ApiCloudService.svc"
+      "http://proveeduriasdesiis.norkut.com.ve/CloudServices/ApiCloudService.svc"
     ],
     "collectionTypes": [
       "System.Collections.Generic.Dictionary`2",
