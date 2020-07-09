@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Epagos Mercantil",
+  "SystemName": "Payments.EpagosMercantil",
+  "Version": "1.47",
+  "SupportedVersions": [ "4.10" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.EpagosMercantil.dll",
+  "Description": "This plugin enables Epagos Mercantil payment"
+}

@@ -48,7 +48,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Services
             }
             catch (Exception ex)
             {
-                throw new NopException("Error al insertar el banco: " + ex.Message, ex);
+                throw new NopException("Error al insertar SigoCreditosPaypal: " + ex.Message, ex);
             }
         }
 

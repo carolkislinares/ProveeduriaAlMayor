@@ -324,7 +324,27 @@ namespace Nop.Plugin.Payments.SigoCreditos
             _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.CustomerCRM.NotFound", "Cliente no encontrado.");
             _localizationService.AddOrUpdatePluginLocaleResource("Account.CreateDate", "Fecha");
             _localizationService.AddOrUpdatePluginLocaleResource("Account.SigoCreditos.Installed", "true");
-            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.Transaccion.IdUndefined", "Ocurrio un error en su transaccion de PayPal por favor verifique.");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.Transaccion.IdUndefined", "Ocurrió un error en su transacción de PayPal por favor verifique.");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.Comision.Porcentaje", "0.05");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.Comision.Constante", "0.30");
+            _localizationService.AddOrUpdatePluginLocaleResource("sigocreditos.paypal.client-id-produccion", "false");
+            _localizationService.AddOrUpdatePluginLocaleResource("sigocreditos.enabled", "true");
+            _localizationService.AddOrUpdatePluginLocaleResource("sigocreditos.checkConsumo.Mensaje", "Usar mis Sigo Créditos, ${0} disponibles para este pedido.");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin", "Ingrese su PIN para continuar");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.cancelButtonText", "Cancelar");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.confirmButtonText", "Enviar");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.pininvalidate", "Pin inválido");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.pinrequired", "Pin requerido");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.button", "Saldo");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.documentplaceholder", "Número de Cédula");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.pinplaceholder", "PIN");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.documentrequired", "La cédula es requerida");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.cedminimun", "Minino 8 caracteres");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditosPaypal.validationpin.pinminimun", "Minino 6 caracteres");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditos.title.abono", "Abono");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditos.Abono.CustomerNotFound", "Usted se encuentra el registro de SIGO Creditos.");
+            _localizationService.AddOrUpdatePluginLocaleResource("SigoCreditos.title.giftcard", "Gift Card");
+
 
             _contextSCpaypal.Install();
 
@@ -392,6 +412,24 @@ namespace Nop.Plugin.Payments.SigoCreditos
             _localizationService.DeletePluginLocaleResource("Account.CreateDate");
             _localizationService.AddOrUpdatePluginLocaleResource("Account.SigoCreditos.Installed", "false");
             _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.Transaccion.IdUndefined");
+            _localizationService.DeletePluginLocaleResource("sigocreditos.paypal.client-id-produccion");
+            _localizationService.AddOrUpdatePluginLocaleResource("sigocreditos.enabled", "false");
+
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.cancelButtonText");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.confirmButtonText");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.pininvalidate");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.pinrequired");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.button");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.documentplaceholder");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.pinplaceholder");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.documentrequired");
+            _localizationService.DeletePluginLocaleResource("SigoCreditos.title.abono");
+            _localizationService.DeletePluginLocaleResource("SigoCreditos.title.giftcard");
+            _localizationService.DeletePluginLocaleResource("SigoCreditos.Abono.CustomerNotFound");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.cedminimun");
+            _localizationService.DeletePluginLocaleResource("SigoCreditosPaypal.validationpin.pinminimun");
+
             _contextSCpaypal.Uninstall();
             base.Uninstall();
         }

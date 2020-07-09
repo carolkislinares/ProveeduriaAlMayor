@@ -2,15 +2,6 @@
     Layout = "";
 }
 @model Nop.Plugin.Payments.Zelle.Models.PaymentInfoModel
-@using Nop.Core.Infrastructure
-@using Nop.Services.Orders
-@{
-    var order = EngineContext.Current.Resolve<IOrderService>().GetOrderById(Model.Order);
-
-}
-
-
-
 <div class="page  registration-page">
     <div class="panel-body">
         <form asp-controller="Admin/PaymentZelle" asp-action="RegisterPayment"
@@ -22,10 +13,6 @@
                     @if (!string.IsNullOrWhiteSpace(Model.Reference))
                     {
                         <strong><small style="color:#ff4f60;">@T("Payment.RegisteredPayment")</small></strong>
-                    }
-                    @if (order.OrderStatusId == 40)
-                    {
-                        <strong><small style="color:#ff4f60;">@T("Payment.OrderCancel")</small></strong>
                     }
 
                 </h1>
@@ -44,7 +31,7 @@
                             <input type="text" asp-for="Order" readonly autocomplete="off" />
                             <span asp-validation-for="Order"></span>
                         </div>
-                        @if (Model.PaymentStatusOrder < 30 && order.OrderStatusId < 30)
+                        @if (Model.PaymentStatusOrder < 30)
                         {
                             @*<div class="inputs">
                                     <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
@@ -73,7 +60,7 @@
                             <div class="inputs">
 
                                 <label asp-for="Reference">@T("Plugins.Payments.Zelle.Fields.Reference"):</label>
-                                <input type="text" asp-for="Reference" autocomplete="off" readonly maxlength="10" />
+                                <input type="text" asp-for="Reference" autocomplete="off" readonly maxlength="10" onblur="onlyNumber()" />
                                 <nop-required />
                                 <span asp-validation-for="Reference" id="ReferenciaValidate"></span>
 
@@ -88,7 +75,7 @@
                     <i class="fa fa-floppy-o"></i>
                     @T("Admin.Common.Back")
                 </button>
-                @if (Model.PaymentStatusOrder < 30 && order.OrderStatusId < 30)
+                @if (Model.PaymentStatusOrder < 30)
                 {
                     <button type="submit" name="save" class="button-1">
                         <i class="fa fa-floppy-o"></i>

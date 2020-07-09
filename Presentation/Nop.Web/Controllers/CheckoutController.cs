@@ -26,12 +26,34 @@ using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Framework.Security;
 using Nop.Web.Models.Checkout;
+using Nop.Web.ApiCloudContext;
+using static Nop.Web.ApiCloudContext.ApiCloudContext;
+using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Tax;
+using Nop.Services.Discounts;
 
 namespace Nop.Web.Controllers
 {
     [HttpsRequirement(SslRequirement.Yes)]
     public partial class CheckoutController : BasePublicController
     {
+        #region Variables Globales para creditos Sigo
+        public static decimal pMonto = 0;
+        public static decimal pMontoDs = 0;
+        public static bool pIndSigoCreditos = false;
+        public static string pDocumento;
+        public static int pTipoCodTipo;
+        public static bool pIndErrorPin = false;
+        public static string pMensajeError = "";
+
+        public static bool pIndAplicoCreditos = false;
+        public static bool pIndMetodoDePago = false;
+
+
+        List<ShoppingCartItem> cart = new List<ShoppingCartItem>();
+
+        #endregion
+
         #region Fields
 
         private readonly AddressSettings _addressSettings;
@@ -60,7 +82,13 @@ namespace Nop.Web.Controllers
         private readonly ShippingSettings _shippingSettings;
         private readonly ICurrencyService _currencyService;
         private readonly ISettingService _settingService;
-       
+        private readonly IShoppingCartModelFactory _shoppingCartModelFactory;
+        private readonly TaxSettings _taxSettings;
+        private readonly IOrderTotalCalculationService _orderTotalCalculationService;
+        //Interfaz para atributos Genericos
+        private readonly ICustomerAttributeParser _CustomerService;
+        //
+
         #endregion
 
         #region Ctor
@@ -90,7 +118,11 @@ namespace Nop.Web.Controllers
             RewardPointsSettings rewardPointsSettings,
             ShippingSettings shippingSettings,
             ICurrencyService currencyService,
-            ISettingService settingService)
+            ISettingService settingService,
+            IShoppingCartModelFactory shoppingCartModelFactory,
+            ICustomerAttributeParser CustomerService,
+            TaxSettings taxSettings,
+            IOrderTotalCalculationService orderTotalCalculationService)
         {
             this._addressSettings = addressSettings;
             this._customerSettings = customerSettings;
@@ -118,7 +150,11 @@ namespace Nop.Web.Controllers
             this._shippingSettings = shippingSettings;
             this._currencyService = currencyService;
             this._settingService = settingService;
-           
+            this._shoppingCartModelFactory = shoppingCartModelFactory;
+            this._CustomerService = CustomerService;
+
+            this._orderTotalCalculationService = orderTotalCalculationService;
+            this._taxSettings = taxSettings;
         }
 
         #endregion
@@ -255,6 +291,10 @@ namespace Nop.Web.Controllers
 
         public virtual IActionResult BillingAddress()
         {
+            pMonto = 0;
+            pIndSigoCreditos = false;
+            pIndAplicoCreditos = false;
+            pMontoDs = 0;
             //validation
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
@@ -406,6 +446,10 @@ namespace Nop.Web.Controllers
 
         public virtual IActionResult ShippingAddress()
         {
+            pMonto = 0;
+            pIndSigoCreditos = false;
+            pIndAplicoCreditos = false;
+            pMontoDs = 0;
             //validation
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
@@ -710,14 +754,36 @@ namespace Nop.Web.Controllers
 
         public virtual IActionResult PaymentMethod()
         {
+            List<ShoppingCartItem> cart = new List<ShoppingCartItem>();
+
             //validation
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
 
-            var cart = _workContext.CurrentCustomer.ShoppingCartItems
-                .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
-                .LimitPerStore(_storeContext.CurrentStore.Id)
-                .ToList();
+            if (pMonto != 0)
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems.ToList();
+                cart.ForEach(item =>
+                {
+                    item.Monto = pMonto;
+                    item.IndCreditosSigo = pIndSigoCreditos;
+                });
+
+               cart = cart.Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+               .LimitPerStore(_storeContext.CurrentStore.Id)
+               .ToList();
+               
+            }
+            else
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems
+               .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+               .LimitPerStore(_storeContext.CurrentStore.Id)
+               .ToList();
+
+            }
+
+
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
 
@@ -748,7 +814,37 @@ namespace Nop.Web.Controllers
 
             //model
             var paymentMethodModel = _checkoutModelFactory.PreparePaymentMethodModel(cart, filterByCountryId);
-
+            bool IndGiftCardSigoCreditos = cart.Any(x => x.Product.GiftCardTypeId == (int)GiftCardType.CreditosSigo);
+            if (IndGiftCardSigoCreditos)
+            {
+                var DigitalPayments = _localizationService.GetResource("admin.payments.digital").ToString().Split(new[] { "," }, StringSplitOptions.None);
+                paymentMethodModel.PaymentMethods = (from x in paymentMethodModel.PaymentMethods
+                             join y in DigitalPayments on x.PaymentMethodSystemName equals y
+                             select x).ToList();
+                paymentMethodModel.IndSigoCreditos = false;
+            }
+            if (pIndErrorPin)
+            {
+                paymentMethodModel.IndError = true;
+                paymentMethodModel.MensajeError = pMensajeError;
+                paymentMethodModel.IndSigoCreditos = true;
+                pIndErrorPin = false;
+                return View(paymentMethodModel);
+            }
+            if (pIndAplicoCreditos)
+            {
+                paymentMethodModel.IndAplicoCreditos = 1;
+            }
+            if (Convert.ToBoolean(_localizationService.GetResource("sigocreditos.enabled").ToString()))
+            {
+                if (!IndGiftCardSigoCreditos)
+                {
+                    if (ValidarSigoCreditosUsuario())
+                    {
+                        paymentMethodModel.IndSigoCreditos = true;
+                    }
+                }
+            }
             if (_paymentSettings.BypassPaymentMethodSelectionIfOnlyOne &&
                 paymentMethodModel.PaymentMethods.Count == 1 && !paymentMethodModel.DisplayRewardPoints)
             {
@@ -769,6 +865,7 @@ namespace Nop.Web.Controllers
         [FormValueRequired("nextstep")]
         public virtual IActionResult SelectPaymentMethod(string paymentmethod, CheckoutPaymentMethodModel model)
         {
+            pIndMetodoDePago = true;
             //validation
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
@@ -833,10 +930,28 @@ namespace Nop.Web.Controllers
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
 
-            var cart = _workContext.CurrentCustomer.ShoppingCartItems
-                .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+            if (pMonto != 0)
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems.ToList();
+                cart.ForEach(item =>
+                {
+                    item.Monto = pMonto;
+                    item.IndCreditosSigo = pIndSigoCreditos;
+                });
+
+                cart = cart.Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
                 .LimitPerStore(_storeContext.CurrentStore.Id)
                 .ToList();
+            }
+            else
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems
+               .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+               .LimitPerStore(_storeContext.CurrentStore.Id)
+               .ToList();
+
+            }
+
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
 
@@ -848,6 +963,7 @@ namespace Nop.Web.Controllers
 
             //Check whether payment workflow is required
             var isPaymentWorkflowRequired = _orderProcessingService.IsPaymentWorkflowRequired(cart);
+            _genericAttributeService.SaveAttribute<string>(_workContext.CurrentCustomer, isPaymentWorkflowRequired.ToString(),"IdPayment" ,_storeContext.CurrentStore.Id);
             if (!isPaymentWorkflowRequired)
             {
 
@@ -858,6 +974,19 @@ namespace Nop.Web.Controllers
             var paymentMethodSystemName = _genericAttributeService.GetAttribute<string>(_workContext.CurrentCustomer,
                 NopCustomerDefaults.SelectedPaymentMethodAttribute, _storeContext.CurrentStore.Id);
             var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(paymentMethodSystemName);
+            var modelOrder = _shoppingCartModelFactory.PrepareOrderTotalsModel(cart, false);
+
+            //Condicional si se aplica creditos y queda algun restante.
+            if (!pIndMetodoDePago)
+            {
+                _genericAttributeService.SaveAttribute<string>(_workContext.CurrentCustomer, pIndMetodoDePago.ToString(), "pIndMetodoDePago", _storeContext.CurrentStore.Id);
+                _genericAttributeService.SaveAttribute<string>(_workContext.CurrentCustomer, modelOrder.OrderTotal, "OrderTotal", _storeContext.CurrentStore.Id);
+                if (!modelOrder.OrderTotal.Equals("$0.00") && pIndSigoCreditos)
+                {
+                    return RedirectToRoute("CheckoutPaymentMethod");
+                }
+            }
+            
             if (paymentMethod == null)
                 return RedirectToRoute("CheckoutPaymentMethod");
 
@@ -939,10 +1068,27 @@ namespace Nop.Web.Controllers
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
 
-            var cart = _workContext.CurrentCustomer.ShoppingCartItems
-                .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+            if (pMonto != 0)
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems.ToList();
+                cart.ForEach(item =>
+                {
+                    item.Monto = pMonto;
+                    item.IndCreditosSigo = pIndSigoCreditos;
+                });
+
+                cart.Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
                 .LimitPerStore(_storeContext.CurrentStore.Id)
                 .ToList();
+            }
+            else
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems
+               .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+               .LimitPerStore(_storeContext.CurrentStore.Id)
+               .ToList();
+
+            }
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
 
@@ -966,10 +1112,27 @@ namespace Nop.Web.Controllers
 
             ChangeCurrencyToBs();
 
-            var cart = _workContext.CurrentCustomer.ShoppingCartItems
-                .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+            if (pMonto != 0)
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems.ToList();
+                cart.ForEach(item =>
+                {
+                    item.Monto = pMonto;
+                    item.IndCreditosSigo = pIndSigoCreditos;
+                });
+
+                cart = cart.Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
                 .LimitPerStore(_storeContext.CurrentStore.Id)
                 .ToList();
+            }
+            else
+            {
+                cart = _workContext.CurrentCustomer.ShoppingCartItems
+               .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+               .LimitPerStore(_storeContext.CurrentStore.Id)
+               .ToList();
+
+            }
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
 
@@ -1011,14 +1174,37 @@ namespace Nop.Web.Controllers
                     {
                         Order = placeOrderResult.PlacedOrder
                     };
-                    _paymentService.PostProcessPayment(postProcessPaymentRequest);
 
+                    if (pIndSigoCreditos)
+                    {
+                        var DataCliente = ApiCloudContext.ApiCloudContext.ObtenerCliente(pTipoCodTipo, pDocumento);
+                        if (DataCliente != null)
+                        {
+                            DataCliente.Amount = pMontoDs;
+                            var response = ApiCloudContext.ApiCloudContext.ConsumirPuntos(DataCliente);
+                            if (response)
+                            {
+                                postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = _localizationService.GetResource("ShoppingCart.Totals.SigoPoints.Complete") + " $" + pMontoDs, DisplayToCustomer = true, CreatedOnUtc = DateTime.UtcNow });
+                                postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note =  _localizationService.GetResource("Payments.SigoCreditos"), DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
+                                _orderService.UpdateOrder(postProcessPaymentRequest.Order);
+                                _paymentService.PostProcessPayment(postProcessPaymentRequest);
+                            }
+                        }
+                       
+                    }
+                    else
+                    {
+                        _paymentService.PostProcessPayment(postProcessPaymentRequest);
+                    }
+                   
                     if (_webHelper.IsRequestBeingRedirected || _webHelper.IsPostBeingDone)
                     {
                         //redirection or POST has been done in PostProcessPayment
                         return Content("Redirected");
                     }
 
+                    pMonto = 0;
+                    pIndSigoCreditos = false;
                     return RedirectToRoute("CheckoutCompleted", new CheckoutCompletedModel { OrderId = placeOrderResult.PlacedOrder.Id });
                 }
 
@@ -1858,6 +2044,152 @@ namespace Nop.Web.Controllers
             }
         }
 
+
+        #region Creditos Sigo
+        //[HttpPost]
+        public IActionResult DescontarCreditos(decimal Monto, bool IndCreditos, string Pin,string DocumentoCliente)
+        {
+
+           
+            
+            //Consulta para data generica del Cliente Documento-TipoDocumento
+ 
+            Dictionary<int, string> TipoDocumentoJuridico = new Dictionary<int, string>()
+            {
+                { 2, "J" },
+                { 3, "G" },
+                { 6, "V" },
+                { 7, "E" },
+                { 8, "C" },
+            };
+            var CustomerEcommerce = _workContext.CurrentCustomer;
+            var selectedCustomerAttributesString = _genericAttributeService.GetAttribute<string>(CustomerEcommerce, NopCustomerDefaults.CustomCustomerAttributes);
+            var documento = _CustomerService.ParseValues(selectedCustomerAttributesString, 1).FirstOrDefault();
+            var tipoDocumento = _CustomerService.ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
+            pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
+            pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.Substring(0, 1)).Key :
+                                                          Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
+            long ClienteJuridico=0;
+            bool Confirmado;
+            //////////
+
+            var DataCliente = ApiCloudContext.ApiCloudContext.ObtenerCliente(pTipoCodTipo, pDocumento);
+
+            if (pTipoCodTipo == 2)
+            {
+                ClienteJuridico = ApiCloudContext.ApiCloudContext.ObtenerClientesJuridico(DataCliente.SigoClubId, DocumentoCliente);
+                if (ClienteJuridico != 0)
+                {
+                    Confirmado = ApiCloudContext.ApiCloudContext.ConfirmarPassword(ClienteJuridico, Pin, DocumentoCliente);
+                    if (!Confirmado)
+                    {
+                        pIndErrorPin = true;
+                        pMensajeError = "El pin de seguridad que ha ingresado no es el correcto.";
+                        return RedirectToRoute("CheckoutPaymentMethod");
+
+                    }
+                }
+                else
+                {
+                    pIndErrorPin = true;
+                    pMensajeError = "La cédula que ha ingresado no es un cliente autorizado.";
+                    return RedirectToRoute("CheckoutPaymentMethod");
+                } 
+            }
+            else
+            {
+                 Confirmado = ApiCloudContext.ApiCloudContext.ConfirmarPassword( DataCliente.EntityId, Pin, DocumentoCliente);
+            }
+            
+            
+          
+            //Confirmado = true;
+            if (Confirmado)
+            {
+                pIndErrorPin = false;
+                //Asignacion de Variables Globales
+                pMonto = Monto;
+                pMontoDs = Monto;
+                pIndSigoCreditos = IndCreditos;
+                pIndAplicoCreditos = true;
+
+                /// //Conversion del monto Para el Descuento
+                string valueSettings = _settingService.GetSettingByKey("CurrencyBsID".ToLower(), "", _storeContext.CurrentStore.Id, true);
+                if (!string.IsNullOrEmpty(valueSettings))
+                {
+                    var Cuenta = _currencyService.GetCurrencyById(Convert.ToInt32(valueSettings));
+                    cart = _workContext.CurrentCustomer.ShoppingCartItems
+                   .Where(sci => sci.ShoppingCartType == ShoppingCartType.ShoppingCart)
+                   .LimitPerStore(_storeContext.CurrentStore.Id).ToList();
+                    var subTotalIncludingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
+                   
+                    var subtotalBase = _orderTotalCalculationService.GetShoppingCartTotal(cart, false, false);
+
+                    var modelOrder = _shoppingCartModelFactory.PrepareOrderTotalsModel(cart, false);
+                    var total = decimal.Parse(modelOrder.OrderTotal.Substring(modelOrder.OrderTotal.IndexOf(",") + 2));
+                    
+                    if (pMonto >= total)
+                    {
+                        pMonto = subtotalBase == null ? 0 : (decimal)subtotalBase;
+                        pMontoDs = total;
+                    }
+                    else
+                    {
+                        pMonto = pMonto * Cuenta.Rate;
+                    }
+                }
+                //
+                return RedirectToRoute("CheckoutPaymentInfo");
+            }
+            else
+            {
+                pIndErrorPin = true;
+                pMensajeError = "El pin de seguridad que ha ingresado no es el correcto.";
+                return RedirectToRoute("CheckoutPaymentMethod");
+            }
+        }
+
+
+        public IActionResult LimpiarCreditos(decimal Monto, bool IndCreditos)
+        {
+            pIndErrorPin = false;
+            pMonto = 0;
+            pMontoDs = 0;
+            pIndSigoCreditos = false;
+            pIndAplicoCreditos = false;
+            return RedirectToRoute("CheckoutPaymentMethod");
+
+        }
+
+        #endregion
+
+        #region Validacion Usuario SigoCreditos
+
+        public bool ValidarSigoCreditosUsuario()
+        {
+            Dictionary<int, string> TipoDocumentoJuridico = new Dictionary<int, string>()
+            {
+                { 2, "J" },
+                { 3, "G" },
+                { 6, "V" },
+                { 7, "E" },
+                { 8, "C" },
+            };
+            var CustomerEcommerce = _workContext.CurrentCustomer;
+            var selectedCustomerAttributesString = _genericAttributeService.GetAttribute<string>(CustomerEcommerce, NopCustomerDefaults.CustomCustomerAttributes);
+            var documento = _CustomerService.ParseValues(selectedCustomerAttributesString, 1).FirstOrDefault();
+            var tipoDocumento = _CustomerService.ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
+            pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
+            pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.Substring(0, 1)).Key :
+                                                          Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
+            var DataCliente = ApiCloudContext.ApiCloudContext.ObtenerCliente(pTipoCodTipo, pDocumento);
+            if (DataCliente.OldAmount > 0)
+                return true;
+            else return false;
+
+        }
+
+        #endregion
 
     }
 }

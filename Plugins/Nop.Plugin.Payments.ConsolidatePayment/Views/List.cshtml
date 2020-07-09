@@ -1,0 +1,288 @@
+@model Nop.Plugin.Payments.ConsolidatePayment.Models.ConfigurationModel
+@inject Nop.Core.Domain.Common.AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = T("Admin.Catalog.Categories.Manage").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Categories");
+    var defaultGridPageSize = adminAreaSettings.DefaultGridPageSize;
+    var gridPageSizes = adminAreaSettings.GridPageSizes;
+
+}
+
+<nop-antiforgery-token />
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("Admin.Catalog.Categories.Manage")
+    </h1>
+    <div class="pull-right">
+        <a asp-action="Create" class="btn bg-blue" style="display:none">
+            <i class="fa fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+        <div class="btn-group">
+            <button type="button" class="btn btn-success">
+                <i class="fa fa-download"></i>
+                @T("Admin.Common.Export")
+            </button>
+            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">&nbsp;</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a asp-action="ExportXml">
+                        <i class="fa fa-file-code-o"></i>
+                        @T("Admin.Common.ExportToXml")
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="ExportXlsx">
+                        <i class="fa fa-file-excel-o"></i>
+                        @T("Admin.Common.ExportToExcel")
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window">
+            <i class="fa fa-upload"></i>
+            @T("Admin.Common.Import")
+        </button>
+        @*@await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.CategoryListButtons })*@
+    </div>
+</div>
+
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="TiendaId" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-select asp-for="TiendaId" asp-items="Model.Tiendas" />
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="MetodoPago" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-select asp-for="MetodoPago" asp-items="Model.MetodosPago" />
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="BancoReceptorId" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-select asp-for="BancoReceptorId" asp-items="Model.BancosReceptores" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="Referencia" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="Referencia" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="OrdenId" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="OrdenId" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="UltimaActualizacion" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="FechaUltimaActualizacion" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="StatusPaymentOrder" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="StatusPaymentOrder" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-4">
+                                    <button type="button" id="search-categories" class="btn btn-primary btn-search"><i class="fa fa-search"></i>@T("Admin.Common.Search")</button>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="categories-grid"></div>
+
+                    <script>
+                        $(document).ready(function() {
+                            $("#categories-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List", "ConsolidatePayment"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: function() {
+                                                var data = {
+                                                    TiendaId: $('#@Html.IdFor(model => model.TiendaId)').val(),
+                                                    OrdenId: $('#@Html.IdFor(model => model.OrdenId)').val(), 
+                                                    ClienteId: 0, 
+                                                    Referencia: $('#@Html.IdFor(model => model.Referencia)').val()
+                                                    MetodoPago: $('#@Html.IdFor(model => model.MetodoPago)').val()
+                                                    StatusPaymentOrder: $('#@Html.IdFor(model => model.StatusPaymentOrder)').val()
+                                                    BancoReceptorId: $('#@Html.IdFor(model => model.BancoReceptorId)').val()
+                                                };
+                                                addAntiForgeryToken(data);
+                                                return data;
+                                            }
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "FechaRegistro",
+                                        title: "@T("Admin.Catalog.Categories.Fields.FechaRegistro")"
+                                    }, {
+                                        field: "Tienda",
+                                        title: "@T("Admin.Catalog.Categories.Fields.Tienda")",
+                                        width: 150
+                                    },
+                                    {
+                                        field: "MetodoPago",
+                                        title: "@T("Admin.Catalog.Categories.Fields.MetodoPago")",
+                                        width: 100,
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        //template: '# if(Published) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                                    },  {
+                                        field: "MontoTotalOrden",
+                                        title: "@T("Admin.Catalog.Categories.Fields.MontoTotalOrden")",
+                                        width: 100,
+                                        //template: '# if(Published) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                                    },  {
+                                        field: "Id",
+                                        title: "@T("Plugins.Payments.ConsolidatePayment.Pay")",
+                                        width: 100,
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                         template:"# if(StatusPaymentOrder==10) {#<a href=@Url.Action("UpdateStatePayment", "PaymentConsolidatePayment")?id=#:Id# name='markorderaspaid#:Id#' id='markorderaspaid#:Id#' class='btn btn-primary'>@T("Admin.Orders.Fields.MarkAsPaid")</a> #} else {# <span class='grid-report-item green'>@T("Plugins.Payments.ConsolidatePayment.Consolidate")</span> #}# "
+
+                                        template: '<a class="btn btn-default" href="Edit/#=Id#"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</a>'
+                                    }
+                                ]
+                            });
+                        });
+                    </script>
+
+                    <script>
+                        $(document).ready(function() {
+                            //search button
+                            $('#search-categories').click(function() {
+                                //search
+                                var grid = $('#categories-grid').data('kendoGrid');
+                                grid.dataSource.page(1); //new search. Set page size to 1
+                                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                                return false;
+                            });
+
+                            @*$("#@Html.IdFor(model => model.SearchCategoryName)").keydown(function(event) {
+                                if (event.keyCode == 13) {
+                                    $("#search-categories").click();
+                                    return false;
+                                }
+                            });*@
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*import categories form*@
+<div id="importexcel-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="importexcel-window-title">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="importexcel-window-title">@T("Admin.Common.ImportFromExcel")</h4>
+            </div>
+            <form asp-controller="Category" asp-action="ImportFromXlsx" method="post" enctype="multipart/form-data">
+                <div class="form-horizontal">
+                    <div class="modal-body">
+                        <ul class="common-list">
+                            <li>
+                                <em>@T("Admin.Catalog.Categories.List.ImportFromExcelTip")</em>
+                            </li>
+                            <li>
+                                <em>@T("Admin.Common.ImportFromExcel.ManyRecordsWarning")</em>
+                            </li>
+                        </ul>
+                        <div class="form-group">
+                            <div class="col-md-2">
+                                <div class="label-wrapper">
+                                    <label class="control-label">
+                                        @T("Admin.Common.ExcelFile")
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-10">
+                                <input type="file" id="importexcelfile" name="importexcelfile" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            @T("Admin.Common.ImportFromExcel")
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

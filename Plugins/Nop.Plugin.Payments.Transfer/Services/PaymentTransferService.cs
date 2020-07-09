@@ -301,6 +301,9 @@ namespace Nop.Plugin.Payments.Transfer.Services
                 paymentTransfer.IssuingBankId = transfer.IssuingBankId;
                 paymentTransfer.ReceiverBankId = transfer.ReceiverBankId;
                 paymentTransfer.ReferenceNumber = transfer.ReferenceNumber;
+                paymentTransfer.ReceiverBankName = transfer.ReceiverBankName;
+                paymentTransfer.IssuingBankName = transfer.IssuingBankName;
+              
 
                 _transferRepository.Update(paymentTransfer);
                 _cacheManager.RemoveByPattern(TRANSFER_PATTERN_KEY);

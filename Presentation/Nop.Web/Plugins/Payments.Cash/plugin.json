@@ -3,9 +3,13 @@
   "FriendlyName": "Payment Cash",
   "SystemName": "Payments.Cash",
   "Version": "1.47",
-  "SupportedVersions": [ "4.10" ],
+  "SupportedVersions": [
+    "4.10"
+  ],
   "Author": "Norkut team",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Payments.Cash.dll",
-  "Description": "Este plugin permite procesar el pago en efectivo en Dolares."
+  "Description": "Este plugin permite procesar el pago en efectivo en Dolares.",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": []
 }

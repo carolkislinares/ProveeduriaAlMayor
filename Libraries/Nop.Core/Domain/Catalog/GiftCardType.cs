@@ -14,5 +14,10 @@ namespace Nop.Core.Domain.Catalog
         /// Physical
         /// </summary>
         Physical = 1,
+
+        /// <summary>
+        /// Enum usado para giftCard tipo Creditos Sigo
+        /// </summary>
+        CreditosSigo = 2
     }
 }

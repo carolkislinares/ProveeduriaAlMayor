@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Nop.Core.Domain.Configuration;
 using Nop.Data.Mapping;
 using Nop.Plugin.Payments.Transfer.Domain;
 

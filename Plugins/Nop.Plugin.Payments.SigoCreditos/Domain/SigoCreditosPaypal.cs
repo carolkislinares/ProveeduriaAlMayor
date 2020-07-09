@@ -25,11 +25,9 @@ namespace Nop.Plugin.Payments.SigoCreditos.Domain
 
         public bool Estatus_Operacion { get; set; }
 
+        public bool EsGiftCard { get; set; }
 
-
-
-
-
+        public string CodigoGiftCard { get; set; }
 
 
 

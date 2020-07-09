@@ -11,42 +11,61 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
     {
 
         private readonly static wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
-
+       
+        /// <summary>
+        /// Datos basicos y cuentas de un cliente en CRM
+        /// </summary>
+        /// <param name="pCodTipo"></param>
+        /// <param name="pDocumento"></param>
+        /// <returns></returns>
         public static SigoCreditosInfoModel ObtenerPuntosxCliente(int pCodTipo, string pDocumento)
         {
             wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
             Task<wsCRM.mCliente> result = cRMClient.ObtenerPuntosxClienteAsync(pCodTipo, pDocumento);
             return new SigoCreditosInfoModel(result.Result);
         }
-        public static SigoCreditosInfoModel ObtenerCliente(int pCodTipo, string pDocumento)
+
+        /// <summary>
+        /// Datos basicos de un cliente CRM
+        /// </summary>
+        /// <param name="pCodTipo"></param>
+        /// <param name="pDocumento"></param>
+        /// <returns></returns>
+        public static ClienteModel ObtenerCliente(int pCodTipo, string pDocumento)
         {
             wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
             Task<wsCRM.mCliente> result = cRMClient.ConsultarClientesAsync(pDocumento, pCodTipo);
-            return result.Result !=null? new SigoCreditosInfoModel
+            return result.Result !=null? new ClienteModel
             {
                 SigoClubId = result.Result.Cod_SigoClub,
                 EntityId = result.Result.Cod_Entidad,
-                CustomerDocumentType = result.Result.Cod_Tipo,
-                CustomerDocumentValue = result.Result.Cedula,
-                CostumerLastName = result.Result.Apellido,
-                CostumerName = result.Result.Nombre,
-                CostumerPhone = result.Result.TelefonoPrincipal,
-            }: null;
+                TipoDocumento = result.Result.Cod_Tipo,
+                Documento = result.Result.Cedula,
+                Apellido = result.Result.Apellido,
+                Nombre = result.Result.Nombre,
+                Telefono = result.Result.TelefonoPrincipal,
+                Email = result.Result.Email,
+            } : null;
         }
 
+        /// <summary>
+        /// Abonos directos CRM
+        /// </summary>
+        /// <param name="pModel"></param>
+        /// <returns></returns>
         public static wsCRM.mAbonosCredito AbonarPuntos(SigoCreditosInfoModel pModel)
         {
           try
             {
             wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
             wsCRM.mCliente clienteA = new wsCRM.mCliente();
-            wsCRM.mCliente client = pModel.AddBalanceModel.OwnerBalance == 1
-                ? new wsCRM.mCliente() { Cod_SigoClub = pModel.AddBalanceModel.CustomerSigoClubId, Cedula = pModel.CustomerDocumentValue }
-                : cRMClient.ObtenerPuntosxClienteAsync(pModel.AddBalanceModel.ReceiverDocumentType, pModel.AddBalanceModel.ReceiverDocumentValue).Result;
+            wsCRM.mCliente client = pModel.Abono.IndCuentaCliente == 1
+                ? new wsCRM.mCliente() { Cod_SigoClub = pModel.Abono.Receptor.SigoClubId, Cedula = pModel.Emisor.Documento }
+                : cRMClient.ObtenerPuntosxClienteAsync(pModel.Abono.Receptor.TipoDocumento, pModel.Abono.Receptor.Documento).Result;
 
            // wsCRM.mAbonosCredito result = cRMClient.GenerarAbonoPuntosAsync(client.Cod_SigoClub, "00", 2, new wsCRM.mCliente(), "", pModel.AddBalanceModel.TransactionAmount, 13440, 44, "", false, "Dolar", (wsCRM.CodigosTipoOperacionMov)TipoOperacionMov.EcormmerceAbonoSaldo, -1).Result;
            // wsCRM.mAbonosCredito result = cRMClient.GenerarAbonoPuntosAsync(client.Cod_SigoClub, "00", 2, new wsCRM.mCliente(), "", pModel.AddBalanceModel.TransactionAmount, 13440, 44, "", false, "Dolar", (wsCRM.CodigosTipoOperacionMov)TipoOperacionMov.CRMAbobodirectodesaldo, -1).Result;
-            return cRMClient.GenerarAbonoPuntosAsync(client.Cod_SigoClub, "00", 2, clienteA, "", Convert.ToDecimal(pModel.AddBalanceModel.TransactionAmount.Replace(".",string.Empty).Replace(",", ".").Trim()),0, 44, "", false, "Dolar", (wsCRM.CodigosTipoOperacionMov)TipoOperacionMov.EcormmerceAbonoSaldo, -1).Result;
+            return cRMClient.GenerarAbonoPuntosAsync(client.Cod_SigoClub, "00", 2, clienteA, "", Convert.ToDecimal(pModel.Abono.MontoTransaccion.ToString().Replace(".",string.Empty).Replace(",", ".").Trim()),0, 44, "", false, "Dolar", (wsCRM.CodigosTipoOperacionMov)TipoOperacionMov.EcormmerceAbonoSaldo, -1).Result;
             //return CRMAbobodirectodesaldo
           }
             catch (Exception ex)
@@ -56,17 +75,73 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
             }
         }
 
+        /// <summary>
+        /// Lista con los montos de GiftCard disponibles en CRM
+        /// </summary>
+        /// <returns></returns>
         public static IEnumerable<decimal> ObtenerlistaGiftCardMontosDisponible() => cRMClient.ObtenerlistaGiftCardMontosDisponibleAsync().Result.Select(gf => gf.Monto).Distinct();
 
+        /// <summary>
+        /// Indica si la giftcard esta disponible.
+        /// </summary>
+        /// <param name="pCodMoneda"></param>
+        /// <param name="pMonto"></param>
+        /// <returns></returns>
         public static bool ObtenerGiftCardGetCantidadDisponible(int pCodMoneda, decimal pMonto) => cRMClient.ObtenerGiftCardGetCantidadDisponibleAsync(pCodMoneda, pMonto).Result > 0;
-
-        public static bool EnviarGiftCard(SigoCreditosGiftCardModel pGifcardModel)
+        
+        /// <summary>
+        /// Asigna codigos giftcard a un cliente.
+        /// </summary>
+        /// <param name="pGifcardModel"></param>
+        /// <returns></returns>
+        public static wsCRM.mAbonosCredito EnviarGiftCard(SigoCreditosInfoModel pGifcardModel)
         {
-            wsCRM.mCliente client = cRMClient.ObtenerPuntosxClienteAsync(pGifcardModel.DocumentType, pGifcardModel.DocumentValue).Result;
-            return !(client is null) && cRMClient.VenderGiftCardAsync(0, pGifcardModel.EntityId, client, 1, 2, pGifcardModel.Amount, "Dolares").Result > 0;
+            try
+            {
+                wsCRM.mCliente client = cRMClient.ObtenerPuntosxClienteAsync(pGifcardModel.Abono.Receptor.TipoDocumento, pGifcardModel.Abono.Receptor.Documento).Result;
+          
+                var result=  cRMClient.CrearVenderGiftCardAsync(0, pGifcardModel.Abono.Receptor.EntityId, client, 1, 2, Convert.ToDecimal(pGifcardModel.Abono.MontoTransaccionGiftCard), "Dolares", true).Result;
+                var vResult = new wsCRM.mAbonosCredito
+                {
+                    Cod_Abono = result
+                };
+
+            return vResult;
         }
+            catch (Exception ex)
+            {
 
+                throw ex;
+            }
+}
 
+        /// <summary>
+        /// Vender GiftCard CRM
+        /// </summary>
+        /// <param name="pModel"></param>
+        /// <returns></returns>
+        public static wsCRM.mAbonosCredito AbonaGiftCard(SigoCreditosInfoModel pModel)
+        {
+            try
+            {
+                wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
+                wsCRM.mCliente clienteA = new wsCRM.mCliente();
+                wsCRM.mCliente client = pModel.Abono.IndCuentaCliente == 1
+                    ? new wsCRM.mCliente() { Cod_SigoClub = pModel.Abono.Receptor.SigoClubId, Cedula = pModel.Emisor.Documento }
+                    : cRMClient.ObtenerPuntosxClienteAsync(pModel.Abono.Receptor.TipoDocumento, pModel.Abono.Receptor.Documento).Result;
+
+                // wsCRM.mAbonosCredito result = cRMClient.GenerarAbonoPuntosAsync(client.Cod_SigoClub, "00", 2, new wsCRM.mCliente(), "", pModel.AddBalanceModel.TransactionAmount, 13440, 44, "", false, "Dolar", (wsCRM.CodigosTipoOperacionMov)TipoOperacionMov.EcormmerceAbonoSaldo, -1).Result;
+                // wsCRM.mAbonosCredito result = cRMClient.GenerarAbonoPuntosAsync(client.Cod_SigoClub, "00", 2, new wsCRM.mCliente(), "", pModel.AddBalanceModel.TransactionAmount, 13440, 44, "", false, "Dolar", (wsCRM.CodigosTipoOperacionMov)TipoOperacionMov.CRMAbobodirectodesaldo, -1).Result;
+                return null; 
+                // cRMClient.GenerarAbonoPuntosAsync(client.Cod_SigoClub, "00", 2, clienteA, "", Convert.ToDecimal(pModel.Abono.MontoTransaccion.ToString().Replace(".", string.Empty).Replace(",", ".").Trim()), 0, 44, "", false, "Dolar", (wsCRM.CodigosTipoOperacionMov)TipoOperacionMov.EcormmerceAbonoSaldo, -1).Result;
+                //return CRMAbobodirectodesaldo
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
         public enum TipoOperacionMov
         {

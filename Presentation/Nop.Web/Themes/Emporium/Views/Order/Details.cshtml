@@ -1,6 +1,11 @@
 
 @model OrderDetailsModel
 @using System.Web
+@using Nop.Core
+@using Nop.Services.Directory
+@inject IWorkContext workContext
+@inject ICurrencyService _currencyService
+
 @{
     if (!Model.PrintMode)
     {
@@ -766,6 +771,22 @@
                                     </td>
                                     <td class="cart-total-right">
                                         <span>@Model.Tax</span>
+                                    </td>
+                                </tr>
+                            }
+                            @*Modified*@
+                            @if (Model.OrderNotes.Count>0)
+                            {
+
+                                <tr class="Sigo-points">
+                                    <td class="cart-total-left">
+                                        @{
+                                            var Monto = Model.OrderNotes.FirstOrDefault().Note.Split("$");
+                                        }
+                                        <label>@string.Format(T("ShoppingCart.Totals.SigoPoints").Text, Monto[1]):</label>
+                                    </td>
+                                    <td class="cart-total-right">
+                                        <span class="value-summary">$@Monto[1]</span>
                                     </td>
                                 </tr>
                             }

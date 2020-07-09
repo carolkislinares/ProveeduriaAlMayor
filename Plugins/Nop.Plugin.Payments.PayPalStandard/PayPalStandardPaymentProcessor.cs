@@ -430,7 +430,7 @@ namespace Nop.Plugin.Payments.PayPalStandard
 
             var tasaactual = _currencyService.GetCurrencyById(13);
             return _paymentService.CalculateAdditionalFee(cart,
-                _paypalStandardPaymentSettings.AdditionalFee, _paypalStandardPaymentSettings.AdditionalFeePercentage) + tasaactual.Rate * Convert.ToDecimal("0.30");
+                _paypalStandardPaymentSettings.AdditionalFee, _paypalStandardPaymentSettings.AdditionalFeePercentage) + tasaactual.Rate * Convert.ToDecimal(_localizationService.GetResource("SigoCreditosPaypal.Comision.Constante".ToLower())) ;
                 
         }
 

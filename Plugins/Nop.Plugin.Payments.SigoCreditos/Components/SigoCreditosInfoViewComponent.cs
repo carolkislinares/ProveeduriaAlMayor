@@ -49,7 +49,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
 
                 if (model != null)
                 {
-                    model.CustomerDocumentValue = tipoDocumento.Equals("1") ? 
+                    model.Emisor.Documento = tipoDocumento.Equals("1") ? 
                                                  (Convert.ToInt64(documento) > 80000000 ? string.Format(TipoDocumentoNatural.E.ToString()+documento).ToString()  : string.Format(TipoDocumentoNatural.V.ToString()+ documento).ToString()) :
                                                   documento.ToUpper();
 
@@ -59,9 +59,10 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
 
                     if (cliente != null)
                     {
-                        model.CostumerPhone = cliente.CostumerPhone;
-                        model.CostumerName = cliente.CostumerName;
-                        model.CostumerLastName = cliente.CostumerLastName;
+                        model.Emisor.Telefono = cliente.Telefono;
+                        model.Emisor.Nombre = cliente.Nombre;
+                        model.Emisor.Apellido = cliente.Apellido;
+                        model.Emisor.Email = cliente.Email;
                     }
                     var montosGiftCard = ObtenerlistaGiftCardMontosDisponible();
                     if (montosGiftCard != null && montosGiftCard.Count() > 0)
@@ -72,7 +73,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
                         {
                             AmountGiftCard.Add(new SelectListItem { Text = "GiftCard de $" + item, Value = item.ToString() });
                         }
-                        model.SigoCreditosGiftCardModel.AmountStr = AmountGiftCard;
+                        model.GiftCardList = AmountGiftCard;
                     }
                     if (ListaSigoCreditosPayPal != null && ListaSigoCreditosPayPal.Count() > 0)
                     {
@@ -80,7 +81,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
                         foreach (var SCPaypal in ListaSigoCreditosPayPal.Where(x => x.CustomerID == CurrentCustomerId).OrderByDescending(x => x.FechaCreacion))
 
                         {
-                            SigoCreditosPayPalModel SigoCreditoPaypal = new SigoCreditosPayPalModel
+                            TransaccionModel SigoCreditoPaypal = new TransaccionModel
                             {
 
                                 TransaccionPaypalID = SCPaypal.TransaccionPaypalID,
@@ -90,9 +91,12 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components
                                 Estatus_Operacion = SCPaypal.Estatus_Operacion,
                                 TransaccionCreditID = SCPaypal.TransaccionCreditID,
                                 CustomerID = SCPaypal.CustomerID,
-                                FechaCreacion = SCPaypal.FechaCreacion
+                                FechaCreacion = SCPaypal.FechaCreacion, 
+                                IndGiftCard = SCPaypal.EsGiftCard, 
+                                CodigoGiftCard = SCPaypal.CodigoGiftCard
                             };
-                            model.SigoCreditosPayPalList.Add(SigoCreditoPaypal);
+
+                            model.TransaccionList.Add(SigoCreditoPaypal);
 
                         }
                     }

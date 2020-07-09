@@ -222,7 +222,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
                     PercentageRateOfSubtotal = record.PercentageRateOfSubtotal,
                     RatePerWeightUnit = record.RatePerWeightUnit,
                     LowerWeightLimit = record.LowerWeightLimit,
-                    Zip = !string.IsNullOrEmpty(record.Zip) ? record.Zip : "*"
+                    Zip = !string.IsNullOrEmpty(record.Zip) ? record.Zip : "*",
+                    MontoDolar = record.MontoDolar
                 };                
 
                 var htmlSb = new StringBuilder("<div>");
@@ -241,6 +242,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
                 htmlSb.AppendFormat("{0}: {1}", _localizationService.GetResource("Plugins.Shipping.FixedByWeightByTotal.Fields.LowerWeightLimit"), model.LowerWeightLimit);
                 htmlSb.Append("<br />");
                 htmlSb.AppendFormat("{0}: {1}", _localizationService.GetResource("Plugins.Shipping.FixedByWeightByTotal.Fields.PercentageRateOfSubtotal"), model.PercentageRateOfSubtotal);
+                htmlSb.Append("<br />");
+                htmlSb.AppendFormat("{0}: {1}", _localizationService.GetResource("Plugins.Shipping.FixedByWeightByTotal.Fields.MontoDolar"), model.MontoDolar);
 
                 htmlSb.Append("</div>");
                 model.DataHtml = htmlSb.ToString();
@@ -318,7 +321,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
                 AdditionalFixedCost = model.AdditionalFixedCost,
                 RatePerWeightUnit = model.RatePerWeightUnit,
                 PercentageRateOfSubtotal = model.PercentageRateOfSubtotal,
-                LowerWeightLimit = model.LowerWeightLimit
+                LowerWeightLimit = model.LowerWeightLimit, 
+                MontoDolar = model.MontoDolar
             });
 
             ViewBag.RefreshPage = true;
@@ -354,7 +358,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
                 RatePerWeightUnit = sbw.RatePerWeightUnit,
                 LowerWeightLimit = sbw.LowerWeightLimit,
                 PrimaryStoreCurrencyCode = _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)?.CurrencyCode,
-                BaseWeightIn = _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)?.Name
+                BaseWeightIn = _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)?.Name, 
+                MontoDolar = sbw.MontoDolar
             };
 
             var shippingMethods = _shippingService.GetAllShippingMethods();
@@ -417,7 +422,7 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
             sbw.RatePerWeightUnit = model.RatePerWeightUnit;
             sbw.PercentageRateOfSubtotal = model.PercentageRateOfSubtotal;
             sbw.LowerWeightLimit = model.LowerWeightLimit;
-
+            sbw.MontoDolar = model.MontoDolar;
             _shippingByWeightService.UpdateShippingByWeightRecord(sbw);
 
             ViewBag.RefreshPage = true;

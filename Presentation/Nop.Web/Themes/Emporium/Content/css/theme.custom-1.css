@@ -340,3 +340,37 @@ td > div, th > div{
 .MontoAbono > div{
 	float: right;
 }
+
+
+/*      ///////////////////////////////////////////////////////////////////////  */
+
+.continueShoppingLink{
+ background-color:#eebe00!important;
+ color:#fff!important;
+}
+.productAddedToCartWindowCheckout{
+ background-color: #eee!important;
+ color:#eebe00!important;
+}
+label{
+margin:0 !important;
+}
+#CustomerDocumentValueValidate{
+padding-top: 5px;
+margin: 0 auto;
+}
+#abonoCustomerSearch{
+width: 100%;
+    text-align: center;
+}
+.product-social-sharing{
+margin-bottom: 0;
+}
+
+.NoCart{
+background-image: none!important;
+}
+#mensajeSigoCreditosPaypal{
+padding: 0 10px;
+text-align: center;
+}

@@ -2,56 +2,959 @@
     Layout = "";
 }
 @model Nop.Plugin.Payments.SigoCreditos.Models.SigoCreditosInfoModel
-@* //////////////////////////////////////////////////// *@
+@using Nop.Core
+@using Nop.Core.Infrastructure;
+@using Nop.Services.Localization
+@inject IWorkContext workContext
+@{
 
-@*  formulario de abono *@
-<form asp-controller="Admin/SigoCreditosInfo" asp-action="AbonarGiftCard">
+    var CustomerIdEcommerce = workContext.CurrentCustomer.Id;
+    var _localizationService = EngineContext.Current.Resolve<ILocalizationService>().GetResource("sigocreditos.paypal.client-id-produccion".ToLower());
+    Model.Abono.IndGiftCard = "false";
+}
 
-    @*<form asp-controller="SigoCreditosInfo" asp-action="Abonar" data-ajax="true" data-ajax-method="POST" method="post">*@
-    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+<style>
+    .fieldset {
+        padding: 0 10px;
+    }
 
+        .fieldset .row {
+            padding-bottom: 5px;
+        }
+
+    #abonoCustomerDocumentInputContainer > .required,
+    #abonoCustomerDocumentLabelContainer .required {
+        right: inherit;
+    }
+
+    #abonoCustomerSearchContainer .abonoCustomerSearchContainer {
+        margin-bottom: .5rem;
+    }
+
+    #abonoCustomerSearchContainer > div {
+        padding-left: 0 !important;
+    }
+
+    .account-page .fieldset {
+        margin-bottom: 20px;
+    }
+
+    .option-list li {
+        margin: 0 0 15px 0 !important;
+        padding: 0px;
+    }
+
+    .amountpaypalview {
+        margin: 10px auto 5px;
+        text-align: center;
+    }
+
+    #abonoType {
+        margin-top: 0px;
+    }
+
+    #OwnerBalanceContainer ul {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+    }
+
+    .OwnerBalanceSpan, .abonoTypeSpan {
+        display: flex;
+        justify-content: center;
+    }
+
+        .OwnerBalanceSpan label, .abonoTypeSpan label {
+            white-space: nowrap;
+        }
+
+    @@media screen and (min-width:426px) {
+        .OwnerBalance.inputs.row > label {
+            width: 40% !important;
+        }
+
+        .OwnerBalance.inputs.row .option-list {
+            width: 60% !important;
+        }
+
+        .option-list li {
+            /*            width: 45% !important;*/
+        }
+    }
+
+    @@media screen and (max-width:425px) {
+        .OwnerBalance.inputs.row {
+            flex-direction: column;
+        }
+
+            .OwnerBalance.inputs.row > label {
+                width: 100% !important;
+            }
+
+            .OwnerBalance.inputs.row .option-list {
+                width: 100% !important;
+            }
+    }
+</style>
+
+<!-- ///////////////////////////    ABONOS      ////////////////////////////////////////////////////////////////////////////////////////////// -->
+@*<form asp-route="SigoCreditosInfo" method="post">*@
+<form asp-controller="Admin/SigoCreditosInfo" asp-action="Abonar" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-success="SuccessAbono" data-ajax-failure="FailureAbono">
+    <!-- <div asp-validation-summary="ModelOnly" class="message-error"></div> -->
     <div class="fieldset">
-        <div class="title">
-            <strong>@T("Account.YourPersonalDetails")</strong>
-        </div>
-        <div class="form-fields">
+        <div class="form-fields" style="text-align: left;">
+            <div class="inputs">
 
-            <div class="inputs">
-                <label asp-for="SigoCreditosGiftCardModel.DocumentType" asp-postfix=":"></label>
-                <select asp-for="SigoCreditosGiftCardModel.DocumentType" style="width:90%">
-                    <option value="0">Venezolano</option>
-                    <option value="1">Extranjero</option>
-                </select>
-                <nop-required />
-                <span asp-validation-for="SigoCreditosGiftCardModel.DocumentType"></span>
-            </div>
-            <div class="inputs">
-                <label asp-for="SigoCreditosGiftCardModel.DocumentValue" asp-postfix=":"></label>
-                <input asp-for="SigoCreditosGiftCardModel.DocumentValue" />
-                <nop-required />
-                <span asp-validation-for="SigoCreditosGiftCardModel.DocumentValue"></span>
-            </div>
+                <div style="display:none">
+                    <input asp-for="Abono.TransaccionPayPalId" />
+                    <span asp-validation-for="Abono.TransaccionPayPalId"></span>
+                    <input asp-for="Emisor.EcommerceId" value="@CustomerIdEcommerce" />
+                </div>
 
 
-            <div class="inputs">
-                <label asp-for="SigoCreditosGiftCardModel.Amount" asp-postfix=":"></label>
-                <input asp-for="SigoCreditosGiftCardModel.Amount" />
-                <nop-required />
-                <span asp-validation-for="SigoCreditosGiftCardModel.Amount"></span>
+                <input asp-for="Abono.IndCuentaCliente" style="display:none" />
             </div>
 
-            <div class="inputs">
-                <label asp-for="SigoCreditosGiftCardModel.Amount" asp-postfix=":"></label>
-                <select asp-for="SigoCreditosGiftCardModel.Amount" asp-items="Model.SigoCreditosGiftCardModel.AmountStr" class="form-control"></select>
-                <nop-required />
-                <span asp-validation-for="SigoCreditosGiftCardModel.Amount"></span>
+            <div class="OwnerBalance inputs row" id="OwnerBalanceContainer">
+                <label class="col-sm-12" style="text-align: center!important; font-weight: 300;color: #8c8c8c;margin-bottom: 15px;">@T("SigoCreditos.input.OwnerBalance")</label>
+                <ul class="option-list col-sm-12">
+
+                    <li class="col-sm-6">
+                        <div class="OwnerBalanceSpan">
+                            <div class="inputs">
+                                <input type="radio" name="OwnerBalanceGroup" value="true" checked id="OwnerBalanceTrue" />
+                                <label class="forcheckbox" for="OwnerBalanceTrue">@T("SigoCreditos.input.OwnerBalanceTrue")</label>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="col-sm-6">
+                        <div class="OwnerBalanceSpan">
+                            <div class="inputs">
+                                <input type="radio" name="OwnerBalanceGroup" value="false" id="OwnerBalanceFalse" />
+                                <label class="forcheckbox" for="OwnerBalanceFalse">@T("SigoCreditos.input.OwnerBalanceFalse")</label>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
+
+            <!-- //////////////////////////////////////////////////////////// -->
+            <div class="inputs row" id="abonoType" style="display: flex;">
+                <input asp-for="Abono.IndGiftCard" style="display:none" />
+
+                <ul class="option-list col-sm-12" style="margin-bottom: 0;">
+
+                    <li class="col-sm-6">
+                        <div class="abonoTypeSpan">
+                            <div class="inputs">
+                                <input type="radio" name="abonoTypeGroup" value="true" checked id="abonoTypeTrue" />
+                                @*<label class="forcheckbox" for="abonoTypeTrue">@T("SigoCreditos.input.OwnerBalanceTrue")</label>*@
+                                <label class="forcheckbox" for="abonoTypeTrue">@T("SigoCreditos.title.abono")</label>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="col-sm-6">
+                        <div class="abonoTypeSpan">
+                            <div class="inputs">
+                                <input type="radio" name="abonoTypeGroup" value="false" id="abonoTypeFalse" />
+                                @*<label class="forcheckbox" for="abonoTypeFalse">@T("SigoCreditos.input.OwnerBalanceFalse")</label>*@
+                                <label class="forcheckbox" for="abonoTypeFalse">@T("SigoCreditos.title.giftcard")</label>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <div style="margin: 10px 0;margin-bottom: 0px;">
+                    <div class="row" id="abonoCustomerDocumentLabelContainer" style="display: none;padding-bottom: 0px !important;">
+                        <label class="col-lg-5 col-md-5" asp-for="Emisor.Documento" asp-postfix=":" style="font-weight: 300;color: #8c8c8c; ">@T("SigoCreditos.input.CustomerDocumentValue")</label>
+                        <input class="col-lg-7 col-md-7" asp-for="Emisor.Documento" readonly style="background-color: #fafafa;" />
+                        <span asp-for="Emisor.Documento" id="CustomerDocumentValueValidate" />
+
+                        @if (string.IsNullOrWhiteSpace(Model.Emisor.Nombre))
+                        {
+                            <div class="row">
+                                <label style="margin-left:42%;font-weight:100;color: #ff0404;" id="mensajeSigoCreditosPaypal">@T("SigoCreditosPaypal.CustomerCRM.NotFound")</label>
+                            </div>
+                        }
+
+                    </div>
+
+                    <div class="row" id="abonoCustomerSearchContainer" style="display: none;">
+                        <div class="col-md-12" style="padding-right: 0;">
+                            <div class="inputs row">
+                                <div class="col-lg-6 col-md-6 inputs">
+                                    <label for="TipoDocumento" style="font-weight: 300;color: #8c8c8c;">@T("SigoCreditos.input.DocumentType") </label>
+                                    <select class="validate initilized" id="TipoDocumento">
+                                        <optgroup label="Persona Natural">
+                                            <option value="1">Venezolano</option>
+                                            <option value="4">Pasaporte</option>
+                                            <option value="5">Extranjero</option>
+                                        </optgroup>
+                                        <optgroup label="Persona Jurídica">
+                                            <option value="2">Jurídico</option>
+                                            <option value="3">Gobierno</option>
+                                            <option value="6">Venezolano</option>
+                                            <option value="7">Extranjero</option>
+                                            <option value="8">Comuna</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="inputs col-lg-6 col-md-6" id="abonoCustomerDocumentInputContainer" style="margin-top: 0px">
+                                    <label asp-for="Abono.Receptor.Documento" asp-postfix=":" style="font-weight: 300;color: #8c8c8c;">@T("SigoCreditos.input.CustomerDocumentValue")</label>
+                                    <input asp-for="Abono.Receptor.Documento" onblur="validarDocumento()" />
+                                    <span asp-for="Abono.Receptor.Documento" id="AddBalanceModel_ReceiverDocumentValueValidate" />
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12" style="padding: 0; ">
+                                <div style="display: flex;" class="button-1 search-box-button">
+                                    <a class="" id="abonoCustomerSearch" style=" margin: 0 auto !important; color: white;">@T("SigoCreditos.Button.CustomerSearch")</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="ConsumerNameContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="Abono.Receptor.Nombre" asp-postfix=":">@T("SigoCreditos.input.CostumerName")</label>
+                <input class="col-lg-7 col-md-7" asp-for="Abono.Receptor.Nombre" readonly style="background-color: #fafafa;" />
+            </div>
+
+            <div class="row" id="ConsumerLastNameInputContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="Abono.Receptor.Apellido" asp-postfix=":">@T("SigoCreditos.input.CostumerLastName")</label>
+                <input class="col-lg-7 col-md-7" asp-for="Abono.Receptor.Apellido" readonly style="background-color: #fafafa;" />
+            </div>
+
+            <div class="row" id="ConsumerPhoneInputContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="Abono.Receptor.Telefono" asp-postfix=":">@T("SigoCreditos.input.CostumerPhone")</label>
+                <input class="col-lg-7 col-md-7" asp-for="Abono.Receptor.Telefono" disabled />
+            </div>
+            <div class="inputs" style="display:none">
+                <input asp-for="Abono.Receptor.SigoClubId" />
+            </div>
+            <div class="inputs" style="display:none">
+                <input asp-for="Abono.Receptor.EntityId" />
+            </div>
+            <div class="row" id="ConsumerAmountContainer">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="Abono.MontoTransaccion" asp-postfix=":">@T("SigoCreditos.input.AddBalanceModel.TransactionAmount") </label>
+                <input class="col-lg-7 col-md-7" asp-for="Abono.MontoTransaccion" />
+                <span class="amountpaypalview" id="AddBalanceModel_TransactionAmountValidate"></span>
+            </div>
+            <div class="row" id="ConsumerGiftCardAmountContainer" style="display: none;">
+                <label class="col-lg-5 col-md-5" style="font-weight: 300;color: #8c8c8c;" asp-for="@Model.GiftCardList" asp-postfix=":"></label>
+                <select class="form-control col-lg-7 col-md-7" asp-for="@Model.Abono.MontoTransaccionGiftCard" asp-items="@Model.GiftCardList"></select>
+                @*<script>$("#@Html.IdFor(model => model.GiftCardList)").removeAttr("multiple");</script>*@
+                <span class="amountpaypalview" id="GiftCard_TransactionAmountValidate"></span>
+            </div>
+
         </div>
     </div>
-    <div class="buttons">
-        <input type="submit" id="save-info-button" value="@T("Common.Save")" name="save-info-button" class="button-1 save-customer-info-button" />
+    <div class="buttons" style="display:none">
+        <input type="submit" id="save-info-buttonA" value="@T("Common.Save")" name="save-info-buttonA" class="button-1 save-customer-info-button" />
     </div>
 </form>
 
-<div id="paypal-button-containerA"></div>
+<div id="paypal-button-container"></div>
 
+<!-- Modal clienteNoEncontrado -->
+<div class="modal fade" id="clienteNoEncontrado" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align: center;" class="modal-title" id="exampleModalLabel">@T("SigoCreditos.Modal.Warning")</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 style="text-align: center;">@T("SigoCreditos.Modal.CustomerNotFound")</h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("SigoCreditos.Modal.Closed")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal errorBuscarCliente -->
+<div class="modal fade" id="errorBuscarCliente" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 style="text-align: center;" class="modal-title" id="exampleModalLabel">@T("SigoCreditos.Modal.Warning") </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 style="text-align: center;">@T("SigoCreditos.Modal.MessageError") </h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">@T("SigoCreditos.Modal.Closed")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Convert.ToBoolean(@_localizationService))
+{
+    <!-- ///////////////////////////    Seccion Boton PayPal VentasO    ////////////////////////////////////////////////////////////////////////////////////////////// -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD"
+            data-sdk-integration-source="button-factory">
+
+    </script>
+}
+else
+{
+    <!-- ///////////////////////////    Seccion Boton PayPal Sandox    ////////////////////////////////////////////////////////////////////////////////////////////// -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AfbVJuARzopmc5Yqw6LnuMZGsvgUbjW2Z4omie4CRjBVsJ3lXV5tcrrVA1VTPi7SplXpK2nu6poae-qp&currency=USD"
+            data-sdk-integration-source="button-factory">
+    </script>
+}
+
+<script type="text/javascript">
+
+
+	    $(document).ready(function () {
+		        if ($("#OwnerBalanceTrue").is(':checked')) {
+			        $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+			        $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+			        if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length == 0 ||
+			            $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length == 0 ||
+                        $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length == 0)
+                      {
+			             $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").attr("disabled","disabled");
+                       }
+                    else
+                    {
+			            if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length > 0 &&
+			                $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length > 0 &&
+                            $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length > 0)
+                          {
+			               $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").removeAttr("disabled");
+			             }
+			         }
+                }
+                else
+                {
+			        $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+			        $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+			    }
+
+             if ($("#OwnerBalanceFalse").is(':checked'))
+             {
+			    $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+			    $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+			    if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length == 0 ||
+			        $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length == 0 ||
+                    $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length == 0)
+                {
+			       $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").attr("disabled","disabled");
+               }
+                else
+                {
+			        if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length > 0 &&
+			             $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length > 0 &&
+                        $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length > 0)
+                    {
+			            $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").removeAttr("disabled");
+			        }
+			     }
+             }
+             else {
+			    $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+			    $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+			    }
+
+			    $('#@Html.IdFor(model => model.Abono.Receptor.Documento)').mask('000000000000');
+			    $('#@Html.IdFor(model => model.Abono.IndCuentaCliente)').val(1);
+			    localStorage.setItem("CustomerDocumentValue",$('#@Html.IdFor(model => model.Emisor.Documento)').val());
+			    localStorage.setItem("CostumerName",$('#@Html.IdFor(model => model.Abono.Receptor.Nombre)').val());
+			    localStorage.setItem("CostumerLastName",$('#@Html.IdFor(model => model.Abono.Receptor.Apellido)').val());
+			    localStorage.setItem("CostumerPhone",$('#@Html.IdFor(model => model.Abono.Receptor.Telefono)').val());
+
+			    $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").inputmask({
+			        alias: 'numeric',
+			        allowMinus: false,
+			        digits: 2,
+			        max: 9999.99,
+			        radixPoint: ',',
+			        groupSeparator: '.'
+			      });
+        });//enddocumentReady
+
+    $(document).on("keypress", "input", function (e)
+    {
+			    var code = e.keyCode || e.which;
+        if (code == 13)
+        {
+		  e.preventDefault();
+		  return false;
+		}
+    });
+    $("#OwnerBalanceTrue").on("change", function ()
+    {
+			    clearAbono();
+        if ($("#OwnerBalanceTrue").is(':checked'))
+        {
+			    $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+			    $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+
+			    $("#@Html.IdFor(model => model.Abono.IndCuentaCliente)").val(1);
+
+			    $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val(localStorage.getItem("CostumerName"));
+			    $("#@Html.IdFor(model => model.Abono.Receptor.Apellido)").val(localStorage.getItem("CostumerLastName"));
+			    $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val(localStorage.getItem("CostumerPhone"));
+			    $("#@Html.IdFor(model => model.Emisor.Documento)").val(localStorage.getItem("CustomerDocumentValue"));
+
+			    if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length == 0 ||
+			        $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length == 0 ||
+                    $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length == 0)
+                {
+			        $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").attr("disabled","disabled");
+                }
+                else
+                {
+			        if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length > 0 &&
+			        $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length > 0 &&
+                        $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length > 0)
+                    {
+			        $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").removeAttr("disabled");
+			        }
+			    }
+        }
+        else {
+			    $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+			    $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+			 }
+	});
+
+			    $("#OwnerBalanceFalse").on("change", function () {
+			    clearAbono();
+                    if ($("#OwnerBalanceFalse").is(':checked'))
+                    {
+			            $("#abonoCustomerSearchContainer").attr("style", "display:flex!important;");
+			            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:none!important;");
+			            $("#@Html.IdFor(model => model.Abono.IndCuentaCliente)").val(0);
+
+			            if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length == 0 ||
+			                $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length == 0 ||
+			                $("#@Html.IdFor(model => model.Abono.Receptor.Apellido)").val().length == 0)
+			            {
+			                 $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").attr("disabled", "disabled")
+			            }
+			            else
+			            {
+			                if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length > 0 &&
+			                    $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length > 0 &&
+			                    $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length > 0)
+			                    {
+			                     $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").removeAttr("disabled")
+			                    }
+			            }
+                   }
+                    else
+                    {
+			            $("#abonoCustomerSearchContainer").attr("style", "display:none!important;");
+			            $("#abonoCustomerDocumentLabelContainer").attr("style", "display:flex!important;");
+			        }
+			    });
+         $("#abonoTypeTrue").on("change", function () {
+             if ($("#abonoTypeTrue").is(':checked')) {
+
+            $("#@Html.IdFor(model => model.Abono.IndGiftCard)").val("false");
+
+            $("#ConsumerAmountContainer").attr("style", "display:flex!important;");
+            $("#ConsumerGiftCardAmountContainer").attr("style", "display:none!important;");
+
+			$("#@Html.IdFor(model => model.Abono.IndCuentaCliente)").val(1);
+
+			if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length == 0 ||
+			    $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length == 0 ||
+                $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length == 0)
+            {
+			    $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").attr("disabled","disabled");
+            } else {
+			    if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length > 0 &&
+			        $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length > 0 &&
+                    $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length > 0)
+                {
+			        $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").removeAttr("disabled");
+                }
+                 calcularcomisionpaypal();
+			}
+        } else {
+            $("#ConsumerAmountContainer").attr("style", "display:none!important;");
+            $("#ConsumerGiftCardAmountContainer").attr("style", "display:flex!important;");
+		}
+	});
+
+    $("#abonoTypeFalse").on("change", function () {
+        if ($("#abonoTypeFalse").is(':checked')) {
+
+             $("#@Html.IdFor(model => model.Abono.IndGiftCard)").val("true");
+
+            $("#ConsumerGiftCardAmountContainer").attr("style", "display:flex!important;");
+            $("#ConsumerAmountContainer").attr("style", "display:none!important;");
+
+			$("#@Html.IdFor(model => model.Abono.IndCuentaCliente)").val(0);
+
+			if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length == 0 ||
+			    $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length == 0 ||
+			    $("#@Html.IdFor(model => model.Abono.Receptor.Apellido)").val().length == 0)
+			{
+			        $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").attr("disabled", "disabled")
+			} else {
+			    if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length > 0 &&
+			        $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length > 0 &&
+			        $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length > 0)
+			        {
+			            $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").removeAttr("disabled")
+                }
+                 calcularcomisionpaypalGiftCard();
+			}
+        } else {
+            $("#ConsumerGiftCardAmountContainer").attr("style", "display:none!important;");
+            $("#ConsumerAmountContainer").attr("style", "display:flex!important;");
+        }
+
+
+
+
+
+    });
+
+    $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").on("change", function () {
+        calcularcomisionpaypalGiftCard()
+    });
+
+    //  //////////////////////////////////////////////////////////// -->
+    function clearAbono()
+    {
+		document.getElementById("TipoDocumento").selectedIndex = "0";
+		$("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val("");
+		$("#@Html.IdFor(model => model.Emisor.Documento)").val("");
+		$("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val("");
+		$("#@Html.IdFor(model => model.Abono.Receptor.Apellido)").val("");
+		$("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val("");
+		$("#@Html.IdFor(model => model.Abono.MontoTransaccion)").val("");
+		$("#@Html.IdFor(model => model.Emisor.SigoClubId)").val("");
+	        $("#AddBalanceModel_TransactionAmount").val("");
+	        $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").attr("disabled", "disabled");
+	        $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").attr("disabled", "disabled");
+              document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "";
+
+	}
+
+    function clearCustomer()
+    {
+
+	    $("#@Html.IdFor(model => model.Emisor.Documento)").val("");
+	    $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val("");
+	    $("#@Html.IdFor(model => model.Abono.Receptor.Apellido)").val("");
+	    $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val("");
+	    $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").val("");
+	    $("#@Html.IdFor(model => model.Emisor.SigoClubId)").val("");
+	    $("#AddBalanceModel_TransactionAmount").val("");
+	    document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "";
+
+	  }
+
+    $("#abonoCustomerSearch").on("click", function ()
+    {
+		loaderShow();
+
+        if (validarDocumento())
+        {
+			    var route = '@Html.Raw(Url.Action("BuscarClienteSigo", "Admin/SigoCreditosInfo", new { @tipoDocumento = "TD", @documento = "DC" }))';
+			    route = route.replace("TD", $("#TipoDocumento").val());
+			    route = route.replace("DC", $("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val());
+
+                    $.ajax({
+			            type: "POST",
+			            traditional: true,
+			            async: false,
+			            cache: false,
+			            url: route,
+			            context: document.body,
+                        success: function (result){
+			            loaderHide();
+			            console.log(result);
+                            if (result == null)
+                            {
+			                    $('#clienteNoEncontrado').modal('show');
+			                    clearCustomer();
+			                    $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").attr("disabled","disabled");
+					            $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").attr("disabled","disabled");
+                           }
+                            else {
+			                    $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val(result.Nombre);
+			                    $("#@Html.IdFor(model => model.Abono.Receptor.Apellido)").val(result.Apellido);
+			                    $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val(result.Telefono);
+			                    $("#@Html.IdFor(model => model.Abono.Receptor.SigoClubId)").val(result.SigoClubId);
+			                    $("#@Html.IdFor(model => model.Abono.Receptor.EntityId)").val(result.EntityId);
+			                    $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").removeAttr("disabled");
+			                    $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").removeAttr("disabled");
+
+				            }
+			        },
+                        error: function (xhr)
+                        {
+			            console.log(xhr.responseText);
+			            $('#errorBuscarCliente').modal('show');
+			            clearCustomer();
+			            }
+			    });
+			  }
+	});
+
+	$("#TipoDocumento").on("change", function () {
+		$("#@Html.IdFor(model => model.Abono.Receptor.Documento)").removeClass("input-validation-error");
+		$("#AddBalanceModel_ReceiverDocumentValueValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+		document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = "";
+	});
+
+    function validarDocumento()
+    {
+
+			    var numbersRif = /^[0-9]{7,9}$/;
+			    var numbersCed = /^[0-9]{6,8}$/;
+			    var numbersPas = /^[a-zA-Z0-9]{6,12}$/;
+			    var mensaje = "";
+			    var isValid;
+
+
+			    switch ($("#TipoDocumento").val()) {
+                    case "1": case "5":
+                        {
+			              isValid = $("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().match(numbersCed);
+
+                            if (isValid == null)
+                            {
+                                if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length == 0)
+                                {
+			                     mensaje = "Se requiere la Cédula.";
+                                }
+                                else
+                                {
+                                    if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length < 7)
+                                    {
+			                          mensaje = "Mínimo 6 carácteres";
+                                    }
+                                    else
+                                    {
+                                        if ($("#@Html.IdFor(model=>model.Abono.Receptor.Documento)").val().length > 8)
+                                        {
+			                              mensaje = "Máximo 8 carácteres";
+			                            }
+			                        }
+			            }
+			        }
+			        else
+			           mensaje = "";
+			        break;
+			    }
+			    case "4": {
+			         isValid = $("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().match(numbersPas);
+                        if (isValid == null)
+                        {
+                            if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length == 0)
+                            {
+			                  mensaje = "Se requiere el Pasaporte.";
+                            }
+                            else
+                            {
+			                    if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length < 7) {
+			                    mensaje = "Mínimo 6 carácteres";
+                                }
+                                else
+                                {
+                                    if ($("#@Html.IdFor(model=>model.Abono.Receptor.Documento)").val().length > 12)
+                                    {
+			                          mensaje = "Máximo 12 carácteres";
+			                         }
+			                    }
+			              }
+			            }
+			    else
+			        mensaje = "";
+			        break;
+			    }
+			    default: {
+			     isValid = $("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().match(numbersRif);
+                        if (isValid == null)
+                        {
+			    if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length == 0) {
+			    mensaje = "Se requiere el RIF.";
+                }
+                else
+                {
+                    if ($("#@Html.IdFor(model => model.Abono.Receptor.Documento)").val().length < 8)
+                    {
+			         mensaje = "Mínimo 7 carácteres";
+                    }
+                    else
+                    {
+                        if ($("#@Html.IdFor(model=>model.Abono.Receptor.Documento)").val().length > 10)
+                        {
+			             mensaje = "Máximo 9 carácteres";
+			            }
+			         }
+			    }
+			  }
+			   else
+			    mensaje = "";
+			    break;
+			 }
+		}
+        if (isValid != null)
+        {
+			$("#@Html.IdFor(model => model.Abono.Receptor.Documento)").removeClass("input-validation-error");
+			$("#AddBalanceModel_ReceiverDocumentValueValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+			document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = ""
+        }
+        else {
+			$("#@Html.IdFor(model => model.Abono.Receptor.Documento)").addClass("input-validation-error");
+			$("#AddBalanceModel_ReceiverDocumentValueValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+			document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = mensaje;
+        }
+
+        if (isValid == null)
+        {
+		  return false;
+        }
+        else
+        {
+		  return true;
+		}
+  }
+
+    function calcularcomisionpaypalGiftCard()
+    {
+        document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "";
+
+        Valor = $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").val();
+        if (Valor.length > 0)
+        {
+		    Valor = Valor.replace('.', '');
+		    Valor = Valor.replace(',', '.');
+
+
+
+            var fijo = @T("SigoCreditosPaypal.Comision.Constante")
+            var porcentaje = @T("SigoCreditosPaypal.Comision.Porcentaje")
+
+             Comision = parseFloat(parseFloat(fijo) + (parseFloat(Valor) * parseFloat(porcentaje)));
+            total = parseFloat((parseFloat(Valor) + parseFloat(fijo) + (parseFloat(Valor) * parseFloat(porcentaje))));
+		    document.getElementById("GiftCard_TransactionAmountValidate").innerHTML = "@T("SigoCreditosPaypal.Comision.Message") " + Comision.toFixed(2).replace(/\D/g, "").replace(/([0-9])([0-9]{2})$/, '$1,$2').replace(/\B(?=(\d{3})+(?!\d)\,?)/g, ".") + "</br> <strong class='totalpaypalview'>@T("SigoCreditosPaypal.AmountTotal.Message") " + total.toFixed(2).replace(/\D/g, "").replace(/([0-9])([0-9]{2})$/, '$1,$2').replace(/\B(?=(\d{3})+(?!\d)\,?)/g, "."); + "</strong>";
+        }
+        else
+        {
+		 document.getElementById("GiftCard_TransactionAmountValidate").innerHTML = "";
+		}
+    }
+
+    function calcularcomisionpaypal()
+    {
+        document.getElementById("GiftCard_TransactionAmountValidate").innerHTML = "";
+
+        Valor = $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").val();
+        if (Valor.length > 0)
+        {
+		    Valor = Valor.replace('.', '');
+		    Valor = Valor.replace(',', '.');
+
+            var fijo = @T("SigoCreditosPaypal.Comision.Constante")
+            var porcentaje = @T("SigoCreditosPaypal.Comision.Porcentaje")
+
+             Comision = parseFloat(parseFloat(fijo) + (parseFloat(Valor) * parseFloat(porcentaje)));
+            total = parseFloat((parseFloat(Valor) + parseFloat(fijo) + (parseFloat(Valor) * parseFloat(porcentaje))));
+		    document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "@T("SigoCreditosPaypal.Comision.Message") " + Comision.toFixed(2).replace(/\D/g, "").replace(/([0-9])([0-9]{2})$/, '$1,$2').replace(/\B(?=(\d{3})+(?!\d)\,?)/g, ".") + "</br> <strong class='totalpaypalview'>@T("SigoCreditosPaypal.AmountTotal.Message") " + total.toFixed(2).replace(/\D/g, "").replace(/([0-9])([0-9]{2})$/, '$1,$2').replace(/\B(?=(\d{3})+(?!\d)\,?)/g, "."); + "</strong>";
+        }
+        else
+        {
+		 document.getElementById("AddBalanceModel_TransactionAmountValidate").innerHTML = "";
+		}
+    }
+
+    $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").on("blur", function ()
+    {
+	    $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").removeClass("input-validation-error");
+	});
+
+</script>
+
+<script type="text/javascript">
+
+    paypal.Buttons({
+       onInit: function(data, actions) {
+      // Disable the buttons
+            actions.disable();
+             console.log($("#@Html.IdFor(model => model.Abono.IndGiftCard)").val());
+
+
+                 document.querySelector('#abonoTypeFalse')
+                     .addEventListener('change', function () {
+                          console.log("abonoTypeFalse");
+
+                        // calcularcomisionpaypalGiftCard();
+                        var habilitarBoton = evaluarSubmitPaypal();
+
+                        console.log(habilitarBoton);
+                        if ( habilitarBoton) {
+                            console.log("enable");
+                            actions.enable();
+                        } else {
+                            console.log("disable");
+                            actions.disable();
+                        }
+                    });
+
+                document.querySelector('#abonoTypeTrue')
+                     .addEventListener('change', function () {
+                          console.log("abonoTypeTrue");
+
+                        // calcularcomisionpaypal();
+                        var habilitarBoton = evaluarSubmitPaypal();
+
+                        console.log(habilitarBoton);
+                        if (habilitarBoton) {
+                            console.log("enable");
+                            actions.enable();
+                        } else {
+                            console.log("disable");
+                            actions.disable();
+                        }
+                     });
+
+
+              document.querySelector('#@Html.IdFor(model => model.Abono.MontoTransaccion)')
+             .addEventListener('keyup', function (event) {
+                       calcularcomisionpaypal();
+                       var habilitarBoton = evaluarSubmitPaypal();
+                      // Enable or disable the button when it is checked or unchecked
+                        console.log("keyup "+ habilitarBoton);
+                       if (parseFloat(event.target.value) > 0 && habilitarBoton) {
+                           console.log("enable");
+                          actions.enable();
+                      } else {
+                      console.log("disable");
+                        actions.disable();
+                      }
+             });
+
+                    document.querySelector('#@Html.IdFor(model => model.Abono.Receptor.Nombre)')
+                        .addEventListener('change', function (event) {
+
+                            console.log("changeReceptor.Nombre");
+                      // calcularcomisionpaypal();
+                      // var habilitarBoton = evaluarSubmitPaypal();
+                      //// Enable or disable the button when it is checked or unchecked
+                      //  console.log("keyup "+ habilitarBoton);
+                      // if (parseFloat(event.target.value) > 0 && habilitarBoton) {
+                      //     console.log("enable");
+                      //    actions.enable();
+                      //} else {
+                      //console.log("disable");
+                      //  actions.disable();
+                      //}
+                    });
+
+            //inhabilitar();
+            loaderHide();
+                 },
+                   style: {
+                    shape: 'rect',
+                    color: 'silver',
+                    layout: 'horizontal',
+                    label: 'pay',
+
+                }, createOrder: function (data, actions) {
+
+                    if ($("#@Html.IdFor(model => model.Abono.IndGiftCard)").val()=="true")
+                      Valor = $("#@Html.IdFor(model => model.Abono.MontoTransaccionGiftCard)").val();
+                    else
+                           Valor = $("#@Html.IdFor(model => model.Abono.MontoTransaccion)").val();
+
+                       Valor = Valor.replace('.', '');
+                       Valor = Valor.replace(',', '.');
+                         var fijo = @T("SigoCreditosPaypal.Comision.Constante");
+                         var porcentaje = @T("SigoCreditosPaypal.Comision.Porcentaje");
+
+                       total = parseFloat((parseFloat(Valor) + parseFloat(fijo) +
+                        (parseFloat(Valor) * parseFloat(porcentaje))));
+                       console.log(total.toFixed(2));
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount:
+                                { value: total.toFixed(2) }
+                        }]
+                    });
+                }, onApprove: function (data, actions) {
+                       return actions.order.capture().then(function (details) {
+                        if (details.status.toUpperCase() === "COMPLETED".toUpperCase()) {
+                           // alert('Transacción Exitosa ' + details.payer.name.given_name + '!');
+                            loaderShow();
+                            var g_id = details.id.toString();
+                            $("#@Html.IdFor(model => model.Abono.TransaccionPayPalId)").val(g_id);
+                            $("#save-info-buttonA").click();
+
+                        } else {
+			                 $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Fallida")' + details.status + '!');
+                             $('#paypalTransaction').modal('show');
+
+                        }
+                    });
+                }
+                }).render('#paypal-button-container');
+
+
+
+
+
+  function evaluarSubmitPaypal(){
+         var evaluar = false;
+           if ($('#@Html.IdFor(model => model.Abono.IndCuentaCliente)').val() == 1) {
+                     if ($("#@Html.IdFor(model => model.Emisor.Documento)").val().length > 0 &&
+                         $("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length > 0 &&
+                         $("#@Html.IdFor(model => model.Abono.Receptor.Telefono)").val().length > 0)
+                     {
+                         evaluar = true;
+                      }
+                     else
+                     {
+                          $("#@Html.IdFor(model => model.Emisor.Documento)").addClass("input-validation-error");
+                          $("#CustomerDocumentValueValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+                          //document.getElementById("CustomerDocumentValueValidate").innerHTML = "@T("SigoCreditosPaypal.CustomerCRM.NotFound") ";
+                         evaluar = false;
+                     }
+                 }
+                 else
+                   {
+                     evaluar = validarDocumento();
+                     if ($("#@Html.IdFor(model => model.Abono.Receptor.Nombre)").val().length == 0) {
+                         $("#@Html.IdFor(model => model.Abono.Receptor.Documento)").addClass("input-validation-error");
+                         $("#AddBalanceModel_ReceiverDocumentValueValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+                         document.getElementById("AddBalanceModel_ReceiverDocumentValueValidate").innerHTML = "@T("SigoCreditosPaypal.CustomerCRM.NotFound") ";
+                         evaluar = false;
+                     }
+                 }
+
+      if ($("#@Html.IdFor(model => model.Abono.IndGiftCard)").val() == "false") {
+          if (parseFloat($("#@Html.IdFor(model => model.Abono.MontoTransaccion)").val()) > 0) {
+                      evaluar = true;
+                  } else {
+                       evaluar = false;
+                  }
+      }
+
+
+
+
+                 return evaluar;
+  }
+
+</script>

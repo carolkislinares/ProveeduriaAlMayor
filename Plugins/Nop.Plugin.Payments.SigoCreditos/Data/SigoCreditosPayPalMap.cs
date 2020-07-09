@@ -24,6 +24,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Data
             builder.Property(scPaypal => scPaypal.TransaccionPaypalID).HasMaxLength(20).IsRequired();
             builder.Property(scPaypal => scPaypal.TransaccionCreditID).HasMaxLength(2).IsRequired();
             builder.Property(scPaypal => scPaypal.Monto).HasMaxLength(10);
+            builder.Property(scPaypal => scPaypal.CodigoGiftCard).HasMaxLength(50);
             base.Configure(builder);
         }
 

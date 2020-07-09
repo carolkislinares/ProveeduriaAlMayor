@@ -1,19 +1,46 @@
 ﻿@model Nop.Plugin.Payments.SigoCreditos.Models.SigoCreditosInfoModel
+@using Nop.Core;
 @using System.Globalization;
+@using Nop.Core.Infrastructure;
+@using Nop.Services.Customers;
+@using Nop.Services.Configuration;
+@using Nop.Services.Common;
+@using Nop.Core.Domain.Customers;
 @{
     Layout = "";
-}@using Nop.Core
+}
 @inject IWorkContext workContext
+@inject IStoreContext storeContext;
 @{
 
     var CustomerIdEcommerce = workContext.CurrentCustomer.Id;
+    var ColorSchemeSetting = EngineContext.Current.Resolve<ISettingService>().GetAllSettings().Where(x => x.Name.ToLowerInvariant().Contains("emporiumthemesettings.preset".ToLowerInvariant())).ToList();
+    var Colors = ColorSchemeSetting[0].Value.Split(',');
+    var MainColor = '#' + Colors[0];
+    var SecondaryColor = '#' + Colors[1].Trim();
+
+    var Customerclient = EngineContext.Current.Resolve<ICustomerService>().GetCustomerById(workContext.CurrentCustomer.Id);
+    var EsValidoCRM = EngineContext.Current.Resolve<IGenericAttributeService>().GetAttribute<string>(Customerclient, "EsValidoCRM");
+    var selectedCustomerAttributesString = EngineContext.Current.Resolve<IGenericAttributeService>().GetAttribute<string>(Customerclient, NopCustomerDefaults.CustomCustomerAttributes);
+    var TipoDocumento = EngineContext.Current.Resolve<ICustomerAttributeParser>().ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
+
+
+
+
 }
 
-<script>
-    //$("div.ajax-loading-block-window").attr("style", "display:block!important;");
+<script type="text/javascript">
     loaderShow();
 </script>
+
 <style>
+
+    .swal2-styled.swal2-confirm,
+    .page-item.active .page-link {
+        background-color: @SecondaryColor;
+        border-color: @SecondaryColor;
+    }
+
     #historyContainer {
         margin: 10px 0;
     }
@@ -54,84 +81,199 @@
             padding-top: 10px;
         }
     }
+    /* ////////////////////////////////////////////////////////////////////  */
+    #transactionTable {
+        margin: 20px auto !important;
+        padding: 30px 0 20px !important;
+    }
+
+    #historyFormCollapse > .card-body > .card.card-body {
+        border: none;
+        padding: 0.7rem;
+        padding-top: 0px;
+        margin-top: 0px !important;
+    }
+
+    #historyFormCollapse > .card-body {
+        margin-top: 0px !important;
+    }
+
+    #transactionTable_wrapper {
+        font-size: 13px;
+    }
+
+    #transactionTable_length {
+        width: 50%;
+        float: left;
+    }
+
+    #transactionTable_filter {
+        width: 40%;
+        float: right;
+    }
+
+    #transactionTable_info, #transactionTable_paginate {
+        padding-top: 10px;
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        display: flex;
+    }
+
+    #transactionTable_length > label > select {
+        height: 30px;
+    }
+
+    table.dataTable thead > tr > th.sorting_asc,
+    table.dataTable thead > tr > th.sorting_desc,
+    table.dataTable thead > tr > th.sorting,
+    table.dataTable thead > tr > td.sorting_asc,
+    table.dataTable thead > tr > td.sorting_desc,
+    table.dataTable thead > tr > td.sorting {
+        padding-right: 20px !important;
+    }
+
+    @@media screen and (max-width:769px) {
+        div.dataTables_wrapper div.dataTables_length,
+        div.dataTables_wrapper div.dataTables_filter,
+        div.dataTables_wrapper div.dataTables_info,
+        div.dataTables_wrapper div.dataTables_paginate {
+            text-align: center;
+        }
+
+        #transactionTable_filter,
+        #transactionTable_paginate {
+            float: none;
+            margin: 0 auto;
+            padding-top: 10px;
+            display: flex;
+        }
+
+        #transactionTable_length,
+        #transactionTable_info {
+            width: 100%;
+            float: none;
+        }
+
+        .tableContainer {
+            overflow-x: scroll;
+        }
+
+        div.dataTables_wrapper div.dataTables_filter input {
+            width: 75% !important;
+        }
+    }
+
+    @@media screen and (max-width: 426px) {
+        #transactionTable_filter, #transactionTable_paginate {
+            width: 60%;
+        }
+
+        #transactionTable_info {
+            justify-content: normal;
+        }
+    }
+
+    @@media screen and (min-width: 768px) {
+        .page.account-page.customer-info-page > .page-body {
+            max-width: 100% !important;
+        }
+    }
+
+    /* ///////////////////////////////////////////////////////////////////////  */
 </style>
+
 <div class="page account-page customer-info-page">
     <div class="page-body">
         <div class="inputs">
-            <input asp-for="SigoClubId" value="SigoClubId" hidden />
+            <input asp-for="Emisor.SigoClubId" hidden />
         </div>
         <div class="inputs">
-            <input asp-for="EntityId" value="EntityId" hidden />
+            <input asp-for="Emisor.EntityId" hidden />
         </div>
         @*  tabla con la consulta del balance del cliente*@
-        <div class="">
-            <div class="title" style="margin: 0px auto;padding:18px;color: #8c8c8c;background-color: #f9f9f9;">
-
-                <!-- <strong>@T("Account.YourPersonalDetails")</strong>-->
-                <strong>@T("Account.BalancPersonalDetails")</strong>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12 col-md-12 tableContainer" style="margin: 20px auto;">
-                @if (Model.AccountsList.Count > 0)
-                {
-                    <table width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
-                        <thead>
-                            <tr>
-                                <th><div>@T("Account.AccountTypeName")</div></th>
-                                <th><div>@T("Account.AccountTypeQuantity")</div></th>
-                                <th><div>@T("Account.AccountTypeCurrency")</div></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            @foreach (var account in Model.AccountsList)
+        <div>
+            <div class="card">
+                <div class="card-header" id="headingSaldoFormCollapse">
+                    <div class="row">
+                        <div class="col-lg-9 col-md-9 col-sm-8">
+                            <strong>@T("Account.BalancPersonalDetails")</strong>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-2">
+                            @if (Model.Emisor.EntityId > 0)
                             {
-                                <tr>
-                                    <td><div>@account.AccountTypeName</div></td>
-                                    <td class="Monto"><div>$@account.AccountTypeQuantity.ToString("N", new CultureInfo("is-IS"))</div></td>
-                                    <td><div>@account.AccountTypeCurrency</div></td>
-                                </tr>
+                                @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
+                                {
+                                    <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
+                                }
+                                else
+                                {
+                                    @if (TipoDocumento.Contains("1"))
+                                    {
+                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteNatural()">@T("SigoCreditosPaypal.validationpin.button")</button>
+
+                                    }
+                                    else
+                                    {
+                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteJuridico()">@T("SigoCreditosPaypal.validationpin.button")</button>
+
+                                    }
+                                }
+
                             }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
-                }
+                            else
+                            {
+                                <div class="EmptyTable"><span>@T("SigoCreditos.Abono.CustomerNotFound")</span></div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div id="saldoFormCollapse" class="collapse" aria-labelledby="headingSaldoFormCollapse">
+                    <div class="card-body">
+                        <div class="card card-body">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 tableContainer" style="margin: 20px auto;">
+
+                                    @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
+                                    {
+
+                                        @if (Model.Emisor.SaldoActualList.Count > 0)
+                                        {
+                                            <table id="SaldoActualTable" width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th><div>@T("Account.AccountTypeName")</div></th>
+                                                        <th><div>@T("Account.AccountTypeQuantity")</div></th>
+                                                        <th><div>@T("Account.AccountTypeCurrency")</div></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                    @foreach (var account in Model.Emisor.SaldoActualList)
+                                                    {
+                                                        <tr>
+                                                            <td><div>@account.Descripcion</div></td>
+                                                            <td class="Monto"><div>$@account.MontoDisponible.ToString("N", new CultureInfo("is-IS"))</div></td>
+                                                            <td><div>@account.Moneda</div></td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
+                                        }
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- ///////////////////////////    ABONOS      ////////////////////////////////////////////////////////////////////////////////////////////// -->
-        @*<div class="title row" style="padding:18px;color: #8c8c8c;background-color: #f9f9f9;">
-                <div class="col-lg-9 col-md-9">
-                    <strong>Abono de créditos</strong>
-                </div>
-                <div class="col-lg-2 col-md-2">
-                    <button class="button-1 search-box-button" id="abonoFormCollapseButton" style="" data-toggle="collapse" href="#abonoFormCollapse" role="button" aria-expanded="false" aria-controls="abonoFormCollapse">Mostrar</button>
-                </div>
-            </div>*@
-        @*<div class="collapse" id="abonoFormCollapse">
-                <div class="card card-body">
-                    @await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_SigoCreditosInfo.cshtml", Model)
-                </div>
-            </div>*@
-
-        <!-- ///////////////////////////    GIFT CARD      ////////////////////////////////////////////////////////////////////////////////////////////// -->
-        @*<div class="title row" style="padding:18px;color: #8c8c8c;background-color: #f9f9f9;">
-                <div class="col-lg-9 col-md-9">
-                    <strong>GIFT CARD </strong>
-                </div>
-                <div class="col-lg-2 col-md-2">
-                    <button class="button-1 search-box-button" id="cardFormCollapseButton" style="" data-toggle="collapse" href="#cardFormCollapse" role="button" aria-expanded="false" aria-controls="cardFormCollapse">Mostrar</button>
-                </div>
-            </div>*@
-        @*<div class="collapse" id="cardFormCollapse">
-                <div class="card card-body">
-                    @await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_SigoCreditosGiftCard.cshtml", Model)
-                </div>
-            </div>*@
 
         <!-- ///////////////////////////    Seccion Collapse Group     ////////////////////////////////////////////////////////////////////////////////////////////// -->
         <div id="collapseGroup">
@@ -145,30 +287,18 @@
                             <button class="button-1 search-box-button" id="abonoFormCollapseButton" style="" data-toggle="collapse" href="#abonoFormCollapse" role="button" aria-expanded="false" aria-controls="abonoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
                         </div>
                     </div>
-                    @*<h5 class="mb-0">
-                            <button class="btn btn-link" data-toggle="collapse" data-target="#abonoFormCollapse" aria-expanded="true" aria-controls="collapseOne">
-                                Collapsible Group Item #1
-                            </button>
-                        </h5>*@
                 </div>
 
                 <div id="abonoFormCollapse" class="collapse" aria-labelledby="headingAbonoFormCollapse" data-parent="#collapseGroup">
                     <div class="card-body">
                         <div class="card card-body">
-                            @*@if (!string.IsNullOrWhiteSpace(Model.CustomerDocumentValue))
-                                {*@
                             @await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_SigoCreditosInfo.cshtml", Model)
-                            @*}
-                                else
-                                {
-                                    <div class="EmptyTable"><span>@T("Account.CustomerDocumentValue.NotFound")</span></div>
-                                }*@
                         </div>
                     </div>
                 </div>
             </div>
             @*/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////*@
-            <div class="card" style="display: none;">
+            <div class="card" style="display:none;">
                 <div class="card-header" id="headingCardFormCollapse">
                     <div class="row">
                         <div class="col-lg-9 col-md-9 col-sm-8">
@@ -178,16 +308,11 @@
                             <button class="button-1 search-box-button" id="cardFormCollapseButton" style="" data-toggle="collapse" href="#cardFormCollapse" role="button" aria-expanded="false" aria-controls="cardFormCollapse">Mostrar</button>
                         </div>
                     </div>
-                    @*<h5 class="mb-0">
-                            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Collapsible Group Item #2
-                            </button>
-                        </h5>*@
                 </div>
                 <div id="cardFormCollapse" class="collapse" aria-labelledby="headingCardFormCollapse" data-parent="#collapseGroup">
                     <div class="card-body">
                         <div class="card card-body">
-                            @* @await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_SigoCreditosGiftCard.cshtml", Model)*@
+                            @*@await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_SigoCreditosGiftCard.cshtml", Model)*@
                         </div>
                     </div>
                 </div>
@@ -200,7 +325,7 @@
                             <strong>@T("SigoCreditos.Account.TransactionDetails")</strong>
                         </div>
                         <div class="col-lg-2 col-md-2 col-sm-2">
-                            <button class="button-1 search-box-button" id="historyFormCollapseButton" style="" data-toggle="collapse" href="#historyFormCollapse" role="button" aria-expanded="false" aria-controls="historyFormCollapse">Mostrar</button>
+                            <button class="button-1 search-box-button" id="historyFormCollapseButton" style="" data-toggle="collapse" href="#historyFormCollapse" role="button" aria-expanded="false" aria-controls="historyFormCollapse">@T("abonoForm.CollapseButton.show")</button>
                         </div>
                     </div>
                 </div>
@@ -209,9 +334,9 @@
                         <div class="card card-body">
                             <div class="row">
                                 <div class="col-lg-12 col-md-12 tableContainer" style="margin: 20px auto;padding: 0 5px;">
-                                    @if (Model.SigoCreditosPayPalList.Count > 0)
+                                    @if (Model.TransaccionList.Count > 0)
                                     {
-                                        <table width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;PADDING: 5px;">
+                                        <table id="transactionTable" width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;PADDING: 5px;">
                                             <thead>
                                                 <tr>
                                                     <th><div>@T("Account.CreateDate")</div></th>
@@ -225,7 +350,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach (var SCP in Model.SigoCreditosPayPalList)
+                                                @foreach (var SCP in Model.TransaccionList)
                                                 {
                                                     <tr>
                                                         <td><div>@SCP.FechaCreacion.ToString("dd/MM/yyyy")</div></td>
@@ -234,7 +359,14 @@
                                                         @*<td><div>@SCP.CedulaReceptor</div></td>*@
                                                         <td><div>@SCP.NombreReceptor</div></td>
                                                         <td class="MontoAbono"><div>$@SCP.Monto.ToString("N", new CultureInfo("is-IS"))</div></td>
-                                                        <td><div>@(SCP.Estatus_Operacion == true ? "Exitoso" : "Sin Abonar")</div></td>
+                                                        <td>
+                                                            <div>
+                                                                @if (SCP.Estatus_Operacion)
+                                                                {<span style="background-color: #00a65a;border-radius: .25em;color: white;padding: .1em .3em .1em;">Exitoso</span>}
+                                                                else
+                                                                { <span style="background-color: #dd4b39;border-radius: .25em;color: white;padding: .1em .3em .1em;">Sin Abonar</span>}
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 }
 
@@ -254,70 +386,6 @@
 
         </div>
 
-        @*<div id="historyContainer">
-                <div class="">
-                    <div class="title" style="margin: 0px auto;padding:18px;color: #8c8c8c;background-color: #f9f9f9;">
-                        <!-- <strong>@T("Account.YourPersonalDetails")</strong>-->
-                        <strong>Abonos realizados</strong>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12" style="margin: 20px auto;">
-                        <table width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
-                            <tr>
-                                <th>@T("Account.TransaccionPaypalID")</th>
-                                <th>@T("Account.Monto")</th>
-                                <th>@T("Account.CedulaReceptor") Receptor</th>
-                                <th>@T("Account.NombreReceptor") Receptor</th>
-                                <th>@T("Account.Estatus_Operacion")</th>
-                            </tr>
-                            @foreach (var SCP in Model.SigoCreditosPayPalList)
-                            {
-                                <tr>
-                                    <td>@SCP.TransaccionPaypalID</td>
-                                    <td id="MontoAbono">@SCP.Monto</td>
-                                    <td>@SCP.CedulaReceptor</td>
-                                    <td>@SCP.NombreReceptor</td>
-                                    <td>@(SCP.Estatus_Operacion == true ? "Exitoso" : "Sin Abonar")</td>
-                                </tr>
-                            }
-                        </table>
-                    </div>
-                </div>
-            </div>*@
-
-
-
-        <!-- ///////////////////////////    ABONOS      ////////////////////////////////////////////////////////////////////////////////////////////// -->
-        @*<div class="title row" style="padding:18px;color: #8c8c8c;background-color: #f9f9f9;">
-                <div class="col-lg-9 col-md-9">
-                    <strong>Abono de créditos</strong>
-                </div>
-                <div class="col-lg-2 col-md-2">
-                    <button class="button-1 search-box-button" id="abonoFormCollapseButton" style="" data-toggle="collapse" href="#abonoFormCollapse" role="button" aria-expanded="false" aria-controls="abonoFormCollapse">Mostrar</button>
-                </div>
-            </div>
-            <div class="collapse" id="abonoFormCollapse">
-                <div class="card card-body">
-                    @await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_SigoCreditosInfo.cshtml", Model)
-                </div>
-            </div>*@
-
-        <!-- ///////////////////////////    GIFT CARD      ////////////////////////////////////////////////////////////////////////////////////////////// -->
-        @*<div class="title row" style="padding:18px;color: #8c8c8c;background-color: #f9f9f9;">
-                <div class="col-lg-9 col-md-9">
-                    <strong>GIFT CARD </strong>
-                </div>
-                <div class="col-lg-2 col-md-2">
-                    <button class="button-1 search-box-button" id="cardFormCollapseButton" style="" data-toggle="collapse" href="#cardFormCollapse" role="button" aria-expanded="false" aria-controls="cardFormCollapse">Mostrar</button>
-                </div>
-            </div>
-            <div class="collapse" id="cardFormCollapse">
-                <div class="card card-body">
-                    @await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_SigoCreditosGiftCard.cshtml", Model)
-                </div>
-            </div>*@
-
         <!-- Modal paypalTransaction -->
         <div class="modal fade" id="paypalTransaction" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -335,27 +403,176 @@
             </div>
         </div>
 
-
-
-
-
-
-        @*<!-- ///////////////////////////    Seccion Boton PayPal VentasO    ////////////////////////////////////////////////////////////////////////////////////////////// -->
-            @*<script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD"
-                        data-sdk-integration-source="button-factory">
-
-                </script>
-
-            <!-- ///////////////////////////    Seccion Boton PayPal Engel    ////////////////////////////////////////////////////////////////////////////////////////////// -->
-            <script src="https://www.paypal.com/sdk/js?client-id=AfbVJuARzopmc5Yqw6LnuMZGsvgUbjW2Z4omie4CRjBVsJ3lXV5tcrrVA1VTPi7SplXpK2nu6poae-qp&currency=USD"
-                    data-sdk-integration-source="button-factory">
-            </script>*@
-
     </div>
 </div>
 
-<script>
-   // window.onload=inhabilitar();
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        autoCompleteInputFields();
+    });
+
+    function autoCompleteInputFields() {
+        $("input").attr("autocomplete", "off");
+    }
+    function SwalfireClienteNatural() {
+            Swal.fire({
+            title: '@T("SigoCreditosPaypal.validationpin")',
+            input: 'password',
+            inputAttributes: {
+                autocapitalize: 'off',
+                maxlength: 6,
+            },
+                showCancelButton: true,
+                confirmButtonText: '@T("SigoCreditosPaypal.validationpin.confirmButtonText")',
+               cancelButtonText: '@T("SigoCreditosPaypal.validationpin.cancelButtonText")',
+               showLoaderOnConfirm: true,
+                preConfirm: (pin) => {
+
+                  var numbers = /^[0-9]{6,}$/;
+                  isValid = login.match(numbers);
+
+                    if (isValid === null) {
+                        if(pin==="")
+                            Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinrequired")")
+                        else
+                              if (document.getElementById('swal-input1').length < 6)
+                                Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinminimun")");
+                            else Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.onlynumber")");
+                    } else {
+                        ValidarPin(pin);
+                    }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+          }).then((result) => {
+            if (result.value) {
+                setLocation('@Url.RouteUrl("sigocreditos")');
+            }
+           });
+        }
+
+    function ValidarPin(pin) {
+        var route = '@Html.Raw(Url.Action("ValidarPin", "Admin/SigoCreditosInfo", new { @entityid = "TD", @cedula= "cd", @pin = "DC", @tipoDoc = "TC"  }))';
+            route = route.replace("TD", $("#@Html.IdFor(model=>model.Emisor.EntityId)").val());
+            route = route.replace("cd", $("#@Html.IdFor(model=>model.Emisor.Documento)").val());
+            route = route.replace("DC", pin);
+            route = route.replace("TC", @TipoDocumento);
+        $.ajax({
+			type: "POST",
+			traditional: true,
+			async: false,
+			cache: false,
+			url: route,
+			context: document.body,
+            success: function (result) {
+                switch (parseInt(result)) {
+                    case 0: {
+                         Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pininvalidate")");
+                        break;
+                    }
+                         case 2: {
+                         Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.notauthorized")");
+                        break;
+                    }
+                }
+			    },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+                Swal.showValidationMessage(xhr.responseText);
+			}
+		});
+    }
+
+    function SwalfireClienteJuridico() {
+            Swal.fire({
+                title: '@T("SigoCreditosPaypal.validationpin")',
+                html:
+                    '<input id="swal-input2" autocomplete="off" class="swal2-input"  style="font-family: verdana; margin-bottom: 0.5em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> ' +
+                    ' <input id="swal-input1" autocomplete="off" class="swal2-input"  style="font-family: verdana; margin-bottom: 0.5em!important" maxlength=6 placeholder="@T("SigoCreditosPaypal.validationpin.pinplaceholder")"> ',
+                    '<script>setTimeout(function () {document.getElementById("swal-input1").type = "password";}, 10);<//script>',
+                focusConfirm: false,
+            inputAttributes: {
+                autocapitalize: 'off',
+                autocomplete: 'off'     
+            },
+                showCancelButton: true,
+
+                 confirmButtonText: '@T("SigoCreditosPaypal.validationpin.confirmButtonText")',
+                 cancelButtonText: '@T("SigoCreditosPaypal.validationpin.cancelButtonText")',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    var pin = document.getElementById('swal-input1').value;
+                    var documento = document.getElementById('swal-input2').value;
+
+                    var numbers = /^[0-9]{6}$/;
+                     isValid = pin.match(numbers);
+                     var numbersCed = /^[0-9]{6,8}$/;
+                    isValidCed = documento.match(numbersCed);
+
+                    if (isValidCed === null)
+                    {
+                        if (documento === "") {
+                            Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.documentrequired")");
+                        }
+                        else {
+                            if (document.getElementById('swal-input1').value.length < 6)
+                                Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.cedminimun")");
+                            else Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.onlynumber")");
+                        }
+                    }
+                    else
+                    if (isValid === null)
+                    {
+                        if(pin==="")
+                            Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinrequired")")
+                        else
+                              if (document.getElementById('swal-input1').value.length < 6)
+                                Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinminimun")");
+                            else Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.onlynumber")");
+                    }
+                    else {
+                        ValidarPinJuridico(pin, documento);
+                   }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+          }).then((result) => {
+            if (result.value) {
+                setLocation('@Url.RouteUrl("sigocreditos")');
+            }
+           });
+    }
+
+     function ValidarPinJuridico(pin, documento) {
+              var route = '@Html.Raw(Url.Action("ValidarPin", "Admin/SigoCreditosInfo", new { @entityid = "TD", @cedula= "cd", @pin = "DC", @tipoDoc = "TC" }))';
+                 route = route.replace("TD", $("#@Html.IdFor(model=>model.Emisor.SigoClubId)").val());
+                 route = route.replace("cd", documento);
+                 route = route.replace("DC", pin);
+                 route = route.replace("TC", @TipoDocumento);
+                $.ajax({
+			            type: "POST",
+			            traditional: true,
+			            async: false,
+			            cache: false,
+			            url: route,
+			            context: document.body,
+                        success: function (result){
+                           switch (parseInt(result)) {
+                                case 0: {
+                                     Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pininvalidate")");
+                                    break;
+                                }
+                                     case 2: {
+                                     Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.notauthorized")");
+                                    break;
+                                }
+                            }
+			               },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+                Swal.showValidationMessage(xhr.responseText);
+			}
+		});
+    }
 
 
     if (document.getElementById('paypal-button-container') == null) {
@@ -363,7 +580,7 @@
     }
 
 
-        $("#abonoFormCollapseButton").on("click", function () {
+    $("#abonoFormCollapseButton").on("click", function () {
         if ($("#abonoFormCollapse").hasClass("collapse show")) {
             $("#abonoFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
 
@@ -372,6 +589,9 @@
             if ($("#historyFormCollapse").hasClass("collapse show")) {
                 $("#historyFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
             }
+            @*if ($("#cardFormCollapse").hasClass("collapse show")) {
+                $("#cardFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
+            }*@
         }
     });
     $("#historyFormCollapseButton").on("click", function () {
@@ -382,66 +602,74 @@
             if ($("#abonoFormCollapse").hasClass("collapse show")) {
                 $("#abonoFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
             }
+            @*if ($("#cardFormCollapse").hasClass("collapse show")) {
+                $("#cardFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
+            }*@
         }
     });
-    //$("#cardFormCollapseButton").on("click", function () {
-            //    if ($("#cardFormCollapse").hasClass("collapse show")) {
-            //        $("#cardFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
-            //    } else {
-            //        $("#cardFormCollapseButton").text("@T("abonoForm.CollapseButton.hide")");
-            //    }
-            //});
+    @*$("#cardFormCollapseButton").on("click", function () {
+        if ($("#cardFormCollapse").hasClass("collapse show")) {
+            $("#cardFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
+        } else {
+            $("#cardFormCollapseButton").text("@T("abonoForm.CollapseButton.hide")");
+            if ($("#abonoFormCollapse").hasClass("collapse show")) {
+                $("#abonoFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
+            }
+            if ($("#historyFormCollapse").hasClass("collapse show")) {
+                $("#historyFormCollapseButton").text("@T("abonoForm.CollapseButton.show")");
+            }
+        }
+    });*@
 
-</script>
+    $("#saldoCollapseButton").on("click", function () {
+        if ($("#saldoFormCollapse").hasClass("collapse show")) {
+            $("#saldoCollapseButton").text("@T("abonoForm.CollapseButton.show")");
+        } else {
+            $("#saldoCollapseButton").text("@T("abonoForm.CollapseButton.hide")");
+        }
+    });
 
-
-
-<script>
-
-
-
-
-    function SuccessAbono(response)
+  function SuccessAbono(response)
     {
-        if (response.IdTransaccion == "undefined" && response.Cod_Abono != 0) {
-            response.IdTransaccion = "";
+        if (response.Abono.TransaccionPayPalId == "undefined" && response.Abono.Cod_Abono != 0) {
+            response.Abono.IdTransaccion = "";
             $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ');
             $('#paypalTransaction').modal('show');
             return;
-        } 
-        if (response.IdTransaccion != "undefined" && response.Cod_Abono == 0) {
+        }
+        if (response.Abono.TransaccionPayPalId != "undefined" && response.Abono.Cod_Abono == 0) {
             response.IdTransaccion = "";
-            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ' + response.Abono.TransaccionPayPalId + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
             $('#paypalTransaction').modal('show');
             return;
-        } 
+        }
 
         if (response.Cod_Abono != 0) {
-            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.IdTransaccion);
+            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.Abono.TransaccionPayPalId);
         } else
         {
-            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.Abono.TransaccionPayPalId + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
         }
         $('#paypalTransaction').modal('show');
     }
 
      function FailureAbono(response)
      {
-       
-             if (response.IdTransaccion == "undefined" && response.Cod_Abono != 0) {
-                response.IdTransaccion = "";
+
+             if (response.Abono.TransaccionPayPalId == "undefined" && response.Cod_Abono != 0) {
+                response.Abono.TransaccionPayPalId = "";
                 $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ');
                 $('#paypalTransaction').modal('show');
                 return;
-             } 
-            if (response.IdTransaccion != "undefined" && response.Cod_Abono == 0) {
-                response.IdTransaccion = "";
-                $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+             }
+            if (response.Abono.TransaccionPayPalId != "undefined" && response.Abono.Cod_Abono == 0) {
+                response.Abono.TransaccionPayPalId = "";
+                $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.IdUndefined") ' + response.Abono.TransaccionPayPalId  + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
                 $('#paypalTransaction').modal('show');
                 return;
-            } 
+            }
 
-            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.IdTransaccion + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
+            $('#paypalTransaction .modal-body h5').text('@T("SigoCreditosPaypal.Transaccion.Exitosa") ' + response.Abono.TransaccionPayPalId  + " @T("SigoCreditosPaypal.Transaccion.FailAbono")");
             $('#paypalTransaction').modal('show');
             console.log("Failure")
 
@@ -453,21 +681,21 @@
             setLocation(route);
     });
 
-
-
-
-</script>
-
-<script>
     // Create USD currency formatter.
     var formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
     });
-    //var amount = document.getElementsByClassName('Monto').innerHTML;
-    //document.getElementsByClassName('Monto').innerHTML = formatter.format(amount);
-    //var amountA = document.getElementsByClassName('MontoAbono').innerHTML;
-    //document.getElementsByClassName('MontoAbono').innerHTML = formatter.format(amountA);
+
+    $("#transactionTable").DataTable({
+        responsive: true,
+        dom: 'Blfrtip',
+        autoWidth: false,
+        "language": {
+            "url":"@Url.Content("~/Themes/Emporium/Content/DataTables/datatables.spanish.js")"
+        }
+    });
+
 </script>
 
 

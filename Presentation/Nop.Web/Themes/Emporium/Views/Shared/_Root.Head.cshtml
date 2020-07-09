@@ -30,7 +30,7 @@
     {
         Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-migrate/jquery-migrate-3.0.1.min.js");
     }
-    Html.AppendScriptParts(ResourceLocation.Head, "~/lib/jquery/jquery-3.3.1.min.js");
+    //Html.AppendScriptParts(ResourceLocation.Head, "~/lib/jquery/jquery-3.3.1.min.js");
     Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-ui/jquery-ui-1.12.1.custom/jquery-ui.min.js");
     Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-validate/jquery.validate.unobtrusive-v3.2.10/jquery.validate.unobtrusive.min.js");
     Html.AppendScriptParts(ResourceLocation.Footer, "~/lib/jquery-validate/jquery.validate-v1.17.0/jquery.validate.min.js");
@@ -39,6 +39,8 @@
     Html.AppendScriptParts(ResourceLocation.Head, "~/Themes/Emporium/Content/scripts/external.js");
     Html.AppendScriptParts(ResourceLocation.Head, "~/Themes/Emporium/Content/scripts/jquery.inputmask.min.js");
     Html.AppendScriptParts(ResourceLocation.Head, "~/Themes/Emporium/Content/scripts/inputmask.min.js");
+    Html.AppendScriptParts(ResourceLocation.Head, "~/Themes/Emporium/Content/DataTables/datatables.min.js");
+    Html.AppendScriptParts(ResourceLocation.Head, "~/Themes/Emporium/Content/SweetAlert/sweetalert.js");
     Html.AppendScriptParts(ResourceLocation.Head, "~/lib/jquery/jquery-3.3.1.min.js");
 
     //X-UA-Compatible tag
@@ -91,6 +93,7 @@
     }
     @Html.NopInlineScripts(this.Url, ResourceLocation.Head)
     <!--Powered by nopCommerce - http://www.nopCommerce.com-->
+    <link href="~/Themes/Emporium/Content/DataTables/datatables.min.css" rel="stylesheet" type="text/css">
     <link href="~/Themes/Emporium/Content/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 </head>
 <body class="@currentPageClass">

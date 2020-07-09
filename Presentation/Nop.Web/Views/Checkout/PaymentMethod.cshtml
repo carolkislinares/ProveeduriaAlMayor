@@ -55,14 +55,39 @@
                 }
 
                 @*//////////////////////////////////////////////*@
-                @await Component.InvokeAsync("ConsumoSigoCreditos")
+                @* @await Component.InvokeAsync("SigoCreditosInfo")*@
+                @*//////////////////////////////////////////////*@
+                @*//////////////////////////////////////////////*@
+                <input asp-for="IndAplicoCreditos" style="display:none" />
+                @if (Model.IndSigoCreditos)
+                {
+                    @await Component.InvokeAsync("ConsumoSigoCreditos")
+                }
+
+                @if (Model.IndError)
+                {
+                    @*<div class="message-error">
+                        El pin de seguridad que ha ingresado no es el correcto
+                    </div>*@
+                    <div class="message-error">
+                        @Model.MensajeError.ToString()
+                    </div>
+
+                }
                 @*//////////////////////////////////////////////*@
 
                 @if (Model.PaymentMethods.Count > 0)
                 {
 
                     @*@if (WorkingCurrencyId == 13)
-                        {*@
+            {*@
+
+                    @*<div>
+                <input id="MontoDescuento" />
+                <input id="PingUsuario" />
+                <input id="btnDescontarCreditos" type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="ObtenerMonto() " />
+            </div>*@
+
                     var modelo = Model.PaymentMethods;
 
                     <ul class="method-list" id="payment-method-block">
@@ -98,43 +123,43 @@
                     </ul>
 
                     @* }
-                        else
+            else
+             {
+                 var modelo = Model.PaymentMethods.Where(x => x.Name.Contains("Zelle") || x.Name.Contains("Cash")).ToList();
+
+                 <ul class="method-list" id="payment-method-block">
+                     @for (var i = 0; i < modelo.Count; i++)
+                     {
+                         var paymentMethod = modelo[i];
+                         var paymentMethodName = paymentMethod.Name;
+                         if (!string.IsNullOrEmpty(paymentMethod.Fee))
                          {
-                             var modelo = Model.PaymentMethods.Where(x => x.Name.Contains("Zelle") || x.Name.Contains("Cash")).ToList();
-
-                             <ul class="method-list" id="payment-method-block">
-                                 @for (var i = 0; i < modelo.Count; i++)
+                             paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
+                         }
+                         <li>
+                             <div class="method-name">
+                                 @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
                                  {
-                                     var paymentMethod = modelo[i];
-                                     var paymentMethodName = paymentMethod.Name;
-                                     if (!string.IsNullOrEmpty(paymentMethod.Fee))
-                                     {
-                                         paymentMethodName = T("Checkout.SelectPaymentMethod.MethodAndFee", paymentMethodName, paymentMethod.Fee).Text;
-                                     }
-                                     <li>
-                                         <div class="method-name">
-                                             @if (!string.IsNullOrEmpty(paymentMethod.LogoUrl))
-                                             {
-                                                 <div class="payment-logo">
-                                                     <label for="paymentmethod_@(i)">
-                                                         <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
-                                                     </label>
-                                                 </div>
-                                             }
-                                             <div class="payment-details">
-                                                 <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
-                                                 <label for="paymentmethod_@(i)">@paymentMethodName</label>
-                                                 @if (!string.IsNullOrEmpty(paymentMethod.Description))
-                                                 {
-                                                     <div class="payment-description">@paymentMethod.Description</div>
-                                                 }
-                                             </div>
-                                         </div>
-                                     </li>
+                                     <div class="payment-logo">
+                                         <label for="paymentmethod_@(i)">
+                                             <img src="@paymentMethod.LogoUrl" alt="@paymentMethodName" />
+                                         </label>
+                                     </div>
                                  }
-                             </ul>
+                                 <div class="payment-details">
+                                     <input id="paymentmethod_@(i)" type="radio" name="paymentmethod" value="@(paymentMethod.PaymentMethodSystemName)" checked="@paymentMethod.Selected" />
+                                     <label for="paymentmethod_@(i)">@paymentMethodName</label>
+                                     @if (!string.IsNullOrEmpty(paymentMethod.Description))
+                                     {
+                                         <div class="payment-description">@paymentMethod.Description</div>
+                                     }
+                                 </div>
+                             </div>
+                         </li>
+                     }
+                 </ul>
 
-                         }*@
+             }*@
 
 
                     <div class="buttons">
@@ -158,3 +183,143 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+
+        if ($("#@Html.IdFor(model => model.IndAplicoCreditos)").val() == 1) {
+
+            // $("#montoConsumo").val("0.02");
+            //$('#montoConsumo').attr('readonly', true);
+            //$('#pinConsumo').attr('readonly', true);
+            $('#consumoInputRow').hide();
+            $('#usarButtonContainerCol').hide();
+            $('#LimpiarButtonContainerCol').show();
+            $('#checkConsumo').trigger("click");
+        } else {
+            $('#usarButtonContainerCol').show();
+            $('#LimpiarButtonContainerCol').hide();
+        }
+
+         $("#documentocliente").mask('00000000');
+         $("#pinConsumo").mask('000000');
+
+       
+
+    });
+
+    function validarDocumento()
+    {
+        var documento = document.getElementById('documentocliente').value;
+        var numbers = /^[0-9]{6,}$/;
+        var isValid;
+        var MontoIsValid = false;
+        var PinIsValid = false;
+        isValid = documento.match(numbers); 
+                        if (isValid == null)
+                            {
+                                if ($("#documentocliente").val().length == 0)
+                                {
+                                    mensaje = "Se requiere la cédula.";
+                                }
+                                else
+                                {
+                                    if ($("#documentocliente").val().length < 7)
+                                    {
+                                        mensaje = "Mínimo 6 carácteres";
+                                    }
+                                    else
+                                    {
+                                        if ($("#documentocliente").val().length > 8)
+                                        {
+			                              mensaje = "Máximo 8 carácteres";
+			                            }
+			                        }
+                            }
+                            }
+                        if ($("#montoConsumo").val().length === 0) {
+                            MontoIsValid = true;
+                            mensajeM = "El monto debe ser mayor que 0.";
+                        } else if (parseFloat($("#montoConsumo").val()) >parseFloat( $("#montoDisponible").val()))
+                        {
+                             MontoIsValid = true;
+                             mensajeM = "El monto no puede ser mayor a lo que tiene disponible.";
+                        }
+                       if ($("#pinConsumo").val().length === 0)
+                       {
+                           PinIsValid = true;
+                           mensajeP = "Ingrese un Pin.";
+                       }
+        if (isValid != null)
+        {
+			$("#documentocliente").removeClass("input-validation-error");
+			$("#DocumentoValidar").removeClass("field-validation-error").addClass("field-validation-valid");
+                 document.getElementById("DocumentoValidar").innerHTML = ""
+                  $("#usarButton").prop('disabled', false);
+        }
+             else {
+            $("#usarButton").prop('disabled', true);
+            //Documento
+			$("#documentocliente").addClass("input-validation-error");
+			$("#DocumentoValidar").removeClass("field-validation-valid").addClass("field-validation-error");
+                 document.getElementById("DocumentoValidar").innerHTML = mensaje;
+
+             } 
+        if (MontoIsValid) {
+            //Monto
+
+            $("#montoConsumo").addClass("input-validation-error");
+            $("#MontoValidar").removeClass("field-validation-valid").addClass("field-validation-error");
+            document.getElementById("MontoValidar").innerHTML = mensajeM;
+            $("#usarButton").prop('disabled', true);
+        } else
+        {
+            $("#montoConsumo").removeClass("input-validation-error");
+			$("#MontoValidar").removeClass("field-validation-error").addClass("field-validation-valid");
+                 document.getElementById("MontoValidar").innerHTML = ""
+                  $("#usarButton").prop('disabled', false);
+        }
+        if (PinIsValid) {
+            //Monto
+
+            $("#pinConsumo").addClass("input-validation-error");
+            $("#pinValidar").removeClass("field-validation-valid").addClass("field-validation-error");
+            document.getElementById("pinValidar").innerHTML = mensajeP;
+            $("#usarButton").prop('disabled', true);
+        } else
+        {
+            $("#pinConsumo").removeClass("input-validation-error");
+			$("#pinValidar").removeClass("field-validation-error").addClass("field-validation-valid");
+                 document.getElementById("pinValidar").innerHTML = ""
+                  $("#usarButton").prop('disabled', false);
+        }
+
+
+
+    }
+
+
+
+             function ObtenerMonto() {
+             var pMonto = $("#montoConsumo").val();
+                 pMonto = pMonto.replace(",", ".");
+            var pPin = $("#pinConsumo").val();
+            var pDocumentoCliente = $("#documentocliente").val();
+            var route = '@Url.RouteUrl("CheckoutCreditos", new { Monto = "Mnt"  , IndCreditos = "Ind", Pin="pn" , DocumentoCliente="dc"  })';
+              route = route.replace("Mnt",pMonto);
+              route = route.replace("pn", pPin);
+              route = route.replace("dc", pDocumentoCliente);
+              route = route.replace("Ind", true);
+            setLocation(route);
+            }
+
+
+    function LimpiarSigoCreditos()
+    {
+         
+         var route = '@Url.RouteUrl("LimpiarCreditos")';
+            setLocation(route);
+    }
+
+
+</script>

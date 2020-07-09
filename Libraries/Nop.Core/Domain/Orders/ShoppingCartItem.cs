@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 
@@ -82,5 +83,18 @@ namespace Nop.Core.Domain.Orders
         /// Gets or sets the customer
         /// </summary>
         public virtual Customer Customer { get; set; }
+
+
+        #region Creditos Sigo
+
+        [NotMapped]
+        public string Message { get; set; }
+        [NotMapped]
+        public decimal Monto { get; set; }
+        [NotMapped]
+        public bool IndCreditosSigo { get; set; }
+
+
+        #endregion
     }
 }

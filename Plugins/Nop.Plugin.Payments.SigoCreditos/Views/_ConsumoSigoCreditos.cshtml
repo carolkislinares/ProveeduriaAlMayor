@@ -1,4 +1,15 @@
-﻿<style>
+﻿@model Nop.Plugin.Payments.SigoCreditos.Models.SigoCreditosInfoModel
+@using System.Globalization;
+@using Nop.Core
+@using Nop.Core.Infrastructure;
+@using Nop.Services.Localization;
+@{
+
+    var _localizationService = EngineContext.Current.Resolve<ILocalizationService>().GetResource("sigocreditos.checkConsumo.Mensaje".ToLower());
+
+}
+
+<style>
     #consumoSigoCreditosContainer {
         display: none;
     }
@@ -6,9 +17,9 @@
     .sigo-creditos-data {
         margin: 0 auto 10px;
         max-width: 750px;
-        /*border: 1px solid #eee;*/
+        /*        border: 1px solid #eee;*/
         border-radius: 3px;
-        padding: 0 30px;
+        padding: 25px;
     }
 
     #pinContainer {
@@ -25,14 +36,15 @@
         margin: 0 auto !important;
     }
 
-    #usarButton {
+    #usarButton,
+    #LimpiarButton {
         padding-top: 10px;
         width: inherit;
         color: white;
         text-align: center;
     }
 
-    #montoContainer > label, #pinContainer > label {
+    #montoContainer > label, #pinContainer > label , #DocumentoContainer > label {
         font-weight: 700;
         color: #444;
         font-size: 18px;
@@ -42,74 +54,93 @@
         text-align: left;
     }
 
-    @@media screen and (max-width: 376px) {
-        .sigo-creditos-data {
-            padding: 0 10px;
-        }
+    #pinConsumo {
+        text-align: right;
+    }
+
+    #LimpiarButtonContainerCol {
+        display: flex;
+        text-align: center;
     }
 </style>
 
 <div class="sigo-creditos-data">
-    @* @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0) {*@
-    @*@if (Model.RewardPointsEnoughToPayForOrder) {
-            <input asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
-        } else {
-            <input asp-for="UseRewardPoints" />
-        }
-        <label asp-for="UseRewardPoints">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsAmount)</label>
-        @if (Model.RewardPointsEnoughToPayForOrder) {
-            <script>
-                $(document).ready(function() {
-                    PaymentMethod.toggleUseRewardPoints($('#@Html.IdFor(model => model.UseRewardPoints)'));
-                });
-            </script>
-        }*@
-    @*////////////////////////////////////////////////////////////////////////*@
+    <div class="">
+        @* @if (Model.DisplayRewardPoints && Model.PaymentMethods.Count > 0) {*@
+        @*@if (Model.RewardPointsEnoughToPayForOrder) {
+                <input asp-for="UseRewardPoints" onclick="PaymentMethod.toggleUseRewardPoints(this)" />
+            } else {
+                <input asp-for="UseRewardPoints" />
+            }
+            <label asp-for="UseRewardPoints">@string.Format(T("Checkout.UseRewardPoints").Text, Model.RewardPointsBalance, Model.RewardPointsAmount)</label>
+            @if (Model.RewardPointsEnoughToPayForOrder) {
+                <script>
+                    $(document).ready(function() {
+                        PaymentMethod.toggleUseRewardPoints($('#@Html.IdFor(model => model.UseRewardPoints)'));
+                    });
+                </script>
+            }*@
+        @*////////////////////////////////////////////////////////////////////////*@
 
-    <div class="row" id="checkContainer">
-        <div class="col-12">
-            <input id="checkConsumo" type="checkbox" />
-            @*<label for="checkConsumo">Usar mis Sigo Créditos, @Model.AccountsList.FirstOrDefault().AccountTypeQuantity disponibles para este pedido.</label>*@
-            <label for="checkConsumo">Usar mis Sigo Créditos, 10000000 disponibles para este pedido.</label>
-        </div>
-    </div>
-    <div id="consumoSigoCreditosContainer" class="row">
-        <div class="col-12">
-            <div class="row">
-                <div class="inputs col-6" id="montoContainer">
-                    <label>Monto</label>
-                    <input id="montoConsumo" type="text" autocomplete="off" />
-                    <span for="montoConsumo"> </span>
-                </div>
-                <div class="inputs col-6" id="pinContainer">
-                    <label>PIN</label>
-                    <input id="pinConsumo" type="password" autocomplete="off" />
-                    <span for="pinConsumo" id=""> </span>
-                </div>
-            </div>
-            <div class="row" id="buttonContainerRow">
-                <div class="col-4" id="buttonContainerCol" style="display: flex;">
-                    <a class="button-1" id="usarButton">Usar</a>
-                </div>
+        <div class="row" id="checkContainer">
+            <div class="col-12">
+                <input id="checkConsumo" type="checkbox" />
+                @if (Model.Emisor.SaldoActualList.Count > 0)
+                {
+                    <label for="checkConsumo"> @String.Format(_localizationService, @Model.Emisor.SaldoActualList.FirstOrDefault().MontoDisponible.ToString("N", new CultureInfo("is-IS")))</label>
+                  
+                }
+
             </div>
         </div>
+        <div id="consumoSigoCreditosContainer" class="row">
+            <div class="col-12">
+                <div class="row" id="consumoInputRow">
+                    <div class="inputs col-6" id="DocumentoContainer">
+                        <label>Cédula</label>
+                        <input id="documentocliente" onblur="validarDocumento()" type="text" autocomplete="off" />
+                        <span for="documentocliente" id="DocumentoValidar"> </span>
+                    </div>
+                    <div class="inputs col-6" id="pinContainer">
+                        <label>PIN</label>
+                        <input id="pinConsumo" onblur="validarDocumento()" type="password" autocomplete="off" />
+                        <span for="pinConsumo" id="pinValidar"> </span>
+                    </div>
+                    <div class="inputs col-6" id="montoContainer">
+                        <label>Monto</label>
+                        <input id="montoConsumo" onblur="validarDocumento()" type="text" autocomplete="off" />
+                        <span for="montoConsumo" id="MontoValidar"> </span>
+
+                        <input id="montoDisponible" hidden value="@Model.Emisor.SaldoActualList.FirstOrDefault().MontoDisponible.ToString("N", new CultureInfo("is-IS"))" />
+                    </div>
+                </div>
+                <div class="row" id="buttonContainerRow">
+                    <div class="col-6" id="usarButtonContainerCol" style="display: flex;margin: 0 auto;">
+                        <a class="button-1" id="usarButton">Usar</a>
+                    </div>
+                    <div class="col-6" id="LimpiarButtonContainerCol" style="display: none;margin: 0 auto;">
+                        <a class="button-1" id="LimpiarButton">Limpiar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*  }*@
     </div>
-    @*  }*@
 </div>
 
 <script>
-
     $("#checkConsumo").on("change", function () {
         if ($("#checkConsumo").is(':checked')) {
             $("#consumoSigoCreditosContainer").show();
-            clearConsumoSigoCreditos();
         } else {
             $("#consumoSigoCreditosContainer").hide();
-            clearConsumoSigoCreditos();
         }
     });
 
     $(document).ready(function () {
+        $("#montoConsumo").val("");
+        $("#pinConsumo").val("");
+
         $("#montoConsumo").inputmask({
             alias: 'numeric',
             allowMinus: false,
@@ -118,6 +149,23 @@
             radixPoint: ',',
             groupSeparator: '.'
         });
-     });
+
+        $("#usarButton").on("click", function () {
+        validarDocumento();
+        var testElements = document.getElementsByClassName('input-validation-error');
+            if (testElements.length > 0) {
+                return;
+            } else
+            {
+                 ObtenerMonto();
+            }
+        });
+
+        $("#LimpiarButton").on("click", function () {
+            LimpiarSigoCreditos();
+        });
+
+    });
+
 
 </script>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Nop.Web.Framework.Models;
 
 namespace Nop.Web.Models.Checkout
@@ -30,6 +31,20 @@ namespace Nop.Web.Models.Checkout
             public string LogoUrl { get; set; }
         }
 
+        #endregion
+
+        #region Propiedades para sigo Creditos
+        [NotMapped]
+        public bool IndError { get; set; }
+
+        [NotMapped]
+        public string MensajeError { get; set; }
+
+        [NotMapped]
+        public int IndAplicoCreditos { get; set; }
+
+        [NotMapped]
+        public bool IndSigoCreditos { get; set; }
         #endregion
     }
 }

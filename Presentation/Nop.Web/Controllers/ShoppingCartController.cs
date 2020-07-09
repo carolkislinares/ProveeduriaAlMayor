@@ -1541,10 +1541,10 @@ namespace Nop.Web.Controllers
 
             var errors = new StringBuilder();
 
-            if (string.IsNullOrEmpty(zipPostalCode))
-            {
-                errors.Append(_localizationService.GetResource("ShoppingCart.EstimateShipping.ZipPostalCode.Required"));
-            }
+            //if (string.IsNullOrEmpty(zipPostalCode))
+            //{
+            //    errors.Append(_localizationService.GetResource("ShoppingCart.EstimateShipping.ZipPostalCode.Required"));
+            //}
 
             if (countryId == null || countryId == 0)
             {

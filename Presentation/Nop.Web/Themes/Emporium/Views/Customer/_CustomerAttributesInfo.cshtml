@@ -1,6 +1,6 @@
 ﻿@model IList<CustomerAttributeModel>
 @using Nop.Core.Domain.Catalog
-@foreach (var attribute in Model)
+@foreach (var attribute in Model.Where(x=>x.Id<9))
 {
     var controlId = $"customer_attribute_{attribute.Id}";
     var textPrompt = attribute.Name;

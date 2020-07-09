@@ -11,6 +11,9 @@
     Layout = "_ColumnsOne";
     var EnabledProvinces = EngineContext.Current.Resolve<IStateProvinceService>().GetStateProvincesByCountryId(86).Where(x => x.Abbreviation != string.Empty).ToList();
     var ShippingDaySettings = EngineContext.Current.Resolve<ISettingService>().GetAllSettings().Where(x => x.Name.ToLowerInvariant().Contains("norkutshippingday".ToLowerInvariant())).ToList();
+
+    var ShowShippingDay = EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("norkutshowshippingday".ToLower(), 0, storeContext.CurrentStore.Id, true);
+
     //title
     Html.AddTitleParts(T("PageTitle.Checkout").Text);
     //page class
@@ -253,7 +256,7 @@
 
                             <div class="title">
                                 @{
-                                    @if (ShippingDaySettings != null && ShippingDaySettings.Count > 0)
+                                    @if (Convert.ToBoolean(ShowShippingDay) &&  ShippingDaySettings != null && ShippingDaySettings.Count > 0)
                                     {
 
                                         List<SelectListItem> DaysList = new List<SelectListItem>();

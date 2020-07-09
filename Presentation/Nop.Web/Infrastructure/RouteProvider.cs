@@ -200,9 +200,15 @@ namespace Nop.Web.Infrastructure
             routeBuilder.MapLocalizedRoute("CheckoutCompleted", "checkout/completed/{orderId:regex(\\d*)}",
 				new { controller = "Checkout", action = "Completed" });
 
+            #region Rutas para el descuento de sigo Creditos
+            routeBuilder.MapLocalizedRoute("CheckoutCreditos", "checkout/DescontarCreditos/{Monto}/{IndCreditos}/{Pin}/{DocumentoCliente}",
+             new { controller = "Checkout", action = "DescontarCreditos" });
 
+                routeBuilder.MapLocalizedRoute("LimpiarCreditos", "checkout/LimpiarCreditos",
+            new { controller = "Checkout", action = "LimpiarCreditos" });
 
-           
+            #endregion
+
 
 
             //subscribe newsletters

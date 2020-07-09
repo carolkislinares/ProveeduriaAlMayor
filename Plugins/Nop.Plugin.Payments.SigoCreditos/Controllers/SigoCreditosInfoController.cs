@@ -11,7 +11,8 @@ using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-
+using Nop.Services.Common;
+using Nop.Services.Customers;
 namespace Nop.Plugin.Payments.SigoCreditos.Controllers
 {
    
@@ -24,8 +25,10 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
         private readonly IPermissionService _permissionService;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
+        private readonly IWorkContext _workContext;
         private readonly ISigoCreditosPaypalService _SigoCreditosPayPalService;
-
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly ICustomerService _customerService;
         #endregion
 
         #region Ctor
@@ -34,13 +37,21 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
             IPermissionService permissionService,
             ISettingService settingService,
             IStoreContext storeContext,
-            ISigoCreditosPaypalService SigoCreditosPayPalService)
+            ISigoCreditosPaypalService SigoCreditosPayPalService,
+            IGenericAttributeService genericAttributeService,
+            ICustomerService customerService,
+            IWorkContext workContext)
         {
             this._localizationService = localizationService;
             this._permissionService = permissionService;
             this._settingService = settingService;
             this._storeContext = storeContext;
             this._SigoCreditosPayPalService = SigoCreditosPayPalService;
+            this._genericAttributeService = genericAttributeService;
+            this._customerService = customerService;
+            this._workContext = workContext;
+
+
         }
 
         #endregion
@@ -115,135 +126,166 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
 
 
 
-
-
+        /// <summary>
+        /// Abona credito por abonos directos o Giftcard en CRM y guarda los datos de la transaccion de paypal. 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Abonar(SigoCreditosInfoModel model)
         {
-            long Cod_Abono=0;
+
+            bool esGiftCard = string.IsNullOrWhiteSpace(model.Abono.IndGiftCard) ? false : Convert.ToBoolean(model.Abono.IndGiftCard);
+            if (esGiftCard)
+                model.Abono.MontoTransaccion = model.Abono.MontoTransaccionGiftCard;
+
+            TransaccionModel transaccion = new TransaccionModel(model);
             try
             {
                 if (!ModelState.IsValid)
                     return Configure();
-                var result = CRMContext.CRMContext.AbonarPuntos(model);
+                
+                var result =esGiftCard  ? CRMContext.CRMContext.EnviarGiftCard(model) : CRMContext.CRMContext.AbonarPuntos(model);
                 if (result != null)
                 {
-
-                    var SCPaypalmodel = new SigoCreditosPaypal
-                    {
-
-                        TransaccionPaypalID = model.IdTransaccion,
-                        TransaccionCreditID = result.Cod_Abono,
-                        CedulaReceptor = model.AddBalanceModel.OwnerBalance == 1 ? model.CustomerDocumentValue : model.AddBalanceModel.ReceiverDocumentValue,
-                        Estatus_Operacion = result.Cod_Abono != 0 ? true : false,
-                        Monto = Convert.ToDecimal(model.AddBalanceModel.TransactionAmount),
-                        FechaCreacion = DateTime.Now,
-                        NombreReceptor = model.CostumerName,
-                        CustomerID = model.CustomerID,
-                        
-                    };
-                    model.Cod_Abono = result.Cod_Abono;
-                    _SigoCreditosPayPalService.InsertSigoCreditosPaypal(SCPaypalmodel);
+                    model.Abono.Cod_Abono = result.Cod_Abono;
+                    transaccion.Cod_Abono = result.Cod_Abono;
+                    model.Abono.TransaccionPayPalId = transaccion.TransaccionPaypalID;
+                    transaccion.Estatus_Operacion = result.Cod_Abono != 0 ? true : false;
+                    InsertarPaypal(transaccion);
                     return Json(model);
-                    //return RedirectToRoute("CustomerSigoCreditos");
                 }
                 else
                 {
-                    return Configure();
+                    transaccion.Estatus_Operacion = false;
+                    model.Abono.TransaccionPayPalId = transaccion.TransaccionPaypalID;
+                    InsertarPaypal(transaccion);
+                    return Json(model);
                 }
-
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var SCPaypalmodel = new SigoCreditosPaypal
-                {
-
-                    TransaccionPaypalID = model.IdTransaccion,
-                    TransaccionCreditID = model.Cod_Abono,
-                    CedulaReceptor = model.AddBalanceModel.OwnerBalance == 1 ? model.CustomerDocumentValue : model.AddBalanceModel.ReceiverDocumentValue,
-                    Estatus_Operacion = false,
-                    Monto = Convert.ToDecimal(model.AddBalanceModel.TransactionAmount.Replace(".", string.Empty).Replace(",", ".").Trim()),
-                    FechaCreacion = DateTime.Now,
-                    NombreReceptor = model.CostumerName,
-                    CustomerID = model.CustomerID,
-
-                };
-                _SigoCreditosPayPalService.InsertSigoCreditosPaypal(SCPaypalmodel);
+                model.Abono.TransaccionPayPalId = transaccion.TransaccionPaypalID;
+                transaccion.Estatus_Operacion = false;
+                InsertarPaypal(transaccion);
                 return Json(model);
                 //throw ex;
             }
-
-
-            //now clear settings cache
-
         }
 
+        /// <summary>
+        /// Guarda los datos de la transaccion de paypal
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="estatus"></param>
+        private void InsertarPaypal(TransaccionModel model)
+        {
+            try
+            {
+                var SCPaypalmodel = new SigoCreditosPaypal
+                {
+                    TransaccionPaypalID = model.TransaccionPaypalID,
+                    TransaccionCreditID = model.Cod_Abono,
+                    CedulaReceptor = model.CedulaReceptor,
+                    Estatus_Operacion = model.Estatus_Operacion,
+                    Monto = model.Monto,
+                    FechaCreacion = DateTime.Now,
+                    NombreReceptor = model.NombreReceptor,
+                    CustomerID = model.CustomerID,
+                    EsGiftCard = model.IndGiftCard,
+                    CodigoGiftCard = model.CodigoGiftCard
+                };
+                _SigoCreditosPayPalService.InsertSigoCreditosPaypal(SCPaypalmodel);
+            }
+            catch(Exception ex)
+            {
 
-
-
+                throw new NopException("Error al InsertarPaypal: " + ex.Message, ex);
+            }
+        }
         #region Pago Paypal Details
 
-
+        /// <summary>
+        /// Permite buscar la informacion de un cliente en CRM.
+        /// </summary>
+        /// <param name="tipoDocumento"></param>
+        /// <param name="documento"></param>
+        /// <returns></returns>
         [HttpPost]
-
         public JsonResult BuscarClienteSigo(int tipoDocumento, string documento)
         {
-
-            //load settings for a chosen store scope
-            // return RedirectToRoute("CustomerSigoCreditos");
-            SigoCreditosInfoModel result = CRMContext.CRMContext.ObtenerCliente(tipoDocumento, documento);
-
-            //SigoCreditosInfoModel result = new SigoCreditosInfoModel
-            //{
-            //    CostumerLastName = "Linares",
-            //    SigoClubId = Convert.ToInt64(new Random().Next(1000, 2000)),
-            //    EntityId = Convert.ToInt64(new Random().Next(1000, 2000)),
-            //    CostumerName = "Carol",
-            //    CostumerPhone = "0295-65874023",
-            //    CustomerDocumentType = tipoDocumento,
-            //    CustomerDocumentValue = documento
-            //};
-            if (result.EntityId == 0) { result = null; }
-
-
-            return Json(result);
-
-
-            //now clear settings cache
-
+            try
+            {
+                ClienteModel result = CRMContext.CRMContext.ObtenerCliente(tipoDocumento, documento);
+                if (result.EntityId == 0) { result = null; }
+                return Json(result);
+            }
+            catch (Exception)
+            {
+                return Json(null);
+            } 
         }
 
-
-
-
+        /// <summary>
+        /// Metodo para validar el pin del usuario
+        /// </summary>
+        /// <param name="entityid"> entityid(si tipoDoc==1) o sigocludid(si tipoDoc==2) del cliente logueado</param>
+        /// <param name="cedula"> cedula del cliente a consultar</param>
+        /// <param name="pin">pin del cliente a consultar</param>
+        /// <param name="tipoDoc">tipo de cliente logueado 1- natural 2- Juridico</param>
+        /// <returns></returns>
         [HttpPost]
-        [AdminAntiForgery]
-        public IActionResult AbonarGiftCard(SigoCreditosGiftCardModel model)
+        public JsonResult ValidarPin(long entityid, string cedula,string pin, string tipoDoc)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManagePaymentMethods))
-                return AccessDeniedView();
-
-            if (!ModelState.IsValid)
-                return Configure();
-
-            //load settings for a chosen store scope
-
-            bool result = CRMContext.CRMContext.EnviarGiftCard(model);
-            if (result)
+            try
             {
-                var cliente = CRMContext.CRMContext.ObtenerPuntosxCliente(model.DocumentType, model.DocumentValue);
-                return RedirectToRoute("CustomerSigoCreditos");
-                //return View("~/Plugins/Payments.SigoCreditos/Views/SigoCreditosInfo.cshtml", cliente);
-                // return View("~/Plugins/Payments.SigoCreditos/Views/SigoCreditosInfo.cshtml", null);
+                if (tipoDoc.Contains("2"))
+                {
+                    entityid = CRMContext.ApiCloudContext.ValidarAutorizado(entityid, cedula);
+                    if(entityid==0)
+                        return Json(2);
+                }
+            
+                 bool result = CRMContext.ApiCloudContext.ConfirmarPassword(entityid, cedula, pin);
+                 _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, "EsValidoCRM", result);
+                
+                 return Json(Convert.ToInt16(result));
             }
-            else
+            catch(Exception)
             {
-                return Configure();
+                return Json(null);
             }
-
-            //now clear settings cache
-
         }
+
+
+        //[HttpPost]
+        //[AdminAntiForgery]
+        //public IActionResult AbonarGiftCard(SigoCreditosGiftCardModel model)
+        //{
+        //    if (!_permissionService.Authorize(StandardPermissionProvider.ManagePaymentMethods))
+        //        return AccessDeniedView();
+
+        //    if (!ModelState.IsValid)
+        //        return Configure();
+
+        //    //load settings for a chosen store scope
+
+        //    bool result = CRMContext.CRMContext.EnviarGiftCard(model);
+        //    if (result)
+        //    {
+        //        var cliente = CRMContext.CRMContext.ObtenerPuntosxCliente(model.DocumentType, model.DocumentValue);
+        //        return RedirectToRoute("CustomerSigoCreditos");
+        //        //return View("~/Plugins/Payments.SigoCreditos/Views/SigoCreditosInfo.cshtml", cliente);
+        //        // return View("~/Plugins/Payments.SigoCreditos/Views/SigoCreditosInfo.cshtml", null);
+        //    }
+        //    else
+        //    {
+        //        return Configure();
+        //    }
+
+        //    //now clear settings cache
+
+        //}
 
         #endregion
         #endregion

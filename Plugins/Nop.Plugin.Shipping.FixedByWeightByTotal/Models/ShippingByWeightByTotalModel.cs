@@ -74,6 +74,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Models
         public string PrimaryStoreCurrencyCode { get; set; }
         public string BaseWeightIn { get; set; }
 
+        public decimal MontoDolar { get; set; }
+
         public IList<SelectListItem> AvailableCountries { get; set; }
         public IList<SelectListItem> AvailableStates { get; set; }
         public IList<SelectListItem> AvailableShippingMethods { get; set; }

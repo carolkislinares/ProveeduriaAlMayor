@@ -1326,6 +1326,12 @@ namespace Nop.Services.Orders
             SetRewardPoints(ref redeemedRewardPoints, ref redeemedRewardPointsAmount, useRewardPoints, customer, orderTotal);
 
             orderTotal = orderTotal - redeemedRewardPointsAmount;
+            if (cart.Count(x=>x.Monto > 0) > 0)
+            {
+                orderTotal = orderTotal - cart.FirstOrDefault().Monto;
+                if(orderTotal < 0)
+                 orderTotal = 0 ;
+            }
             if (_shoppingCartSettings.RoundPricesDuringCalculation)
                 orderTotal = _priceCalculationService.RoundPrice(orderTotal);
             return orderTotal;
