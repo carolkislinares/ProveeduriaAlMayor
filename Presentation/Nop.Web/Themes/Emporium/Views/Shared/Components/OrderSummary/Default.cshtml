@@ -298,10 +298,9 @@
                                 <p>@T("Checkout.TermsOfService.PleaseAccept")</p>
                             </div>
                             <div class="terms-of-service">
-                                <input id="termsofservice" type="checkbox" name="termsofservice" />
+                                @*<input id="termsofservice" type="checkbox" name="termsofservice" />
                                 <label for="termsofservice">@T("Checkout.TermsOfService.IAccept")</label>
-                                @if (Model.TermsOfServicePopup)
-                                {
+                                @if (Model.TermsOfServicePopup) {
                                     <a class="read" id="read-terms">@T("Checkout.TermsOfService.Read")</a>
                                     <script type="text/javascript" asp-location="Footer">
                                         $(document).ready(function() {
@@ -314,22 +313,29 @@
                                                 });
                                         });
                                     </script>
-                                }
-                                else
-                                {
+                                } else {
                                     <a class="read" id="read-terms" href="@Url.RouteUrl("Topic", new {SeName = Html.GetTopicSeName("conditionsofuse") })">@T("Checkout.TermsOfService.Read")</a>
-                                }
+                                }*@
+                                @*////////////////////////////////////////////////////////////////////////////////////*@
+                                <label id="termsofservice">@T("Checkout.TermsOfService.IAccept")</label>
+                                <a class="read" id="read-terms">@T("Checkout.TermsOfService.Read")</a>
+                                <script type="text/javascript" asp-location="Footer">
+                                    $(document).ready(function() {
+                                        $('#read-terms').on('click', function(e) {
+                                            e.preventDefault();
+                                            displayPopupContentFromUrl(
+                                                '@Url.RouteUrl("TopicPopup", new {SystemName = "conditionsofuse"})',
+                                                '@T("Checkout.TermsOfService")');
+                                        });
+                                    });
+                                </script>
                             </div>
+                            @*//////////////////////////////////////////////////////////////////////////////*@
                         }
-                        ////////////////////////////////////////////////////////////////////////////////////
-                        <div id="continueProcess">
-                                <label id="continueProcessLabel">@T("Checkout.continueProcess")</label>
-                        </div>
-                        ////////////////////////////////////////////////////////////////////////////////////
                         <div class="checkout-buttons">
                             @if (string.IsNullOrEmpty(Model.MinOrderSubtotalWarning) && !Model.HideCheckoutButton)
                             {
-                                <script type="text/javascript" asp-location="Footer">
+                                @*<script type="text/javascript" asp-location="Footer">
                                     $(document).ready(function () {
                                         $('#checkout').on('click', function () {
                                             //terms of service
@@ -346,7 +352,7 @@
                                             return termOfServiceOk;
                                         });
                                     });
-                                </script>
+                                </script>*@
                                 <button type="submit" id="checkout" name="checkout" value="checkout" class="button-1 checkout-button">
                                     @T("Checkout.Button")
                                 </button>

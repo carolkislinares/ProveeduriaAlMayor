@@ -71,7 +71,7 @@ namespace Nop.Plugin.Payments.Transfer.Controllers
                 model.BancoEmisor = listaBancos;
                 model.BancoReceptor = listaBancosReceiver;
 
-                return View("~/Plugins/Payments.Transfer/Views/Configure.cshtml", model);
+                return View("~/Plugins/Payments.ConsolidatePayment/Views/Configure.cshtml", model);
             }
             catch (Exception ex)
             {

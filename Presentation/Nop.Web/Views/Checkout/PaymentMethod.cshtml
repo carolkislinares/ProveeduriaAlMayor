@@ -210,12 +210,14 @@
 
     function validarDocumento()
     {
-        var documento = document.getElementById('documentocliente').value;
         var numbers = /^[0-9]{6,}$/;
         var isValid;
         var MontoIsValid = false;
         var PinIsValid = false;
-        isValid = documento.match(numbers); 
+        if ($("#documentocliente").length > 0)
+        {
+                    var documento = document.getElementById('documentocliente').value;
+                    isValid = documento.match(numbers); 
                         if (isValid == null)
                             {
                                 if ($("#documentocliente").val().length == 0)
@@ -236,7 +238,8 @@
 			                            }
 			                        }
                             }
-                            }
+        }
+        }
                         if ($("#montoConsumo").val().length === 0) {
                             MontoIsValid = true;
                             mensajeM = "El monto debe ser mayor que 0.";
@@ -245,11 +248,23 @@
                              MontoIsValid = true;
                              mensajeM = "El monto no puede ser mayor a lo que tiene disponible.";
                         }
-                       if ($("#pinConsumo").val().length === 0)
-                       {
-                           PinIsValid = true;
-                           mensajeP = "Ingrese un Pin.";
-                       }
+                        else if (parseFloat($("#montoConsumo").val().replace(",", ".")) <= parseFloat(0))
+                        {
+                             MontoIsValid = true;
+                             mensajeM = "El monto debe ser mayor que 0.";
+                        }
+                        if ($("#pinConsumo").val().length === 0) {
+                            PinIsValid = true;
+                            mensajeP = "Ingrese un Pin.";
+                        } else if ($("#pinConsumo").val().length < 6)
+                        {
+                            PinIsValid = true;
+                            mensajeP = "Mínimo 6 carácteres";
+                                    }
+
+        
+        if ($("#documentocliente").length > 0)
+        {
         if (isValid != null)
         {
 			$("#documentocliente").removeClass("input-validation-error");
@@ -265,6 +280,8 @@
                  document.getElementById("DocumentoValidar").innerHTML = mensaje;
 
              } 
+        }
+
         if (MontoIsValid) {
             //Monto
 
@@ -304,7 +321,7 @@
              var pMonto = $("#montoConsumo").val();
                  pMonto = pMonto.replace(",", ".");
             var pPin = $("#pinConsumo").val();
-            var pDocumentoCliente = $("#documentocliente").val();
+            var pDocumentoCliente = $("#documentocliente").length > 0 ? $("#documentocliente").val() : "0";
             var route = '@Url.RouteUrl("CheckoutCreditos", new { Monto = "Mnt"  , IndCreditos = "Ind", Pin="pn" , DocumentoCliente="dc"  })';
               route = route.replace("Mnt",pMonto);
               route = route.replace("pn", pPin);
@@ -320,6 +337,28 @@
          var route = '@Url.RouteUrl("LimpiarCreditos")';
             setLocation(route);
     }
+
+    $(document).keypress(function(event){
+	var keycode = (event.keyCode ? event.keyCode : event.which);
+	if(keycode == '13'){
+        if ($('#checkConsumo').is(':checked')) {
+            validarDocumento();
+            var testElements = document.getElementsByClassName('input-validation-error');
+            if (testElements.length > 0) {
+               event.preventDefault();
+               return false;
+            } else {
+                ObtenerMonto();
+               event.preventDefault();
+               return false;
+            }
+        } else {
+            $(".payment-method-next-step-button").trigger("click");
+        }
+        
+       
+	}
+});
 
 
 </script>

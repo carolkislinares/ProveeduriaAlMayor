@@ -28,6 +28,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.PlannedQuantity")]
         public int PlannedQuantity { get; set; }
 
+        [NopResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.PVP")]
+        public decimal PVP { get; set; }
+
         #endregion
     }
 }

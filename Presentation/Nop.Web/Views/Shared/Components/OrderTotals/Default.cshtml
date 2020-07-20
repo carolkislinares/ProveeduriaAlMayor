@@ -144,13 +144,13 @@
                            @{ 
                                var Cuenta = _currencyService.GetCurrencyById(Convert.ToInt32(13));
                                var Monto = workContext.CurrentCustomer.ShoppingCartItems.First().Monto;
-                               Monto = System.Math.Round(Monto / Cuenta.Rate, 2);;
+                               Monto = System.Math.Round(Monto / Cuenta.Rate, 2);
                                
                            }
-                        <label>@string.Format(T("ShoppingCart.Totals.SigoPoints").Text,Monto):</label>
+                        <label>@string.Format(T("ShoppingCart.Totals.SigoPoints").Text,Convert.ToDecimal(Monto)):</label>
                     </td>
                     <td class="cart-total-right">
-                        <span class="value-summary">$@Monto</span>
+                        <span class="value-summary">$@string.Format("{0:N2}",Convert.ToDecimal (@Monto)) </span>
                     </td>
                 </tr>
             }

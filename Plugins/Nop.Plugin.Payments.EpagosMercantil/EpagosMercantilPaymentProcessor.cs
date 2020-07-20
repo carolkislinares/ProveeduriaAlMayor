@@ -18,6 +18,10 @@ using Nop.Services.Payments;
 using Newtonsoft.Json;
 using Microsoft.IdentityModel.Protocols;
 using System.Configuration;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Globalization;
+using RestSharp;
 
 namespace Nop.Plugin.Payments.EpagosMercantil
 {
@@ -33,6 +37,7 @@ namespace Nop.Plugin.Payments.EpagosMercantil
         private readonly ISettingService _settingService;
         private readonly IWebHelper _webHelper;
         private readonly EpagosMercantilPaymentSettings _epagosMercantilPaymentSettings;
+        private readonly IStoreContext _storeContext;
 
         #endregion
 
@@ -42,13 +47,15 @@ namespace Nop.Plugin.Payments.EpagosMercantil
             IPaymentService paymentService,
             ISettingService settingService,
             IWebHelper webHelper,
-            EpagosMercantilPaymentSettings EpagosMercantilPaymentSettings)
+            EpagosMercantilPaymentSettings EpagosMercantilPaymentSettings,
+            IStoreContext storeContext)
         {
             this._localizationService = localizationService;
             this._paymentService = paymentService;
             this._settingService = settingService;
             this._webHelper = webHelper;
             this._epagosMercantilPaymentSettings = EpagosMercantilPaymentSettings;
+            this._storeContext = storeContext;
         }
 
         #endregion
@@ -394,90 +401,149 @@ namespace Nop.Plugin.Payments.EpagosMercantil
             {
                 ProcessPaymentResult _result = new ProcessPaymentResult();
                 EpagosMercantil items = new EpagosMercantil {
-                    //URLConnection = _settingService.GetSettingByKey(paymentmethod+ ".currency".ToLower(), "", _storeContext.CurrentStore.Id, true),
-                    //KeyId = _settingService.GetSettingByKey(paymentmethod + ".currency".ToLower(), "", _storeContext.CurrentStore.Id, true),
-                    //PublicKey = _settingService.GetSettingByKey(paymentmethod + ".currency".ToLower(), "", _storeContext.CurrentStore.Id, true),
-
+                    URLConnection = _settingService.GetSettingByKey("UrlMercantil", "", _storeContext.CurrentStore.Id, true),
                 };
-                //using (StreamReader r = new StreamReader("EpagosMercantilsettings.json"))
-                //{
-                //    string json = r.ReadToEnd();
-                //     items = JsonConvert.DeserializeObject<EpagosMercantil>(json);
-                //}
-
              
+                string idComercio = "104755";
+                string tipotransaccion = "0200";
+                string monto = Convert.ToString(processPaymentRequest.OrderTotal).Replace(".", ",");
+                string fechavcto = String.Format(processPaymentRequest.CreditCardExpireMonth.ToString() + processPaymentRequest.CreditCardExpireYear.ToString().Substring(2));
+                
+                //                "Pago+Compra+EcommerceSigo",
+                //                processPaymentRequest.CreditCardName.Replace(" ", "+"),
+                //                processPaymentRequest.CreditCardNumberId,
+                //                processPaymentRequest.CreditCardNumber,
+                //                processPaymentRequest.CreditCardCvv2,
+                //                processPaymentRequest.CreditCardExpireMonth.ToString("00"),
+                //                processPaymentRequest.CreditCardExpireYear, 
+                //                "c");
+
+                string apikey = Apikey(idComercio, tipotransaccion, Convert.ToString(processPaymentRequest.OrderTotal).Replace(".", ","),
+                                                                     "numerofact" + processPaymentRequest.OrderGuid,
+                                                                     processPaymentRequest.CreditCardNumberId,
+                                                                      processPaymentRequest.CreditCardName.Replace(" ", "+"),
+                                                                      processPaymentRequest.CreditCardNumber,
+                                                                       String.Format(processPaymentRequest.CreditCardExpireMonth.ToString() + processPaymentRequest.CreditCardExpireYear.ToString().Substring(2)),
+                                                                       processPaymentRequest.CreditCardCvv2, "1");
+
+                var client = new RestClient(items.URLConnection);
+                var request = new RestRequest();
+                string timeStamp = Stopwatch.GetTimestamp().ToString();
+               
+                request.Method = Method.POST;
+                request.AddHeader("x-ibm-client-id", "ba54c4ba-0aba-48ee-a978-1b78392a40a5");
+                request.AddHeader("Apikey", apikey);
+                request.AddHeader("Timestamp", timeStamp);
+                request.AddHeader("Content-Length", apikey.Length.ToString());
+                request.AddHeader("Host", "apimbu.mercantilbanco.com:9443");
+                request.AddHeader("Accept", "application/json");
+                string strJSONContent = "{ \r\n  \"HEADER_PAGO_REQUEST\": { \r\n \"IDENTIFICADOR_UNICO_GLOBAL\": \"900\"," +
+                                                                            " \r\n \"IDENTIFICACION_CANAL\": \"06\", \r\n  " +
+                                                                            "  \"SIGLA_APLICACION\": \"APIC\", \r\n    " +
+                                                                            "\"IDENTIFICACION_USUARIO\": \"66\", \r\n   " +
+                                                                            " \"DIRECCION_IP_CONSUMIDOR\": \"192.237.245.234\", \r\n  " +
+                                                                            "  \"DIRECCION_IP_CLIENTE\": \"200.3.1.8\", \r\n   " +
+                                                                            " \"FECHA_ENVIO_MENSAJE\": \""+DateTime.Now.ToString("YYYYMMDD") +"\", \r\n  " +
+                                                                            "  \"HORA_ENVIO_MENSAJE\": \""+DateTime.Now.ToString("hhmmss") +"\", \r\n" +
+                                                                            "    \"ATRIBUTO_PAGINEO\": \"N\", \r\n  " +
+                                                                            "  \"CLAVE_BUSQUEDA\": \"\""+string.Empty+", \r\n  " +
+                                                                            "  \"CANTIDAD_REGISTROS\": 0 \r\n  }," +
+                                         "\r\n  \"BODY_PAGO_REQUEST\": { \r\n    " +
+                                                                            "\"IDENTIFICADOR_COMERCIO\": " + idComercio + ", \r\n  " +
+                                                                            "\"TIPO_TRANSACCION\": \""+tipotransaccion+"\", \r\n   " +
+                                                                            " \"MONTO_TRANSACCION\": " + monto + ", \r\n    " +
+                                                                            "\"NUMERO_FACTURA\": 88888888888, \r\n " +
+                                                                            "\"IDENTIFICACION_TARJETAHABIENTE\": \""+ processPaymentRequest.CreditCardNumberId + "\", \r\n  " +
+                                                                            "\"NOMBRE_TARJETAHABIENTE\": \""+ processPaymentRequest.CreditCardName + "\", \r\n   " +
+                                                                            "\"NUMERO_TARJETA\": \"" + processPaymentRequest.CreditCardNumber + "\", \r\n  " +
+                                                                             "\"FECHA_VENCIMIENTO_TARJETA\": "+fechavcto+", \r\n\t\"CODIGO_SEGURIDAD_TARJETA\": "+ processPaymentRequest.CreditCardCvv2 + ", " +
+                                                                             "\r\n    \"NUMERO_LOTE\": \"1\" \r\n  } \r\n} \r\n";
 
 
 
-                WebRequest __webrequest = WebRequest.Create(items.URLConnection) as HttpWebRequest;
+                //var json = {
+                //    "merchant_identify": {
+                //                                    "integratorId": 31,
+                //                                    "merchantId": 150332,
+                //                                    "terminalId":"abcde"},
+                //             "client_identify": {
+                //                                "ipaddress": "10.0.0.1",
+                //                                "browser_agent": "Chrome 18.1.3",
+                //                                "mobile": {"manufacturer": "Samsung"}
+                //                               },
+                //           "transaction": {
+                //                            "trx_type": "compra",
+                //                            "payment_method":"tdc",
+                //                            "card_number":"501878200048646634",
+                //                            "customer_id":"V18780283",
+                //                            "invoice_number": "1231243",
+                //                            "expiration_date":"2021/11",
+                //                            "cvv": "GYlTecZmlHYu7KFTeDaWCQ==",
+                //                            "currency":"ves",
+                //                            "amount": 30.11}
+                //             }"
 
-                string PostData =
-                String.Format("KeyId={0}&PublicKeyId={1}&Amount={2}&Description={3}&CardHolder={4}&CardHolderId={5}&CardNumber={6}&CVC={7}&ExpirationDate={8}/{9}&StatusId={10}",
-                                items.KeyId,
-                                items.PublicKey,
-                                processPaymentRequest.OrderTotal,
-                                "Pago+Compra+EcommerceSigo",
-                                processPaymentRequest.CreditCardName.Replace(" ", "+"),
-                                processPaymentRequest.CreditCardNumberId,
-                                processPaymentRequest.CreditCardNumber,
-                                processPaymentRequest.CreditCardCvv2,
-                                processPaymentRequest.CreditCardExpireMonth.ToString("00"),
-                                processPaymentRequest.CreditCardExpireYear, 
-                                "c");
+
+
+                request.Parameters.Clear();
+                request.AddParameter("application/json", strJSONContent, ParameterType.RequestBody);
+
+                var response = client.Execute(request);
 
 
 
-                byte[] __postDataStream = Encoding.UTF8.GetBytes(PostData.Replace(" ", string.Empty));
+                //byte[] __postDataStream = Encoding.UTF8.GetBytes(PostData.Replace(" ", string.Empty));
 
-                __webrequest.Method = "POST";
-                __webrequest.ContentType = "application/x-www-form-urlencoded";
-                __webrequest.ContentLength = __postDataStream.Length;
-                Stream __requestStream = __webrequest.GetRequestStream();
-                __requestStream.Write(__postDataStream, 0, __postDataStream.Length);
-                __requestStream.Close();
+                //__webrequest.Method = "POST";
+                //__webrequest.ContentType = "application/json";
+                //__webrequest.ContentLength = __postDataStream.Length;
+                //__webrequest.Headers.Add("x-ibm-client-id");
+                //Stream __requestStream = __webrequest.GetRequestStream();
+                //__requestStream.Write(__postDataStream, 0, __postDataStream.Length);
+                //__requestStream.Close();
 
-                // response
-                WebResponse __webresponse = __webrequest.GetResponse();
-                Stream dataStream = __webresponse.GetResponseStream();
-                StreamReader reader = new StreamReader(dataStream);
-                string responseFromServer = reader.ReadToEnd();
+                //// response
+                //WebResponse __webresponse = __webrequest.GetResponse();
+                //Stream dataStream = __webresponse.GetResponseStream();
+                //StreamReader reader = new StreamReader(dataStream);
+                //string responseFromServer = reader.ReadToEnd();
 
-                EpagosMercantilRSModel __instaRs = JsonConvert.DeserializeObject<EpagosMercantilRSModel>(responseFromServer) as EpagosMercantilRSModel;
-                if (__instaRs.Success == true)
-                {
-                    _result.AuthorizationTransactionId = " Código del pago:" + __instaRs.Id;
-                    _result.AuthorizationTransactionCode = "Número de referencia del pago:" + __instaRs.Reference;
-                    _result.AuthorizationTransactionResult = "Mensaje: " + __instaRs.Message;
-                    _result.CaptureTransactionResult = __instaRs.Voucher;
-                    _result.NewPaymentStatus = PaymentStatus.Paid;
-                    _epagosMercantilPaymentSettings.TransactMode = TransactMode.AuthorizeAndCapture;
-                }
-                else
-                {
-                    string __errorMessage;
-                    switch (Convert.ToInt32(__instaRs.Code))
-                    {
-                        case 400:
-                            __errorMessage = "Error al validar los datos enviados: " + __instaRs.Message;
-                            break;
-                        case 401:
-                            __errorMessage = "Error de autenticación, ha ocurrido un error con las llaves utilizadas. " + __instaRs.Message;
-                            break;
-                        case 403:
-                            __errorMessage = "Pago Rechazado por el banco. " + __instaRs.Message;
-                            break;
-                        case 500:
-                            __errorMessage = "Ha Ocurrido un error interno dentro del servidor: " + __instaRs.Message;
-                            break;
-                        case 503:
-                            __errorMessage = "Ha Ocurrido un error al procesar los parámetros de entrada. Revise los datos enviados y vuelva a intentarlo. " + __instaRs.Message;
-                            break;
-                        default:
-                            __errorMessage = "Lo sentimos, no hemos podido procesar su tarjeta de crédito. El mensaje del banco fue: " + __instaRs.Message;
-                            break;
-                    }
-                    _result.AddError(__errorMessage);
-                }
+                //EpagosMercantilRSModel __instaRs = JsonConvert.DeserializeObject<EpagosMercantilRSModel>(responseFromServer) as EpagosMercantilRSModel;
+                //if (__instaRs.Success == true)
+                //{
+                //    _result.AuthorizationTransactionId = " Código del pago:" + __instaRs.Id;
+                //    _result.AuthorizationTransactionCode = "Número de referencia del pago:" + __instaRs.Reference;
+                //    _result.AuthorizationTransactionResult = "Mensaje: " + __instaRs.Message;
+                //    _result.CaptureTransactionResult = __instaRs.Voucher;
+                //    _result.NewPaymentStatus = PaymentStatus.Paid;
+                //    _epagosMercantilPaymentSettings.TransactMode = TransactMode.AuthorizeAndCapture;
+                //}
+                //else
+                //{
+                //    string __errorMessage;
+                //    switch (Convert.ToInt32(__instaRs.Code))
+                //    {
+                //        case 400:
+                //            __errorMessage = "Error al validar los datos enviados: " + __instaRs.Message;
+                //            break;
+                //        case 401:
+                //            __errorMessage = "Error de autenticación, ha ocurrido un error con las llaves utilizadas. " + __instaRs.Message;
+                //            break;
+                //        case 403:
+                //            __errorMessage = "Pago Rechazado por el banco. " + __instaRs.Message;
+                //            break;
+                //        case 500:
+                //            __errorMessage = "Ha Ocurrido un error interno dentro del servidor: " + __instaRs.Message;
+                //            break;
+                //        case 503:
+                //            __errorMessage = "Ha Ocurrido un error al procesar los parámetros de entrada. Revise los datos enviados y vuelva a intentarlo. " + __instaRs.Message;
+                //            break;
+                //        default:
+                //            __errorMessage = "Lo sentimos, no hemos podido procesar su tarjeta de crédito. El mensaje del banco fue: " + __instaRs.Message;
+                //            break;
+                //    }
+                //    _result.AddError(__errorMessage);
+                //}
                 result = _result;
 
             }
@@ -486,6 +552,60 @@ namespace Nop.Plugin.Payments.EpagosMercantil
                 throw new NopException("Error al procesar el pago: "+ex.Message, ex);
             }
         }
+
+
+
+
+
+        /// <summary>
+        /// Metodo para generar el apikey donde se conectara el api. 
+        /// </summary>
+        /// <param name="IDENTIFICADOR_COMERCIO">Código de comercio, este código es entregado por Mercantil Banco y es parte de la afiliación realizada por el comercio</param>
+        /// <param name="TIPO_TRANSACCION">código de la transacción que se está realizando, para el caso del pago el código debe ser 0200 y para el reverso el código debe ser 0420</param>
+        /// <param name="MONTO_TRANSACCION"> Monto correspondiente a la transacción. Ej. 0000,00</param>
+        /// <param name="NUMERO_FACTURA">Número de factura/orden</param>
+        /// <param name="IDENTIFICACION_TARJETAHABIENTE"> Identificación del TH, en este campo debe colocarse el número de cedula de identidad en caso ce VE o la identificación del cliente correspondiente a su país de origen</param>
+        /// <param name="NOMBRE_TARJETAHABIENTE">Nombre del cliente que aparece en la tarjeta utilizada</param>
+        /// <param name="NUMERO_TARJETA">Número de tarjeta sin ningún tipo de separación</param>
+        /// <param name="FECHA_VENCIMIENTO_TARJETA">Fecha de vencimiento de la tarjeta en formato MMAA. Ej. 720 => Julio del 2020</param>
+        /// <param name="CODIGO_SEGURIDAD_TARJETA">Código de seguridad o CVV numero de tres dígitos que está en la parte posterior de la tarjeta</param>
+        /// <param name="NUMERO_LOTE">Numero de control utilizado por la empresa que consume el servicio para su uso interno, el valor debe ser numérico y debe ser mayor a cero</param>
+        /// <returns></returns>
+
+        static String Apikey(string IDENTIFICADOR_COMERCIO, string TIPO_TRANSACCION, string MONTO_TRANSACCION, string NUMERO_FACTURA, string IDENTIFICACION_TARJETAHABIENTE,
+                             string NOMBRE_TARJETAHABIENTE, string NUMERO_TARJETA, string FECHA_VENCIMIENTO_TARJETA, string CODIGO_SEGURIDAD_TARJETA, string NUMERO_LOTE)
+        {
+            StringBuilder data = new StringBuilder();
+            string timeStamp = Stopwatch.GetTimestamp().ToString();
+         
+
+            string claveBanco = "B2CM3rcanti1#";
+         
+            data.Append("identificador_comercio=" + IDENTIFICADOR_COMERCIO + "&");
+            data.Append("tipo_transaccion=" + TIPO_TRANSACCION + "&");
+            data.Append("monto_transaccion=" + MONTO_TRANSACCION + "&");
+            data.Append("numero_factura=" + NUMERO_FACTURA + "&");
+            data.Append("identificacion_tarjetahabiente=" + IDENTIFICACION_TARJETAHABIENTE + "&");
+            data.Append("nombre_tarjetahabiente=" + NOMBRE_TARJETAHABIENTE + "&");
+            data.Append("numero_tarjeta=" + NUMERO_TARJETA + "&");
+            data.Append("fecha_vencimiento_tarjeta=" + FECHA_VENCIMIENTO_TARJETA + "&");
+            data.Append("codigo_seguridad_tarjeta=" + CODIGO_SEGURIDAD_TARJETA + "&"); 
+            data.Append("numero_lote=" + NUMERO_LOTE + "&timestamp=" + timeStamp + "&secret="+claveBanco);
+            string mensaje = data.ToString();
+
+            SHA256 mySha = SHA256Managed.Create();
+            byte[] utf16Key = mySha.ComputeHash(Encoding.GetEncoding("ISO-8859-15").GetBytes(mensaje));
+
+            StringBuilder hex = new StringBuilder(utf16Key.Length * 2);
+            foreach (byte b in utf16Key)
+            {
+                hex.AppendFormat("{0:x2}", b);
+            }
+            // String apikey = hex.ToString();
+            return hex.ToString();
+
+        }
+
 
         #endregion
     }

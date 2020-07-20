@@ -23,17 +23,20 @@
         @await Component.InvokeAsync("HomepageCategories")
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBeforeNews })
         @await Component.InvokeAsync("HomepageNews")
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBeforePoll })
-        @await Component.InvokeAsync("HomepagePolls")
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBottom })
-        @await Component.InvokeAsync("Widget", new { widgetZone = "emporium_home_page_sale_of_the_day" })
+       
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBeforePoll })
+            
+            @await Component.InvokeAsync("HomepagePolls")
 
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBeforeProducts })
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBeforeBestSellers })
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBottom })
+            @await Component.InvokeAsync("Widget", new { widgetZone = "emporium_home_page_sale_of_the_day" })
 
-        <div class="two-row-carousels small-products">
-            @await Component.InvokeAsync("HomepageProducts")
-            @await Component.InvokeAsync("HomepageBestSellers")
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBeforeProducts })
+            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HomePageBeforeBestSellers })
+
+            <div class="two-row-carousels small-products">
+                @await Component.InvokeAsync("HomepageProducts")
+                @await Component.InvokeAsync("HomepageBestSellers")
+            </div>
         </div>
-    </div>
 </div>

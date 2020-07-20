@@ -25,7 +25,7 @@ using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 {
-
+    [AuthorizeAdmin]
     [Area(AreaNames.Admin)]
     public class PaymentConsolidatePaymentController : BasePaymentController
     {
@@ -75,10 +75,18 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 
             Configuracion.MetodosPago = new List<SelectListItem>
             {
-                new SelectListItem { Text = "SELECCIONE", Value = 0.ToString() },
+                new SelectListItem { Text = "TODOS", Value = string.Empty },
                 new SelectListItem { Text = "Transferencia Bancaria", Value = "Payments.Transfer" },
                 new SelectListItem { Text = "Zelle", Value = "Payments.Zelle" },
              };
+
+            Configuracion.StatusPaymentOrderList = new List<SelectListItem> {
+                new SelectListItem { Text = "TODOS", Value = string.Empty },
+                new SelectListItem { Text = "Pendiente", Value = "10" },
+                new SelectListItem { Text = "Consolidado", Value = "30" },
+             };
+
+
 
             Configuracion.Tiendas = new List<SelectListItem>
             {
@@ -102,7 +110,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 
 
             //load settings for a chosen store scope
-            return View("~/Plugins/Payments.ConsolidatePayment/Views/Configure.cshtml", new ConfigurationModel());
+            return View("~/Plugins/Payments.ConsolidatePayment/Views/Configure.cshtml", Configuracion);
         }
 
 
@@ -116,18 +124,19 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageShippingSettings))
                 return AccessDeniedKendoGridJson();
 
-            if (search != null)
+            if (search == null)
                 throw new ArgumentNullException(nameof(search));
 
 
             Consolidate payment = new Consolidate
             {
-                TiendaId = search.OrdenId,
+                TiendaId = search.TiendaId,
                 OrdenId = search.OrdenId,
                 ClienteId = search.ClienteId,
-                Referencia = search.Referencia,
-                MetodoPago = search.MetodoPago,
-                StatusPaymentOrder = search.StatusPaymentOrder,
+                Referencia = search.Referencia == null ? "" : search.Referencia,
+                MetodoPago = search.MetodoPago == null ? "" : search.MetodoPago,
+                //StatusPaymentOrder = search.StatusPaymentOrder,
+                StatusPaymentOrder = Convert.ToInt32(search.StatusPaymentOrder),
                 BancoEmisorId = search.BancoReceptorId,
                 BancoReceptorId = search.BancoReceptorId
             };
@@ -148,6 +157,44 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 
 
 
+        [HttpPost]
+        public IActionResult RegisterPayment(ConfigurationModel payment)
+        {
+            try
+            {
+                if (payment == null)
+                {
+                    return Json(new { success = false });
+                }
+
+                var model = new Consolidate
+                {
+                    BancoEmisorId = payment.BancoEmisorId,
+                    BancoReceptorId = payment.BancoReceptorId,
+                    OrdenId = payment.OrdenId,
+                    BancoEmisor = payment.BancoEmisor,
+                    BancoReceptor = payment.BancoReceptor,
+                    EmailEmisor = payment.EmailEmisor,
+                    FechaRegistro = DateTime.Now,
+                    FechaUltimaActualizacion = DateTime.Now,
+                    Referencia = payment.Referencia,
+                    StatusPaymentOrder = Convert.ToInt32(payment.StatusPaymentOrder),
+                    Tienda = _storeContext.CurrentStore.Name, 
+                    Id = payment.Id
+
+                };
+
+                _consolidateService.InsertPayment(model);
+
+                ViewBag.RefreshPage = true;
+
+                return RedirectToRoute("OrderDetails", new { orderId = payment.OrdenId });
+            }
+            catch (Exception ex)
+            {
+                throw new NopException(ex.Message, ex);
+            }
+        }
 
 
         [AuthorizeAdmin]
@@ -178,23 +225,39 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 
         #region Export / Import
 
-        //public virtual IActionResult ExportXml()
-        //{
-        //    if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
-        //        return AccessDeniedView();
+        public virtual IActionResult ExportXml(ConfigurationModel search)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
+                return AccessDeniedView();
 
-        //    try
-        //    {
-        //        var xml = _exportManager.ExportCategoriesToXml();
+            try
+            {
 
-        //        return File(Encoding.UTF8.GetBytes(xml), "application/xml", "categories.xml");
-        //    }
-        //    catch (Exception exc)
-        //    {
-        //        ErrorNotification(exc);
-        //        return RedirectToAction("List");
-        //    }
-        //}
+                Consolidate payment = new Consolidate
+                {
+                    TiendaId = search.TiendaId,
+                    OrdenId = search.OrdenId,
+                    ClienteId = search.ClienteId,
+                    Referencia = search.Referencia == null ? "" : search.Referencia,
+                    MetodoPago = search.MetodoPago == null ? "" : search.MetodoPago,
+                    //StatusPaymentOrder = search.StatusPaymentOrder,
+                    StatusPaymentOrder = Convert.ToInt32(search.StatusPaymentOrder),
+                    BancoEmisorId = search.BancoReceptorId,
+                    BancoReceptorId = search.BancoReceptorId
+                };
+
+                var transferList = _consolidateService.SearchPayment(payment);
+
+                var xml = _exportManager.ExportCategoriesToXml(transferList);
+
+                return File(Encoding.UTF8.GetBytes(xml), "application/xml", "categories.xml");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
 
         //public virtual IActionResult ExportXlsx()
         //{

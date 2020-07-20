@@ -1,6 +1,6 @@
 ﻿{
   "Group": "Payment methods",
-  "FriendlyName": "Credit Card",
+  "FriendlyName": "Consolidate Payment",
   "SystemName": "Payments.ConsolidatePayment",
   "Version": "1.47",
   "SupportedVersions": [ "4.10" ],

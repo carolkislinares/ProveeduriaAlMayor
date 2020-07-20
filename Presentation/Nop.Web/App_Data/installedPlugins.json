@@ -33,5 +33,7 @@
   "Payments.Zelle",
   "Shipping.FixedByWeightByTotal",
   "Payments.PayPalStandard",
-  "Payments.SigoCreditos"
+  "Payments.SigoCreditos",
+  "Payments.ConsolidatePayment",
+  "Payments.EpagosMercantil"
 ]

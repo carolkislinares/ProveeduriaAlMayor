@@ -26,6 +26,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.List.SearchProductName")]
         public string SearchProductName { get; set; }
 
+        [NopResourceDisplayName("Admin.Catalog.BulkEdit.List.SearchProductGTIN")]
+        public string SearchProductGTIN { get; set; }
+
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.List.SearchCategory")]
         public int SearchCategoryId { get; set; }
 

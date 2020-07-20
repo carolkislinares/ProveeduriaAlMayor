@@ -62,6 +62,14 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchProductGTIN" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchProductGTIN" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <div class="col-md-8 col-md-offset-4">
                                             <button type="button" id="search-products" class="btn btn-primary btn-search">
                                                 <i class="fa fa-search"></i>
@@ -70,6 +78,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                @*<div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchProductGTIN" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-editor asp-for="SearchProductGTIN" />
+                                        </div>
+                                    </div>
+                                </div>*@
                             </div>
                         </div>
                     </div>
@@ -93,7 +111,9 @@
                                                         SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
                                                         SearchCategoryId: $('#SearchCategoryId').val(),
                                                         SearchManufacturerId: $('#SearchManufacturerId').val(),
-                                                        SearchProductTypeId: $('#SearchProductTypeId').val()
+                                                        SearchProductTypeId: $('#SearchProductTypeId').val(),
+                                                        SearchProductGTIN: $('#@Html.IdFor(model => model.SearchProductGTIN)').val(),
+
                                                     };
                                                     addAntiForgeryToken(data);
                                                     return data;
@@ -144,11 +164,13 @@
                                                 fields: {
                                                     Name: { editable: true, type: "string" },
                                                     ProductId: { editable: false, type: "number" },
-                                                    Sku: { editable: true, type: "string" },
+                                                    //Sku: { editable: true, type: "string" },
+                                                    GTIN: { editable: false, type: "string" },
                                                     Price: { editable: true, type: "number" },
-                                                    OldPrice: { editable: true, type: "number" },
-                                                    ManageInventoryMethod: { editable: false, type: "string" },
+                                                    //OldPrice: { editable: true, type: "number" },
+                                                   // ManageInventoryMethod: { editable: false, type: "string" },
                                                     StockQuantity: { editable: true, type: "number" },
+                                                    MintockQuantity: { editable: true, type: "number" },
                                                     Published: { editable: true, type: "boolean" },
                                                     Id: { editable: false, type: "number" }
                                                 }
@@ -194,11 +216,15 @@
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         template: '<a class="btn btn-default" href="@Url.Content("~/Admin/Product/Edit/")#=Id#"><i class="fa fa-eye"></i>@T("Admin.Common.View")</a>'
-                                    },{
+                                    },@*{
                                         field: "Sku",
                                         title: "@T("Admin.Catalog.BulkEdit.Fields.Sku")",
                                         width: 150
-                                    }, {
+                                    },*@ {
+                                        field: "GTIN",
+                                        title: "@T("Admin.Catalog.BulkEdit.Fields.GTIN")",
+                                        width: 150
+                                    },{
                                         field: "Price",
                                         title: "@T("Admin.Catalog.BulkEdit.Fields.Price")",
                                         width: 150,
@@ -210,7 +236,7 @@
                                                     decimals: 4
                                                 });
                                         }
-                                    }, {
+                                    }, @*{
                                         field: "OldPrice",
                                         title: "@T("Admin.Catalog.BulkEdit.Fields.OldPrice")",
                                         width: 150,
@@ -222,13 +248,19 @@
                                                     decimals: 4
                                                 });
                                         }
-                                    }, {
+                                    },*@ @*{
                                         field: "ManageInventoryMethod",
                                         title: "@T("Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod")",
                                         width: 150
-                                    }, {
+                                    },*@ {
                                         field: "StockQuantity",
                                         title: "@T("Admin.Catalog.BulkEdit.Fields.StockQuantity")",
+                                        //integer format
+                                        format: "{0:0}",
+                                        width: 150
+                                    },{
+                                        field: "MinStockQuantity",
+                                        title: "@T("Admin.Catalog.BulkEdit.Fields.MinStockQuantity")",
                                         //integer format
                                         format: "{0:0}",
                                         width: 150
@@ -236,24 +268,31 @@
                                         field: "Published",
                                         title: "@T("Admin.Catalog.BulkEdit.Fields.Published")",
                                         width: 200
-                                    }, {
+                                    }@*, {
                                         command: { name: "destroy", text: "@T("Admin.Common.Delete")" },
                                         title: "@T("Admin.Common.Delete")",
                                         width: 100
-                                    }
+                                    }*@
                                     ]
                                 } );
                             });
                             </script>
 
                             <script>
-                            $(document).ready(function () {
+                                $(document).ready(function () {
+                                   
                                 $('#search-products').click(function () {
                                     var grid = $('#products-grid').data('kendoGrid');
                                     grid.dataSource.page(1); //new search. Set page size to 1
                                     //grid.dataSource.read(); we already loaded the grid above using "page" function
                                     return false;
                                 });
+
+                                    setInterval(function () {
+                                    console.log("Recarga")
+                                     var grid = $('#products-grid').data('kendoGrid');
+                                     grid.dataSource.read();
+                                      }, 300000);
 
                                 $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
                                     if (event.keyCode == 13) {

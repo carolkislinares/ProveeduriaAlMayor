@@ -24,9 +24,6 @@
     var selectedCustomerAttributesString = EngineContext.Current.Resolve<IGenericAttributeService>().GetAttribute<string>(Customerclient, NopCustomerDefaults.CustomCustomerAttributes);
     var TipoDocumento = EngineContext.Current.Resolve<ICustomerAttributeParser>().ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
 
-
-
-
 }
 
 <script type="text/javascript">
@@ -181,6 +178,16 @@
     }
 
     /* ///////////////////////////////////////////////////////////////////////  */
+    input#swal-input1.swal2-input::placeholder,
+    input#swal-input2.swal2-input::placeholder,
+    input#swal-input3.swal2-input::placeholder,
+    input#swal-input4.swal2-input::placeholder {
+    /*  color: #aaa;*/
+      color: #8c8c8c;
+      opacity: 1;
+    }
+
+    /* ///////////////////////////////////////////////////////////////////////  */
 </style>
 
 <div class="page account-page customer-info-page">
@@ -200,31 +207,28 @@
                             <strong>@T("Account.BalancPersonalDetails")</strong>
                         </div>
                         <div class="col-lg-2 col-md-2 col-sm-2">
-                            @if (Model.Emisor.EntityId > 0)
+
+                            @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM) || Model.Emisor.EntityId >= 0)
                             {
-                                @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
-                                {
-                                    <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
-                                }
-                                else
-                                {
-                                    @if (TipoDocumento.Contains("1"))
-                                    {
-                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteNatural()">@T("SigoCreditosPaypal.validationpin.button")</button>
-
-                                    }
-                                    else
-                                    {
-                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteJuridico()">@T("SigoCreditosPaypal.validationpin.button")</button>
-
-                                    }
-                                }
-
+                                <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
                             }
                             else
                             {
-                                <div class="EmptyTable"><span>@T("SigoCreditos.Abono.CustomerNotFound")</span></div>
+                                @if (TipoDocumento.Contains("1"))
+                                {
+                                    <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteNatural()">  @Model.Emisor.EntityId  @*@T("SigoCreditosPaypal.validationpin.button")*@</button>
+
+                                }
+                                else
+                                {
+                                    <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteJuridico()">
+                                        @EsValidoCRM  @*@T("SigoCreditosPaypal.validationpin.button")*@
+                                    </button>
+
+                                }
                             }
+
+
                         </div>
                     </div>
                 </div>
@@ -234,39 +238,44 @@
                         <div class="card card-body">
                             <div class="row">
                                 <div class="col-lg-12 col-md-12 tableContainer" style="margin: 20px auto;">
-
-                                    @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
+                                    @if (Model.Emisor.EntityId > 0)
                                     {
-
-                                        @if (Model.Emisor.SaldoActualList.Count > 0)
+                                        @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
                                         {
-                                            <table id="SaldoActualTable" width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
-                                                <thead>
-                                                    <tr>
-                                                        <th><div>@T("Account.AccountTypeName")</div></th>
-                                                        <th><div>@T("Account.AccountTypeQuantity")</div></th>
-                                                        <th><div>@T("Account.AccountTypeCurrency")</div></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
 
-                                                    @foreach (var account in Model.Emisor.SaldoActualList)
-                                                    {
+                                            @if (Model.Emisor.SaldoActualList.Count > 0)
+                                            {
+                                                <table id="SaldoActualTable" width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
+                                                    <thead>
                                                         <tr>
-                                                            <td><div>@account.Descripcion</div></td>
-                                                            <td class="Monto"><div>$@account.MontoDisponible.ToString("N", new CultureInfo("is-IS"))</div></td>
-                                                            <td><div>@account.Moneda</div></td>
+                                                            <th><div>@T("Account.AccountTypeName")</div></th>
+                                                            <th><div>@T("Account.AccountTypeQuantity")</div></th>
+                                                            <th><div>@T("Account.AccountTypeCurrency")</div></th>
                                                         </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        }
-                                        else
-                                        {
-                                            <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
+                                                    </thead>
+                                                    <tbody>
+
+                                                        @foreach (var account in Model.Emisor.SaldoActualList)
+                                                        {
+                                                            <tr>
+                                                                <td><div>@account.Descripcion</div></td>
+                                                                <td class="Monto"><div>$@account.MontoDisponible.ToString("N", new CultureInfo("is-IS"))</div></td>
+                                                                <td><div>@account.Moneda</div></td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                            else
+                                            {
+                                                <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
+                                            }
                                         }
                                     }
-
+                                    else
+                                    {
+                                        <div class="EmptyTable"><span> @Model.Emisor.EntityId  + @EsValidoCRM  + @T("SigoCreditos.Abono.CustomerNotFound")</span></div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -416,40 +425,52 @@
         $("input").attr("autocomplete", "off");
     }
     function SwalfireClienteNatural() {
-            Swal.fire({
+        Swal.fire({
             title: '@T("SigoCreditosPaypal.validationpin")',
-            input: 'password',
+            html:
+                  '<input id="swal-input3" value="@Model.Abono.Receptor.Documento" readonly autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> '
+                + '<input id="swal-input0" type="password" autocomplete="off" style="width:0px; height:0px; border:none"> '
+                + '<input id="swal-input4" type="password" autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0.5em!important; margin-top: 0em!important;font-size: 1.125em;padding: 0 .75em;" maxlength=6 placeholder="@T("SigoCreditosPaypal.validationpin.pinplaceholder")"> '
+            ,
+            onRender: () => {
+                document.getElementById("swal-input4").setAttribute("type","password");
+                document.getElementById("swal-input4").val = "";
+                document.getElementById("swal-input4").placeholder = "@T("SigoCreditosPaypal.validationpin.pinplaceholder")";
+            },
+            focusConfirm: false,
             inputAttributes: {
                 autocapitalize: 'off',
-                maxlength: 6,
+                autocomplete: 'off'
             },
-                showCancelButton: true,
-                confirmButtonText: '@T("SigoCreditosPaypal.validationpin.confirmButtonText")',
-               cancelButtonText: '@T("SigoCreditosPaypal.validationpin.cancelButtonText")',
-               showLoaderOnConfirm: true,
-                preConfirm: (pin) => {
+            showCancelButton: true,
+            confirmButtonText: '@T("SigoCreditosPaypal.validationpin.confirmButtonText")',
+            cancelButtonText: '@T("SigoCreditosPaypal.validationpin.cancelButtonText")',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                var pin = document.getElementById('swal-input4').value;
 
-                  var numbers = /^[0-9]{6,}$/;
-                  isValid = login.match(numbers);
+                var numbers = /^[0-9]{6,}$/;
+                isValid = pin.match(numbers);
 
-                    if (isValid === null) {
-                        if(pin==="")
-                            Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinrequired")")
-                        else
-                              if (document.getElementById('swal-input1').length < 6)
-                                Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinminimun")");
-                            else Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.onlynumber")");
+                if (isValid === null) {
+                    if (pin === "") {
+                        Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinrequired")")
                     } else {
-                        ValidarPin(pin);
+                        if (document.getElementById('swal-input4').length < 6) {
+                            Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.pinminimun")");
+                        } else { Swal.showValidationMessage("@T("SigoCreditosPaypal.validationpin.onlynumber")"); }
                     }
+                } else {
+                    ValidarPin(pin);
+                }
             },
             allowOutsideClick: () => !Swal.isLoading()
-          }).then((result) => {
+        }).then((result) => {
             if (result.value) {
                 setLocation('@Url.RouteUrl("sigocreditos")');
             }
-           });
-        }
+        });
+    }
 
     function ValidarPin(pin) {
         var route = '@Html.Raw(Url.Action("ValidarPin", "Admin/SigoCreditosInfo", new { @entityid = "TD", @cedula= "cd", @pin = "DC", @tipoDoc = "TC"  }))';
@@ -487,20 +508,26 @@
             Swal.fire({
                 title: '@T("SigoCreditosPaypal.validationpin")',
                 html:
-                    '<input id="swal-input2" autocomplete="off" class="swal2-input"  style="font-family: verdana; margin-bottom: 0.5em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> ' +
-                    ' <input id="swal-input1" autocomplete="off" class="swal2-input"  style="font-family: verdana; margin-bottom: 0.5em!important" maxlength=6 placeholder="@T("SigoCreditosPaypal.validationpin.pinplaceholder")"> '+
-                    '<script>setTimeout(function () {document.getElementById("swal-input1").type = "password";}, 10);<//script>',
+                    '<input id="swal-input2" autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> '
+                    + '<input id="swal-input0" type="password" autocomplete="off" style="width:0px; height:0px; border:none"> '
+                    + '<input id="swal-input1" autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0.5em!important; margin-top: 0em!important;font-size: 1.125em;padding: 0 .75em;" maxlength=6 placeholder="@T("SigoCreditosPaypal.validationpin.pinplaceholder")"> '
+                    //+ '<script>setTimeout(function(){document.getElementById("swal-input1").type = "password";}, 10);<//script>'
+                ,
                 focusConfirm: false,
-            inputAttributes: {
-                autocapitalize: 'off',
-                autocomplete: 'off'     
-            },
-                showCancelButton: true,
-
+                inputAttributes: {
+                    autocapitalize: 'off',
+                    autocomplete: 'off'
+                },
+                onRender: () => {
+                    document.getElementById("swal-input1").setAttribute("type","password");
+                    document.getElementById("swal-input1").val = "";
+                    document.getElementById("swal-input1").placeholder = "@T("SigoCreditosPaypal.validationpin.pinplaceholder")";
+                },
+                 showCancelButton: true,
                  confirmButtonText: '@T("SigoCreditosPaypal.validationpin.confirmButtonText")',
                  cancelButtonText: '@T("SigoCreditosPaypal.validationpin.cancelButtonText")',
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
+                 showLoaderOnConfirm: true,
+                 preConfirm: () => {
                     var pin = document.getElementById('swal-input1').value;
                     var documento = document.getElementById('swal-input2').value;
 

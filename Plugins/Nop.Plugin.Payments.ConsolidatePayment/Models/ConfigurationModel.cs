@@ -29,7 +29,10 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Models
             BancosEmisores =   new List<SelectListItem>();
             BancosReceptores = new List<SelectListItem>();
             Tiendas = new List<SelectListItem>();
+            StatusPaymentOrderList = new List<SelectListItem>();
         }
+
+        public int Id { get; set; }
 
         [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.TiendaId")]
         public int TiendaId { get; set; }
@@ -47,7 +50,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Models
         public int BancoReceptorId { get; set; }
 
         [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.StatusPaymentOrder")]
-        public int StatusPaymentOrder { get; set; }
+        public string StatusPaymentOrder { get; set; }
 
         [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.Referencia")]
         public string Referencia { get; set; }
@@ -83,6 +86,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Models
         public IList<SelectListItem> BancosEmisores { get; set; }
         public IList<SelectListItem> BancosReceptores { get; set; }
         public IList<SelectListItem> Tiendas { get; set; }
+        public IList<SelectListItem> StatusPaymentOrderList { get; set; }
 
     }
 }

@@ -475,8 +475,10 @@
     {
          var adrresId = Id;
         var an = $('#CbShp').val() == null ? "0" : $('#CbShp').val();
-        var route = '@Url.RouteUrl("CheckoutSelectShippingAddresss", new { addressid = "Adr"  , NorkutShippingDay = "SP"  })';
+        var txt = $("#CbShp option:selected").text();
+        var route = '@Url.RouteUrl("CheckoutSelectShippingAddresss", new { addressid = "Adr"  , NorkutShippingDay = "SP" , NorkutShippingDayText = "SPT" })';
         route = route.replace("Adr", adrresId);
+        route = route.replace("SPT", txt);
         route = route.replace("SP", an);
         setLocation(route);
 

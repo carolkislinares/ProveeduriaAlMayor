@@ -18,6 +18,7 @@ using Nop.Core.Domain.Tax;
 using Nop.Services.Affiliates;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
+using Nop.Services.Configuration;
 using Nop.Services.Directory;
 using Nop.Services.Discounts;
 using Nop.Services.Helpers;
@@ -83,6 +84,8 @@ namespace Nop.Web.Areas.Admin.Factories
         private readonly ShippingSettings _shippingSettings;
         private readonly TaxSettings _taxSettings;
 
+        private readonly ISettingService _SettingService;
+
         #endregion
 
         #region Ctor
@@ -123,7 +126,9 @@ namespace Nop.Web.Areas.Admin.Factories
             MeasureSettings measureSettings,
             OrderSettings orderSettings,
             ShippingSettings shippingSettings,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            ISettingService settingService
+            )
         {
             this._addressSettings = addressSettings;
             this._currencySettings = currencySettings;
@@ -162,6 +167,7 @@ namespace Nop.Web.Areas.Admin.Factories
             this._orderSettings = orderSettings;
             this._shippingSettings = shippingSettings;
             this._taxSettings = taxSettings;
+            this._SettingService = settingService;
         }
 
         #endregion
@@ -1297,6 +1303,23 @@ namespace Nop.Web.Areas.Admin.Factories
                 endDateValue,
                 searchModel.Page - 1,
                 searchModel.PageSize);
+
+ 
+
+           
+            if (bool.Parse(_SettingService.GetSettingByKey("shipment.OrderDateShipment", "", 0, true))) //Setting
+            {
+                //List<string> f = new List<string>();
+                //foreach (var item in shipments)
+                //{
+                //    var a = item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay"));
+                //    var b = a.Note.Split(",");
+                //    var c = b[1];
+                //    f.Add((item.CreatedOnUtc.AddDays(Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToString() + " - " + item.OrderId + "fecha:" + item.CreatedOnUtc);
+                //}
+
+                shipments = new PagedList<Shipment>(shipments.OrderByDescending(shipment => shipment.CreatedOnUtc.AddDays(Convert.ToInt32(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToList(), searchModel.Page - 1, searchModel.PageSize);
+            }
 
             //prepare list model
             var model = new ShipmentListModel

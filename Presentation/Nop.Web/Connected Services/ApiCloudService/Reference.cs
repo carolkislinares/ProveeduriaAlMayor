@@ -104,6 +104,8 @@ namespace ApiCloudService
         
         private string MovilPhoneField;
         
+        private bool PointsAcccessField;
+        
         private string RifField;
         
         private string SecurityTokenField;
@@ -326,6 +328,19 @@ namespace ApiCloudService
             set
             {
                 this.MovilPhoneField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool PointsAcccess
+        {
+            get
+            {
+                return this.PointsAcccessField;
+            }
+            set
+            {
+                this.PointsAcccessField = value;
             }
         }
         
@@ -1312,6 +1327,8 @@ namespace ApiCloudService
         
         private System.DateTime DateField;
         
+        private byte[] FileField;
+        
         private bool IndActVersionField;
         
         private string LinkField;
@@ -1343,6 +1360,19 @@ namespace ApiCloudService
             set
             {
                 this.DateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public byte[] File
+        {
+            get
+            {
+                return this.FileField;
+            }
+            set
+            {
+                this.FileField = value;
             }
         }
         
@@ -1689,6 +1719,9 @@ namespace ApiCloudService
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetClientBalance", ReplyAction="http://tempuri.org/IApiCloudService/GetClientBalanceResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmClient3GCkhWO1> GetClientBalanceAsync(int pType, string pDocument);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetClientData", ReplyAction="http://tempuri.org/IApiCloudService/GetClientDataResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmClient3GCkhWO1> GetClientDataAsync(int pType, string pDocument);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetHistoricMovements", ReplyAction="http://tempuri.org/IApiCloudService/GetHistoricMovementsResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmMovement3GCkhWO1> GetHistoricMovementsAsync(string pSucursal);
         
@@ -1704,8 +1737,14 @@ namespace ApiCloudService
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ConfirmPass", ReplyAction="http://tempuri.org/IApiCloudService/ConfirmPassResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> ConfirmPassAsync(long pUsuario, string pPass);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/HavePass", ReplyAction="http://tempuri.org/IApiCloudService/HavePassResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> HavePassAsync(long pUsuario);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetClientsCompany", ReplyAction="http://tempuri.org/IApiCloudService/GetClientsCompanyResponse")]
-        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub);
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub, int pPermitido);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ActualizarAutorizadosCtasPuntos", ReplyAction="http://tempuri.org/IApiCloudService/ActualizarAutorizadosCtasPuntosResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfstring> ActualizarAutorizadosCtasPuntosAsync(long pCodSigoClub, long pCodEntidad, bool pIndCuentasPuntos);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetConsumePointsGraph", ReplyAction="http://tempuri.org/IApiCloudService/GetConsumePointsGraphResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmBasic3GCkhWO1> GetConsumePointsGraphAsync(string pSucursal, long pStart, long pEnd);
@@ -1715,6 +1754,12 @@ namespace ApiCloudService
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/SendLastSystemVersion", ReplyAction="http://tempuri.org/IApiCloudService/SendLastSystemVersionResponse")]
         System.Threading.Tasks.Task<byte[]> SendLastSystemVersionAsync(string route);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/CreatePass", ReplyAction="http://tempuri.org/IApiCloudService/CreatePassResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> CreatePassAsync(string pCodCliente, string pClave);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ModificarPass", ReplyAction="http://tempuri.org/IApiCloudService/ModificarPassResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> ModificarPassAsync(string pCodCliente, string pClave, long pCodOperador);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ConsumePoints", ReplyAction="http://tempuri.org/IApiCloudService/ConsumePointsResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOflong> ConsumePointsAsync(long pSigoClub, string pSucursal, long pNumberAccount, string pNumberDocument, decimal pOldAmount, decimal amount, long Cod_Operador, ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov);
@@ -1778,6 +1823,11 @@ namespace ApiCloudService
             return base.Channel.GetClientBalanceAsync(pType, pDocument);
         }
         
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmClient3GCkhWO1> GetClientDataAsync(int pType, string pDocument)
+        {
+            return base.Channel.GetClientDataAsync(pType, pDocument);
+        }
+        
         public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmMovement3GCkhWO1> GetHistoricMovementsAsync(string pSucursal)
         {
             return base.Channel.GetHistoricMovementsAsync(pSucursal);
@@ -1803,9 +1853,19 @@ namespace ApiCloudService
             return base.Channel.ConfirmPassAsync(pUsuario, pPass);
         }
         
-        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub)
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> HavePassAsync(long pUsuario)
         {
-            return base.Channel.GetClientsCompanyAsync(pCodSIGOClub);
+            return base.Channel.HavePassAsync(pUsuario);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub, int pPermitido)
+        {
+            return base.Channel.GetClientsCompanyAsync(pCodSIGOClub, pPermitido);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfstring> ActualizarAutorizadosCtasPuntosAsync(long pCodSigoClub, long pCodEntidad, bool pIndCuentasPuntos)
+        {
+            return base.Channel.ActualizarAutorizadosCtasPuntosAsync(pCodSigoClub, pCodEntidad, pIndCuentasPuntos);
         }
         
         public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmBasic3GCkhWO1> GetConsumePointsGraphAsync(string pSucursal, long pStart, long pEnd)
@@ -1821,6 +1881,16 @@ namespace ApiCloudService
         public System.Threading.Tasks.Task<byte[]> SendLastSystemVersionAsync(string route)
         {
             return base.Channel.SendLastSystemVersionAsync(route);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> CreatePassAsync(string pCodCliente, string pClave)
+        {
+            return base.Channel.CreatePassAsync(pCodCliente, pClave);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> ModificarPassAsync(string pCodCliente, string pClave, long pCodOperador)
+        {
+            return base.Channel.ModificarPassAsync(pCodCliente, pClave, pCodOperador);
         }
         
         public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOflong> ConsumePointsAsync(long pSigoClub, string pSucursal, long pNumberAccount, string pNumberDocument, decimal pOldAmount, decimal amount, long Cod_Operador, ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov)

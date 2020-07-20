@@ -7,6 +7,7 @@
 @{
     var shoppingCartItemModel = Model.MiniShoppingCart.Items[0];
 }
+
 <div class="productAddedToCartWindow">
     <div class="productAddedToCartWindowTitle">
         @T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxTitle")
@@ -26,38 +27,37 @@
             <span class="quantity">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxQuantity") : @shoppingCartItemModel.Quantity</span>
         </div>
     </div>
-    <div class="productAddedToCartWindowSummary">
-        <a class="continueShoppingLink" href="#">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxContinueShopping")</a>
-        @if (Model.MiniShoppingCart.DisplayCheckoutButton)
-        {
-            var checkoutUrl = "";
-            if (Model.MiniShoppingCart.AnonymousCheckoutAllowed && Model.MiniShoppingCart.CurrentCustomerIsGuest)
-            {
-                checkoutUrl = Url.RouteUrl("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
+    <div class="productAddedToCartWindowSummary row">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style=" margin: 0; padding: 0; ">
+            @if (!Model.MiniShoppingCart.DisplayCheckoutButton) {
+                var checkoutUrl = "";
+                if (Model.MiniShoppingCart.AnonymousCheckoutAllowed && Model.MiniShoppingCart.CurrentCustomerIsGuest) {
+                    checkoutUrl = Url.RouteUrl("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
+                } else {
+                    checkoutUrl = Url.RouteUrl("Checkout");
+                }
+
+                <a class="viewBasketLink" href="@Url.RouteUrl("ShoppingCart")">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxViewYourBasket")</a>
+                <div class="checkoutButtonWrapper" style="width:95%;">
+                    @*<input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("Checkout.Button")" onclick="setLocation('@checkoutUrl');" />*@
+                    <input type="submit" class="button-1 productAddedToCartWindowCheckout" value="" onclick="setLocation('@checkoutUrl');" @*style="background-image: url('images/ico-cart.png')"*@ />
+                </div>
+            } else {
+                <div class="shoppingCartButtonWrapper" style="width:95%;">
+                    @*<input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("ShoppingCart.Mini.ViewCart")" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />*@
+                    <input type="submit" class="button-1 productAddedToCartWindowCheckout" value="" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />
+                </div>
             }
-            else
-            {
-                checkoutUrl = Url.RouteUrl("Checkout");
-            }
-            <a class="viewBasketLink" href="@Url.RouteUrl("ShoppingCart")">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxViewYourBasket")</a>
-            <div class="checkoutButtonWrapper">
-                <input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("Checkout.Button")" onclick="setLocation('@checkoutUrl');" />
-            </div>
+        </div>
+  <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style=" margin: 0; padding: 0; ">
+            <a class="continueShoppingLink" href="#" style="width: 100%;">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxContinueShopping")</a>
+        </div>
+        @if (Model.EnableRelatedProductsInPopup) {
+            @await Component.InvokeAsync("NopAjaxCartPopupRelatedProducts", new { productId = shoppingCartItemModel.ProductId });
         }
-        else
-        {
-            <div class="shoppingCartButtonWrapper">
-                <input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("ShoppingCart.Mini.ViewCart")" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />
-            </div>
+
+        @if (Model.EnableCrossSellProductsInPopup) { 
+            @await Component.InvokeAsync("NopAjaxCartPopupCrossSellProducts", new { productId = shoppingCartItemModel.ProductId });
         }
     </div>
-    @if (Model.EnableRelatedProductsInPopup)
-    {
-        @await Component.InvokeAsync("NopAjaxCartPopupRelatedProducts", new { productId = shoppingCartItemModel.ProductId });
-    }
-
-    @if (Model.EnableCrossSellProductsInPopup)
-    {
-        @await Component.InvokeAsync("NopAjaxCartPopupCrossSellProducts", new { productId = shoppingCartItemModel.ProductId });
-    }
 </div>

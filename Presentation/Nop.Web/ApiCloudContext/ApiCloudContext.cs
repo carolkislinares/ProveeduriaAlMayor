@@ -43,7 +43,7 @@ namespace Nop.Web.ApiCloudContext
             try
             {
                 long a=0;
-                ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1 response = ApiClient.GetClientsCompanyAsync(pSigoClubId).Result;
+                ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1 response = ApiClient.GetClientsCompanyAsync(pSigoClubId,1).Result;
                 var EntityID = response.body.Where(x => x.DNI.Contains(DocumentoCliente));
                 if (EntityID.ToList().Count > 0)
                 {
@@ -63,7 +63,7 @@ namespace Nop.Web.ApiCloudContext
         {
             try
             {
-                ApiCloudService.MDBResponseOflong response = ApiClient.ConsumePointsAsync(model.SigoClubId, "00", model.NumberAccount, model.CustomerDocumentValue, model.OldAmount, model.Amount, 0, ApiCloudService.mConsume.eTipoOperacionesMovimiento.ConsumoSaldo_Ecommerce).Result;
+                ApiCloudService.MDBResponseOflong response = ApiClient.ConsumePointsAsync(model.SigoClubId, "34", model.NumberAccount, model.CustomerDocumentValue, model.OldAmount, model.Amount, 0, ApiCloudService.mConsume.eTipoOperacionesMovimiento.ConsumoSaldo_Ecommerce).Result;
                 return response.body != 0 ? true : false;
             }
             catch (Exception ex)
@@ -115,6 +115,16 @@ namespace Nop.Web.ApiCloudContext
                 throw ex;
             }
         }
+
+
+
+        //public static SigoCreditosInfoModel ObtenerPuntosxCliente(int pCodTipo, string pDocumento)
+        //{
+        //    // ApiCloudService.MDBResponseOfmClient3GCkhWO1 cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
+        //    Task<wsCRM.mCliente> result = cRMClient.ObtenerPuntosxClienteAsync(pCodTipo, pDocumento);
+        //    return new SigoCreditosInfoModel(result.Result);
+        //}
+
 
         public enum TipoDocumentoNatural
         {

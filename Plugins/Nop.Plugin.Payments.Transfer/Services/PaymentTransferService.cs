@@ -52,7 +52,7 @@ namespace Nop.Plugin.Payments.Transfer.Services
         /// <param name="cacheManager">Cache manager</param>
         /// <param name="BankRepository">Store pickup point repository</param>
         public PaymentTransferService(ICacheManager cacheManager,
-            IRepository<PaymentTransfer> transferRepository,
+           IRepository<PaymentTransfer> transferRepository,
            IOrderProcessingService orderProcessingService, 
            IOrderService orderService,
            IBankService bankService, 

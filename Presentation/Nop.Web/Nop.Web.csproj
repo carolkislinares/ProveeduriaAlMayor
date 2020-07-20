@@ -28,6 +28,10 @@
 
     <Compile Remove="Plugins\**" />
 
+    <Content Remove="Plugins\Payments.ConsolidatePaymentddd\**" />
+
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\**" />
+
     <Content Remove="Plugins\Payments.Manual7\**" />
 
     <Content Remove="Plugins\Payments.Transferenci\**" />
@@ -42,6 +46,18 @@
 
     <!-- We copy the \Logs directory -->
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentddd\Nop.Plugin.Payments.Transfer.dll" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentddd\Nop.Plugin.Payments.Transfer.pdb" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentddd\Nop.Plugin.Payments.Zelle.dll" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentddd\Nop.Plugin.Payments.Zelle.pdb" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\logo.jpg" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\logo.png" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\Nop.Plugin.Payments.ConsolidatePayment.dll" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\Nop.Plugin.Payments.ConsolidatePayment.pdb" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\Nop.Plugin.Payments.Transfer.dll" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\Nop.Plugin.Payments.Transfer.pdb" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\Nop.Plugin.Payments.Zelle.dll" />
+    <Content Remove="Plugins\Payments.ConsolidatePaymentoo\Nop.Plugin.Payments.Zelle.pdb" />
     <Content Remove="Plugins\Payments.Manual7\logo.jpg" />
     <Content Remove="Plugins\Payments.Manual7\Nop.Plugin.Payments.Instapago.dll" />
     <Content Remove="Plugins\Payments.Manual7\Nop.Plugin.Payments.Manual.dll" />

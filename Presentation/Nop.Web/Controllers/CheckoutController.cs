@@ -49,6 +49,15 @@ namespace Nop.Web.Controllers
         public static bool pIndAplicoCreditos = false;
         public static bool pIndMetodoDePago = false;
 
+        public static bool pIndEsPagoTotal = false;
+
+
+        //Variable para almacenar el ShippingDay
+        public static int pShippingDay;
+        //
+
+
+
 
         List<ShoppingCartItem> cart = new List<ShoppingCartItem>();
 
@@ -295,6 +304,7 @@ namespace Nop.Web.Controllers
             pIndSigoCreditos = false;
             pIndAplicoCreditos = false;
             pMontoDs = 0;
+            pIndEsPagoTotal = false;
             //validation
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
@@ -446,6 +456,7 @@ namespace Nop.Web.Controllers
 
         public virtual IActionResult ShippingAddress()
         {
+            pIndEsPagoTotal = false;
             pMonto = 0;
             pIndSigoCreditos = false;
             pIndAplicoCreditos = false;
@@ -504,8 +515,20 @@ namespace Nop.Web.Controllers
         }
 
 
-        public virtual IActionResult SelectShippingAddresss(int addressId, string NorkutShippingDay)
+        public virtual IActionResult SelectShippingAddresss(int addressId, string NorkutShippingDay , string NorkutShippingDayText)
         {
+            // Se obtiene el Shipping Day para almacenar en OrderNotes
+            if (NorkutShippingDayText != null)
+            {
+                string[] ShippingDayText = NorkutShippingDayText.Contains("(") ? NorkutShippingDayText.Split('(') : new string[] { NorkutShippingDayText };
+                string DiasEnvio = new String(ShippingDayText[0].Where(Char.IsDigit).ToArray());
+                var intArray = DiasEnvio.Select(c => c - '0').ToArray();
+                var maxDay = intArray.Select((n, i) => (Number: n, Index: i)).Max();
+                pShippingDay = maxDay.Number;
+
+            }
+            //
+
             //validation
             if (_orderSettings.CheckoutDisabled)
                 return RedirectToRoute("ShoppingCart");
@@ -1163,8 +1186,8 @@ namespace Nop.Web.Controllers
                 //place order
                 processPaymentRequest.StoreId = _storeContext.CurrentStore.Id;
                 processPaymentRequest.CustomerId = _workContext.CurrentCustomer.Id;
-                processPaymentRequest.PaymentMethodSystemName = _genericAttributeService.GetAttribute<string>(_workContext.CurrentCustomer,
-                    NopCustomerDefaults.SelectedPaymentMethodAttribute, _storeContext.CurrentStore.Id);
+                processPaymentRequest.PaymentMethodSystemName = !pIndEsPagoTotal ?  _genericAttributeService.GetAttribute<string>(_workContext.CurrentCustomer,
+                    NopCustomerDefaults.SelectedPaymentMethodAttribute, _storeContext.CurrentStore.Id) : _localizationService.GetResource("Payments.SigoCreditos");
                 var placeOrderResult = _orderProcessingService.PlaceOrder(processPaymentRequest);
 
                 if (placeOrderResult.Success)
@@ -1181,11 +1204,14 @@ namespace Nop.Web.Controllers
                         if (DataCliente != null)
                         {
                             DataCliente.Amount = pMontoDs;
+                            ///Se cambio Cedula del cliente por el Numero de la Orden
+                            DataCliente.CustomerDocumentValue = postProcessPaymentRequest.Order.Id.ToString();
                             var response = ApiCloudContext.ApiCloudContext.ConsumirPuntos(DataCliente);
                             if (response)
                             {
                                 postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = _localizationService.GetResource("ShoppingCart.Totals.SigoPoints.Complete") + " $" + pMontoDs, DisplayToCustomer = true, CreatedOnUtc = DateTime.UtcNow });
                                 postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note =  _localizationService.GetResource("Payments.SigoCreditos"), DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
+                                postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay,"+ pShippingDay, DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
                                 _orderService.UpdateOrder(postProcessPaymentRequest.Order);
                                 _paymentService.PostProcessPayment(postProcessPaymentRequest);
                             }
@@ -1194,6 +1220,11 @@ namespace Nop.Web.Controllers
                     }
                     else
                     {
+                        if(pShippingDay!=0)
+                        {
+                            postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + pShippingDay, DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
+                            _orderService.UpdateOrder(postProcessPaymentRequest.Order);
+                        }
                         _paymentService.PostProcessPayment(postProcessPaymentRequest);
                     }
                    
@@ -1205,6 +1236,7 @@ namespace Nop.Web.Controllers
 
                     pMonto = 0;
                     pIndSigoCreditos = false;
+                    pIndEsPagoTotal = false;
                     return RedirectToRoute("CheckoutCompleted", new CheckoutCompletedModel { OrderId = placeOrderResult.PlacedOrder.Id });
                 }
 
@@ -2050,8 +2082,19 @@ namespace Nop.Web.Controllers
         public IActionResult DescontarCreditos(decimal Monto, bool IndCreditos, string Pin,string DocumentoCliente)
         {
 
-           
-            
+
+
+            //Asignacion Metodo de pago para atributo Generico
+            string paymentmethod = string.Empty;
+            var paymentMethodInst = _paymentService.LoadPaymentMethodBySystemName(paymentmethod);
+            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
+                               NopCustomerDefaults.UseRewardPointsDuringCheckoutAttribute, true,
+                               _storeContext.CurrentStore.Id);
+            _genericAttributeService.SaveAttribute<string>(_workContext.CurrentCustomer,
+                    NopCustomerDefaults.SelectedPaymentMethodAttribute, null, _storeContext.CurrentStore.Id);
+
+
+
             //Consulta para data generica del Cliente Documento-TipoDocumento
  
             Dictionary<int, string> TipoDocumentoJuridico = new Dictionary<int, string>()
@@ -2067,7 +2110,7 @@ namespace Nop.Web.Controllers
             var documento = _CustomerService.ParseValues(selectedCustomerAttributesString, 1).FirstOrDefault();
             var tipoDocumento = _CustomerService.ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
             pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
-            pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.Substring(0, 1)).Key :
+            pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.ToUpper().Substring(0, 1)).Key :
                                                           Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
             long ClienteJuridico=0;
             bool Confirmado;
@@ -2075,7 +2118,7 @@ namespace Nop.Web.Controllers
 
             var DataCliente = ApiCloudContext.ApiCloudContext.ObtenerCliente(pTipoCodTipo, pDocumento);
 
-            if (pTipoCodTipo == 2)
+            if (Convert.ToInt32(tipoDocumento) == 2)
             {
                 ClienteJuridico = ApiCloudContext.ApiCloudContext.ObtenerClientesJuridico(DataCliente.SigoClubId, DocumentoCliente);
                 if (ClienteJuridico != 0)
@@ -2098,7 +2141,7 @@ namespace Nop.Web.Controllers
             }
             else
             {
-                 Confirmado = ApiCloudContext.ApiCloudContext.ConfirmarPassword( DataCliente.EntityId, Pin, DocumentoCliente);
+                 Confirmado = ApiCloudContext.ApiCloudContext.ConfirmarPassword( DataCliente.EntityId, Pin, DataCliente.CustomerDocumentValue);
             }
             
             
@@ -2130,6 +2173,7 @@ namespace Nop.Web.Controllers
                     
                     if (pMonto >= total)
                     {
+                        pIndEsPagoTotal = true;
                         pMonto = subtotalBase == null ? 0 : (decimal)subtotalBase;
                         pMontoDs = total;
                     }
@@ -2152,6 +2196,7 @@ namespace Nop.Web.Controllers
 
         public IActionResult LimpiarCreditos(decimal Monto, bool IndCreditos)
         {
+            pIndEsPagoTotal = false;
             pIndErrorPin = false;
             pMonto = 0;
             pMontoDs = 0;
@@ -2179,9 +2224,12 @@ namespace Nop.Web.Controllers
             var selectedCustomerAttributesString = _genericAttributeService.GetAttribute<string>(CustomerEcommerce, NopCustomerDefaults.CustomCustomerAttributes);
             var documento = _CustomerService.ParseValues(selectedCustomerAttributesString, 1).FirstOrDefault();
             var tipoDocumento = _CustomerService.ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
-            pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
-            pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.Substring(0, 1)).Key :
-                                                          Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
+
+            pDocumento =   tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
+            pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.ToUpper().Substring(0, 1)).Key :
+                                                       Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
+
+
             var DataCliente = ApiCloudContext.ApiCloudContext.ObtenerCliente(pTipoCodTipo, pDocumento);
             if (DataCliente.OldAmount > 0)
                 return true;

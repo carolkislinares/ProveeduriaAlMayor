@@ -3,8 +3,14 @@
 @using System.Web
 @using Nop.Core
 @using Nop.Services.Directory
+@using Nop.Core.Infrastructure;
+@using Nop.Services.Configuration
 @inject IWorkContext workContext
 @inject ICurrencyService _currencyService
+
+@{
+    var OnlyShippingSetting = EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("OnlyShippingAddress", "", 0, true);
+}
 
 @{
     if (!Model.PrintMode)
@@ -61,126 +67,370 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.OrderDetailsPageOverview, additionalData = Model })
         </div>
         <div class="order-details-area">
-            <div class="billing-info-wrap">
-                <div class="billing-info">
-                    <div class="title">
-                        <strong>@T("Order.BillingAddress")</strong>
-                    </div>
-                    <ul class="info-list">
-                        <li class="name">
-                            @Model.BillingAddress.FirstName @Model.BillingAddress.LastName
-                        </li>
-                        <li class="email">
-                            @T("Order.Email"): @Model.BillingAddress.Email
-                        </li>
-                        @if (Model.BillingAddress.PhoneEnabled)
-                        {
-                            <li class="phone">
-                                @T("Order.Phone"): @Model.BillingAddress.PhoneNumber
+            @if (!bool.Parse(OnlyShippingSetting))
+            {
+                <div class="billing-info-wrap">
+                    <div class="billing-info">
+                        <div class="title">
+                            <strong>@T("Order.BillingAddress")</strong>
+                        </div>
+                        <ul class="info-list">
+                            <li class="name">
+                                @Model.BillingAddress.FirstName @Model.BillingAddress.LastName
                             </li>
-                        }
-                        @if (Model.BillingAddress.FaxEnabled)
-                        {
-                            <li class="fax">
-                                @T("Order.Fax"): @Model.BillingAddress.FaxNumber
+                            <li class="email">
+                                @T("Order.Email"): @Model.BillingAddress.Email
                             </li>
-                        }
-                        @if (Model.BillingAddress.CompanyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.Company))
-                        {
-                            <li class="company">
-                                @Model.BillingAddress.Company
-                            </li>
-                        }
-                        @if (Model.BillingAddress.StreetAddressEnabled)
-                        {
-                            <li class="address1">
-                                @Model.BillingAddress.Address1
-                            </li>
-                        }
-                        @if (Model.BillingAddress.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.BillingAddress.Address2))
-                        {
-                            <li class="address2">
-                                @Model.BillingAddress.Address2
-                            </li>
-                        }
-                        @if (Model.BillingAddress.CityEnabled && !string.IsNullOrEmpty(Model.BillingAddress.City) ||
+                            @if (Model.BillingAddress.PhoneEnabled)
+                            {
+                                <li class="phone">
+                                    @T("Order.Phone"): @Model.BillingAddress.PhoneNumber
+                                </li>
+                            }
+                            @if (Model.BillingAddress.FaxEnabled)
+                            {
+                                <li class="fax">
+                                    @T("Order.Fax"): @Model.BillingAddress.FaxNumber
+                                </li>
+                            }
+                            @if (Model.BillingAddress.CompanyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.Company))
+                            {
+                                <li class="company">
+                                    @Model.BillingAddress.Company
+                                </li>
+                            }
+                            @if (Model.BillingAddress.StreetAddressEnabled)
+                            {
+                                <li class="address1">
+                                    @Model.BillingAddress.Address1
+                                </li>
+                            }
+                            @if (Model.BillingAddress.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.BillingAddress.Address2))
+                            {
+                                <li class="address2">
+                                    @Model.BillingAddress.Address2
+                                </li>
+                            }
+                            @if (Model.BillingAddress.CityEnabled && !string.IsNullOrEmpty(Model.BillingAddress.City) ||
                          Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County) ||
                          Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
                          Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
-                        {
-                            <li class="city-state-zip">
-                                @if (Model.BillingAddress.CityEnabled && !string.IsNullOrEmpty(Model.BillingAddress.City))
-                                {
-                                    @Model.BillingAddress.City
-                                    @if (Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County) ||
+                            {
+                                <li class="city-state-zip">
+                                    @if (Model.BillingAddress.CityEnabled && !string.IsNullOrEmpty(Model.BillingAddress.City))
+                                    {
+                                        @Model.BillingAddress.City
+                                        @if (Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County) ||
                                      Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
                                      Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
-                                    {
-                                        <text>,</text>
+                                        {
+                                            <text>,</text>
+                                        }
                                     }
-                                }
-                                @if (Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County))
-                                {
-                                    @Model.BillingAddress.County
-                                    @if (Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
+                                    @if (Model.BillingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.BillingAddress.County))
+                                    {
+                                        @Model.BillingAddress.County
+                                        @if (Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName) ||
                                      Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
-                                    {
-                                        <text>,</text>
+                                        {
+                                            <text>,</text>
+                                        }
                                     }
-                                }
-                                @if (Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName))
-                                {
-                                    @Model.BillingAddress.StateProvinceName
+                                    @if (Model.BillingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.BillingAddress.StateProvinceName))
+                                    {
+                                        @Model.BillingAddress.StateProvinceName
+                                        @if (Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
+                                        {
+                                            <text>,</text>
+                                        }
+                                    }
                                     @if (Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
                                     {
-                                        <text>,</text>
+                                        @Model.BillingAddress.ZipPostalCode
                                     }
-                                }
-                                @if (Model.BillingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.BillingAddress.ZipPostalCode))
-                                {
-                                    @Model.BillingAddress.ZipPostalCode
-                                }
-                            </li>
-                        }
-                        @if (Model.BillingAddress.CountryEnabled && !string.IsNullOrEmpty(Model.BillingAddress.CountryName))
-                        {
-                            <li class="country">
-                                @Model.BillingAddress.CountryName
-                            </li>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.VatNumber))
-                        {
-                            <li class="vat">
-                                <span class="label">
-                                    @T("Order.VATNumber")
-                                </span>
-                                <span class="value">
-                                    @Model.VatNumber
-                                </span>
-                            </li>
-                        }
-                        @if (!string.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
-                        {
-                            <li class="custom-attributes-view">
-                                @Html.Raw(Model.BillingAddress.FormattedCustomAddressAttributes)
-                            </li>
-                        }
-                        @if (Model.CustomValues != null)
-                        {
-                            foreach (var item in Model.CustomValues)
+                                </li>
+                            }
+                            @if (Model.BillingAddress.CountryEnabled && !string.IsNullOrEmpty(Model.BillingAddress.CountryName))
                             {
-                                <li class="custom-value">
+                                <li class="country">
+                                    @Model.BillingAddress.CountryName
+                                </li>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.VatNumber))
+                            {
+                                <li class="vat">
                                     <span class="label">
-                                        @item.Key:
+                                        @T("Order.VATNumber")
                                     </span>
                                     <span class="value">
-                                        @(item.Value != null ? item.Value.ToString() : "")
+                                        @Model.VatNumber
                                     </span>
                                 </li>
                             }
-                        }
-                    </ul>
+                            @if (!string.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
+                            {
+                                <li class="custom-attributes-view">
+                                    @Html.Raw(Model.BillingAddress.FormattedCustomAddressAttributes)
+                                </li>
+                            }
+                            @if (Model.CustomValues != null)
+                            {
+                                foreach (var item in Model.CustomValues)
+                                {
+                                    <li class="custom-value">
+                                        <span class="label">
+                                            @item.Key:
+                                        </span>
+                                        <span class="value">
+                                            @(item.Value != null ? item.Value.ToString() : "")
+                                        </span>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.PaymentMethod))
+                    {
+                        <div class="payment-method-info">
+                            <div class="title">
+                                <strong>@T("Order.Payment")</strong>
+                            </div>
+                            <ul class="info-list">
+                                <li class="payment-method">
+                                    <span class="label">
+                                        @T("Order.Payment.Method"):
+                                    </span>
+                                    <span class="value">
+                                        @Model.PaymentMethod
+                                    </span>
+                                </li>
+                                @if (!Model.PrintMode)
+                                {
+                                    <li class="payment-method-status">
+                                        <span class="label">
+                                            @T("Order.Payment.Status"):
+                                        </span>
+                                        <span class="value">
+                                            @Model.PaymentMethodStatus
+                                        </span>
+                                    </li>
+                                }
+                                @if (!Model.PrintMode && Model.CanRePostProcessPayment)
+                                {
+                                    @*Complete payment (for redirection payment methods)*@
+                                    <li class="repost">
+                                        <form asp-route="OrderDetails" method="post">
+                                            <input type="submit" name="repost-payment" value="@T("Order.RetryPayment")" class="button-2 re-order-button" />
+                                            <p class="hint">
+                                                <em>@T("Order.RetryPayment.Hint")</em>
+                                            </p>
+                                        </form>
+                                    </li>
+                                }
+                                @if (!Model.PrintMode && Model.PaymentMethod.Contains("Instapago") && !string.IsNullOrEmpty(Model.CaptureTransactionResult))
+                                {
+                                    <li class="payment-method title">
+                                        <div style="padding: 1% 25%">
+                                            @Html.Raw(HttpUtility.HtmlDecode(Model.CaptureTransactionResult))
+                                        </div>
+                                    </li>
+                                }
+
+                                @if (!Model.PrintMode && Model.PaymentMethod.Contains("Transferencia Bancaria"))
+                                {
+                                    <li class="payment-method title">
+                                        <div>
+                                            <input type="submit" id="btnRegisterPayment" class="button-1" value="@if (Model.PaymentMethodStatus.Contains("Pendiente")) { @T("Plugins.Title.RegisterPayment")} else { @T("Plugins.Title.RegisteredPayment")} " onclick="setLocation('@(Url.Action("RegisterPayment", "Order",  new { orderId = Model.Id, btnId = "btnRefresh", formId = "registerpaymenttransfer-form" }))')" />
+
+
+                                        </div>
+                                    </li>
+                                }
+                                @if (!Model.PrintMode && Model.PaymentMethod.Contains("Zelle"))
+                                {
+                                    <li class="payment-method title">
+                                        <div>
+                                            <input type="submit" id="btnRegisterPaymentZelle" class="button-1" value="@if (Model.PaymentMethodStatus.Contains("Pendiente")) { @T("Plugins.Title.RegisterPayment")} else { @T("Plugins.Title.RegisteredPayment")} " onclick="setLocation('@(Url.Action("RegisterPaymentZelle", "Order",  new { orderId = Model.Id, btnId = "btnRefresh", formId = "registerpaymentZelle-form" }))')" />
+                                        </div>
+
+                                    </li>
+                                }
+
+
+                            </ul>
+                        </div>
+
+                    }
                 </div>
+            }
+
+
+            @if (Model.IsShippable)
+            {
+        <div class="shipping-info-wrap">
+            <div class="shipping-info">
+                <div class="title">
+                    @if (!bool.Parse(OnlyShippingSetting))
+                    {
+                        <strong>@(Model.PickUpInStore ? T("Order.PickupAddress") : T("Order.ShippingAddress"))</strong>
+                    }
+                    else
+                    {
+
+                        <strong>Datos de la Orden</strong>
+                    }
+
+
+                </div>
+                <ul class="info-list">
+                    @if (!Model.PickUpInStore)
+                    {
+                        <li class="name">
+                            @Model.ShippingAddress.FirstName @Model.ShippingAddress.LastName
+                        </li>
+                        <li class="email">
+                            @T("Order.Email"): @Model.ShippingAddress.Email
+                        </li>
+                        if (Model.ShippingAddress.PhoneEnabled)
+                        {
+                            <li class="phone">
+                                @T("Order.Phone"): @Model.ShippingAddress.PhoneNumber
+                            </li>
+                        }
+                        if (Model.ShippingAddress.FaxEnabled)
+                        {
+                            <li class="fax">
+                                @T("Order.Fax"): @Model.ShippingAddress.FaxNumber
+                            </li>
+                        }
+                        if (Model.ShippingAddress.CompanyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.Company))
+                        {
+                            <li class="company">
+                                @Model.ShippingAddress.Company
+                            </li>
+                        }
+                        if (Model.ShippingAddress.StreetAddressEnabled)
+                        {
+                            <li class="address1">
+                                @Model.ShippingAddress.Address1
+                            </li>
+                        }
+                        if (Model.ShippingAddress.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.ShippingAddress.Address2))
+                        {
+                            <li class="address2">
+                                @Model.ShippingAddress.Address2
+                            </li>
+                        }
+                        @if (Model.ShippingAddress.CityEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.City) ||
+                   Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County) ||
+                   Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
+                   Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                        {
+                            <li class="city-state-zip">
+                                @if (Model.ShippingAddress.CityEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.City))
+                                {
+                                    @Model.ShippingAddress.City
+                                    @if (Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County) ||
+                               Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
+                               Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                                    {
+                                        <text>,</text>
+                                    }
+                                }
+                                @if (Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County))
+                                {
+                                    @Model.ShippingAddress.County
+                                    @if (Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
+                               Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                                    {
+                                        <text>,</text>
+                                    }
+                                }
+                                @if (Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName))
+                                {
+                                    @Model.ShippingAddress.StateProvinceName
+                                    @if (Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                                    {
+                                        <text>,</text>
+                                    }
+                                }
+                                @if (Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
+                                {
+                                    @Model.ShippingAddress.ZipPostalCode
+                                }
+                            </li>
+                        }
+                        if (Model.ShippingAddress.CountryEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.CountryName))
+                        {
+                            <li class="country">
+                                @Model.ShippingAddress.CountryName
+                            </li>
+                        }
+                        if (!string.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
+                        {
+                            <li class="custom-attributes-view">
+                                @Html.Raw(Model.ShippingAddress.FormattedCustomAddressAttributes)
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(Model.PickupAddress.Address1))
+                        {
+                            <li class="address1">
+                                @Model.PickupAddress.Address1
+                            </li>
+                        }
+                        if (!string.IsNullOrEmpty(Model.PickupAddress.City) ||
+                            !string.IsNullOrEmpty(Model.PickupAddress.County) ||
+                            !string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
+                            !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                        {
+                            <li class="city-state-zip">
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.City))
+                                {
+                                    @Model.PickupAddress.City
+                                    @if (!string.IsNullOrEmpty(Model.PickupAddress.County) ||
+                               !string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
+                               !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                                    {
+                                        <text>,</text>
+                                    }
+                                }
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.County))
+                                {
+                                    @Model.PickupAddress.County
+                                    @if (!string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
+                               !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                                    {
+                                        <text>,</text>
+                                    }
+                                }
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName))
+                                {
+                                    @Model.PickupAddress.StateProvinceName
+                                    @if (!string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                                    {
+                                        <text>,</text>
+                                    }
+                                }
+                                @if (!string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
+                                {
+                                    @Model.PickupAddress.ZipPostalCode
+                                }
+                            </li>
+                        }
+                        if (!string.IsNullOrEmpty(Model.PickupAddress.CountryName))
+                        {
+                            <li class="country">
+                                @Model.PickupAddress.CountryName
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+            @if (bool.Parse(OnlyShippingSetting))
+            {
                 @if (!string.IsNullOrEmpty(Model.PaymentMethod))
                 {
                     <div class="payment-method-info">
@@ -253,188 +503,36 @@
                     </div>
 
                 }
-            </div>
-            @if (Model.IsShippable)
-            {
-                <div class="shipping-info-wrap">
-                    <div class="shipping-info">
-                        <div class="title">
-                            <strong>@(Model.PickUpInStore ? T("Order.PickupAddress") : T("Order.ShippingAddress"))</strong>
-                        </div>
-                        <ul class="info-list">
-                            @if (!Model.PickUpInStore)
-                            {
-                                <li class="name">
-                                    @Model.ShippingAddress.FirstName @Model.ShippingAddress.LastName
-                                </li>
-                                <li class="email">
-                                    @T("Order.Email"): @Model.ShippingAddress.Email
-                                </li>
-                                if (Model.ShippingAddress.PhoneEnabled)
-                                {
-                                    <li class="phone">
-                                        @T("Order.Phone"): @Model.ShippingAddress.PhoneNumber
-                                    </li>
-                                }
-                                if (Model.ShippingAddress.FaxEnabled)
-                                {
-                                    <li class="fax">
-                                        @T("Order.Fax"): @Model.ShippingAddress.FaxNumber
-                                    </li>
-                                }
-                                if (Model.ShippingAddress.CompanyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.Company))
-                                {
-                                    <li class="company">
-                                        @Model.ShippingAddress.Company
-                                    </li>
-                                }
-                                if (Model.ShippingAddress.StreetAddressEnabled)
-                                {
-                                    <li class="address1">
-                                        @Model.ShippingAddress.Address1
-                                    </li>
-                                }
-                                if (Model.ShippingAddress.StreetAddress2Enabled && !string.IsNullOrEmpty(Model.ShippingAddress.Address2))
-                                {
-                                    <li class="address2">
-                                        @Model.ShippingAddress.Address2
-                                    </li>
-                                }
-                                @if (Model.ShippingAddress.CityEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.City) ||
-                                  Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County) ||
-                                  Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
-                                  Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
-                                {
-                                    <li class="city-state-zip">
-                                        @if (Model.ShippingAddress.CityEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.City))
-                                        {
-                                            @Model.ShippingAddress.City
-                                            @if (Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County) ||
-                                              Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
-                                              Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
-                                            {
-                                                <text>,</text>
-                                            }
-                                        }
-                                        @if (Model.ShippingAddress.CountyEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.County))
-                                        {
-                                            @Model.ShippingAddress.County
-                                            @if (Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName) ||
-                                              Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
-                                            {
-                                                <text>,</text>
-                                            }
-                                        }
-                                        @if (Model.ShippingAddress.StateProvinceEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.StateProvinceName))
-                                        {
-                                            @Model.ShippingAddress.StateProvinceName
-                                            @if (Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
-                                            {
-                                                <text>,</text>
-                                            }
-                                        }
-                                        @if (Model.ShippingAddress.ZipPostalCodeEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.ZipPostalCode))
-                                        {
-                                            @Model.ShippingAddress.ZipPostalCode
-                                        }
-                                    </li>
-                                }
-                                if (Model.ShippingAddress.CountryEnabled && !string.IsNullOrEmpty(Model.ShippingAddress.CountryName))
-                                {
-                                    <li class="country">
-                                        @Model.ShippingAddress.CountryName
-                                    </li>
-                                }
-                                if (!string.IsNullOrEmpty(Model.ShippingAddress.FormattedCustomAddressAttributes))
-                                {
-                                    <li class="custom-attributes-view">
-                                        @Html.Raw(Model.ShippingAddress.FormattedCustomAddressAttributes)
-                                    </li>
-                                }
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrEmpty(Model.PickupAddress.Address1))
-                                {
-                                    <li class="address1">
-                                        @Model.PickupAddress.Address1
-                                    </li>
-                                }
-                                if (!string.IsNullOrEmpty(Model.PickupAddress.City) ||
-                                    !string.IsNullOrEmpty(Model.PickupAddress.County) ||
-                                    !string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
-                                    !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
-                                {
-                                    <li class="city-state-zip">
-                                        @if (!string.IsNullOrEmpty(Model.PickupAddress.City))
-                                        {
-                                            @Model.PickupAddress.City
-                                            @if (!string.IsNullOrEmpty(Model.PickupAddress.County) ||
-                                              !string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
-                                              !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
-                                            {
-                                                <text>,</text>
-                                            }
-                                        }
-                                        @if (!string.IsNullOrEmpty(Model.PickupAddress.County))
-                                        {
-                                            @Model.PickupAddress.County
-                                            @if (!string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName) ||
-                                              !string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
-                                            {
-                                                <text>,</text>
-                                            }
-                                        }
-                                        @if (!string.IsNullOrEmpty(Model.PickupAddress.StateProvinceName))
-                                        {
-                                            @Model.PickupAddress.StateProvinceName
-                                            @if (!string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
-                                            {
-                                                <text>,</text>
-                                            }
-                                        }
-                                        @if (!string.IsNullOrEmpty(Model.PickupAddress.ZipPostalCode))
-                                        {
-                                            @Model.PickupAddress.ZipPostalCode
-                                        }
-                                    </li>
-                                }
-                                if (!string.IsNullOrEmpty(Model.PickupAddress.CountryName))
-                                {
-                                    <li class="country">
-                                        @Model.PickupAddress.CountryName
-                                    </li>
-                                }
-                            }
-                        </ul>
-                    </div>
-                    <div class="shipping-method-info">
-                        <div class="title">
-                            <strong>@T("Order.Shipping")</strong>
-                        </div>
-                        <ul class="info-list">
-                            <li class="shipping-method">
-                                <span class="label">
-                                    @T("Order.Shipping.Name"):
-                                </span>
-                                <span class="value">
-                                    @Model.ShippingMethod
-                                </span>
-                            </li>
-                            @if (!Model.PrintMode)
-                            {
-                                <li class="shipping-status">
-                                    <span class="label">
-                                        @T("Order.Shipping.Status"):
-                                    </span>
-                                    <span class="value">
-                                        @Model.ShippingStatus
-                                    </span>
-                                </li>
-                            }
-                        </ul>
-                    </div>
+            }
+
+
+            <div class="shipping-method-info">
+                <div class="title">
+                    <strong>@T("Order.Shipping")</strong>
                 </div>
+                <ul class="info-list">
+                    <li class="shipping-method">
+                        <span class="label">
+                            @T("Order.Shipping.Name"):
+                        </span>
+                        <span class="value">
+                            @Model.ShippingMethod
+                        </span>
+                    </li>
+                    @if (!Model.PrintMode)
+                    {
+                        <li class="shipping-status">
+                            <span class="label">
+                                @T("Order.Shipping.Status"):
+                            </span>
+                            <span class="value">
+                                @Model.ShippingStatus
+                            </span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
             }
         </div>
 
@@ -775,7 +873,7 @@
                                 </tr>
                             }
                             @*Modified*@
-                            @if (Model.OrderNotes.Count>0)
+                            @if (Model.OrderNotes.Count > 0)
                             {
 
                                 <tr class="Sigo-points">

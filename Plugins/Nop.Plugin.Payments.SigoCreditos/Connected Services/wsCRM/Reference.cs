@@ -973,6 +973,8 @@ namespace wsCRM
         
         private long Cod_AbonoField;
         
+        private long Cod_Abono1Field;
+        
         private long Cod_ContratoField;
         
         private long Cod_EntidadField;
@@ -1039,6 +1041,19 @@ namespace wsCRM
             set
             {
                 this.Cod_AbonoField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long Cod_Abono1
+        {
+            get
+            {
+                return this.Cod_Abono1Field;
+            }
+            set
+            {
+                this.Cod_Abono1Field = value;
             }
         }
         
@@ -1933,6 +1948,8 @@ namespace wsCRM
         
         private string IdentificadorTipoField;
         
+        private bool IndActivoField;
+        
         private bool IndCuentasPuntosField;
         
         private string MontoField;
@@ -2042,6 +2059,19 @@ namespace wsCRM
             set
             {
                 this.IdentificadorTipoField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IndActivo
+        {
+            get
+            {
+                return this.IndActivoField;
+            }
+            set
+            {
+                this.IndActivoField = value;
             }
         }
         
@@ -2796,7 +2826,7 @@ namespace wsCRM
         System.Threading.Tasks.Task<wsCRM.mAbonosCredito> GenerarAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, int pCodMoneda, wsCRM.mCliente cliente, string pNumeroDocumento, decimal pMonto, long pCodOperador, long pCodBanco, string pObservaciones, bool pIndGiftcard, string pDescripcionMoneda, wsCRM.CodigosTipoOperacionMov pCodTipoOperacionMov, int pCodTipoCuenta);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ReversoAbonoPuntos", ReplyAction="http://tempuri.org/IwsCRM/ReversoAbonoPuntosResponse")]
-        System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, int pCodAbono, decimal pMonto, long pNumeroCuenta, long pCodOperador, int pCodTipoOperacionMov);
+        System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, long pCodAbono, decimal pMonto, long pNumeroCuenta, long pCodOperador, int pCodTipoOperacionMov);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ObtenerGiftCardMontosDisponible", ReplyAction="http://tempuri.org/IwsCRM/ObtenerGiftCardMontosDisponibleResponse")]
         System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mGiftCard>> ObtenerGiftCardMontosDisponibleAsync(int pCodMoneda);
@@ -3026,7 +3056,7 @@ namespace wsCRM
             return base.Channel.GenerarAbonoPuntosAsync(pCodSigoClub, pCodSucursal, pCodMoneda, cliente, pNumeroDocumento, pMonto, pCodOperador, pCodBanco, pObservaciones, pIndGiftcard, pDescripcionMoneda, pCodTipoOperacionMov, pCodTipoCuenta);
         }
         
-        public System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, int pCodAbono, decimal pMonto, long pNumeroCuenta, long pCodOperador, int pCodTipoOperacionMov)
+        public System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, long pCodAbono, decimal pMonto, long pNumeroCuenta, long pCodOperador, int pCodTipoOperacionMov)
         {
             return base.Channel.ReversoAbonoPuntosAsync(pCodSigoClub, pCodSucursal, pCodAbono, pMonto, pNumeroCuenta, pCodOperador, pCodTipoOperacionMov);
         }

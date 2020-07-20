@@ -1,142 +1,123 @@
-﻿    Layout = "";
+﻿@{
+    Layout = "";
 }
-@model Nop.Plugin.Payments.Transfer.Models.PaymentInfoModel
+@model Nop.Plugin.Payments.Zelle.Models.PaymentInfoModel
 <div class="page  registration-page">
     <div class="panel-body">
-        <form asp-controller="Admin/PaymentTransfer" asp-action="RegisterPayment"
+        <form asp-controller="Admin/PaymentZelle" asp-action="RegisterPayment"
               asp-route-btnId="@Context.Request.Query["btnId"]"
-              asp-route-formId="@Context.Request.Query["formId"]" onsubmit="return submitForm()">
+              asp-route-formId="@Context.Request.Query["formId"]" onsubmit="return submit()">
+
             <div class="content-header clearfix">
                 <h1 class="pull-left">
-                    @if (!string.IsNullOrWhiteSpace(Model.Referencia))
+                    @if (!string.IsNullOrWhiteSpace(Model.Reference))
                     {
                         <strong><small style="color:#ff4f60;">@T("Payment.RegisteredPayment")</small></strong>
                     }
-                </h1>
-            </div>
 
+                </h1>
+
+            </div>
             <div class="content">
                 <div class="form-fields">
                     <div class="panel-body">
                         <div class="inputs">
-                            <input type="hidden" asp-for="IdPayment" />
-                            <input type="hidden" asp-for="StatusPayment" />
-                            <input type="hidden" asp-for="BancoEmisorId" />
+                            <input type="hidden" asp-for="IdZelle" />
+                            <input type="hidden" asp-for="PaymentStatusOrder" />
+                            <input type="hidden" asp-for="IssuingEmail" value="CORREOZELLE@ZELLE.COM" />
                         </div>
                         <div class="inputs">
-                            <label asp-for="NroOrden">@T("Plugins.Payments.Transfer.Fields.Order"):</label>
-                            <input type="text" asp-for="NroOrden" readonly autocomplete="off" />
-                            <span asp-validation-for="NroOrden"></span>
+                            <label asp-for="Order">@T("Plugins.Payments.Zelle.Fields.Order"):</label>
+                            <input type="text" asp-for="Order" readonly autocomplete="off" />
+                            <span asp-validation-for="Order"></span>
                         </div>
-                        @if (Model.StatusPayment < 30)
+                        @if (Model.PaymentStatusOrder < 30)
                         {
-                            <div class="inputs">
-                                <label asp-for="BancoReceptor">@T("Plugins.Payments.Transfer.Fields.ReceiverBank"):</label>
-                                <select asp-for="BancoReceptorId" asp-items="Model.BancoReceptor" class="dropdownlists"></select>
-                                <span asp-validation-for="BancoReceptorId"></span>
+                            @*<div class="inputs">
+                                    <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
+                                    <input type="email" asp-for="IssuingEmail" autocomplete="off" maxlength="50" />
+                                    <nop-required />
+                                    <span asp-validation-for="IssuingEmail"></span>
 
-                            </div>
-                            @*<div class="inputs" style="display:none">
-                                    <label asp-for="BancoEmisor">@T("Plugins.Payments.Transfer.Fields.IssuingBank"):</label>
-                                    <select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" class="dropdownlists"></select>
-                                    <span asp-validation-for="BancoReceptorId"></span>
                                 </div>*@
                             <div class="inputs">
-
-                                <label asp-for="Referencia">@T("Plugins.Payments.Transfer.Fields.Reference"):</label>
-                                <input type="text" asp-for="Referencia" autocomplete="off" maxlength="10" onblur="onlyNumber()" />
+                                <label asp-for="Reference">@T("Plugins.Payments.Zelle.Fields.Reference"):</label>
+                                <input type="text" asp-for="Reference" autocomplete="off" maxlength="10" onblur="onlyNumber()" />
                                 <nop-required />
-                                <span asp-validation-for="Referencia" id="ReferenciaValidate"></span>
-
+                                <span asp-validation-for="Reference" id="ReferenciaValidate"></span>
                             </div>
                         }
                         else
                         {
-                            <div class="inputs">
-                                <label asp-for="BancoReceptor">@T("Plugins.Payments.Transfer.Fields.ReceiverBank"):</label>
-                                <select asp-for="BancoReceptorId" asp-items="Model.BancoReceptor" disabled class="dropdownlists"></select>
-                                <span asp-validation-for="BancoReceptorId"></span>
+                            @*<div class="inputs">
 
-                            </div>
-                            @*<div class="inputs" style="display:none">
-                                    <label asp-for="BancoEmisor">@T("Plugins.Payments.Transfer.Fields.IssuingBank"):</label>
-                                    <select asp-for="BancoEmisorId" asp-items="Model.BancoEmisor" readonly class="dropdownlists"></select>
-                                    <span asp-validation-for="BancoReceptorId"></span>
+                                    <label asp-for="IssuingEmail">@T("Plugins.Payments.Zelle.Fields.IssuingEmail"):</label>
+                                    <input type="email" asp-for="IssuingEmail" readonly autocomplete="off" maxlength="50" />
+                                    <nop-required />
+                                    <span asp-validation-for="IssuingEmail"></span>
+
                                 </div>*@
                             <div class="inputs">
 
-                                <label asp-for="Referencia">@T("Plugins.Payments.Transfer.Fields.Reference"):</label>
-                                <input type="text" asp-for="Referencia" autocomplete="off" readonly maxlength="10" onblur="onlyNumber()" />
+                                <label asp-for="Reference">@T("Plugins.Payments.Zelle.Fields.Reference"):</label>
+                                <input type="text" asp-for="Reference" autocomplete="off" readonly maxlength="10" onblur="onlyNumber()" />
                                 <nop-required />
-                                <span asp-validation-for="Referencia" id="ReferenciaValidate"></span>
+                                <span asp-validation-for="Reference" id="ReferenciaValidate"></span>
 
                             </div>
                         }
-
-
-                    </div>
-
-                    <div class="buttons">
-                        <button type="button" name="back" class="button-1" onclick="setLocation('@(Url.Action("BackOrder", "PaymentTransfer", new {id = Model.NroOrden, Area="Admin"}))')">
-                            <i class="fa fa-floppy-o"></i>
-                            @T("Admin.Common.Back")
-                        </button>
-                        @if (Model.StatusPayment < 30)
-                        {
-                            <button type="submit" name="save" class="button-1">
-                                <i class="fa fa-floppy-o"></i>
-                                @T("Admin.Common.Save")
-                            </button>
-                        }
-
                     </div>
                 </div>
             </div>
+
+            <div class="buttons">
+                <button type="button" name="back" class="button-1" onclick="setLocation('@(Url.Action("BackOrder", "PaymentZelle", new {id = Model.Order, Area="Admin"}))')">
+                    <i class="fa fa-floppy-o"></i>
+                    @T("Admin.Common.Back")
+                </button>
+                @if (Model.PaymentStatusOrder < 30)
+                {
+                    <button type="submit" name="save" class="button-1">
+                        <i class="fa fa-floppy-o"></i>
+                        @T("Admin.Common.Save")
+                    </button>
+                }
+            </div>
+
         </form>
     </div>
 </div>
 
+
+
+<script src="http://igorescobar.github.io/jQuery-Mask-Plugin/js/jquery.mask.min.js"></script>
+
 <script type="text/javascript">
-
-    $(document).ready(function () {
-        document.getElementById("BancoEmisorId").value = $("#BancoReceptorId").val();
-    });
-
-
     function messageInputVacio(inputtxt) {
-        return "Se requiere " + inputtxt + ".";
+        return "Se requiere " + inputtxt + "."
     }
-
-    $("#BancoReceptorId").on('change', function () {
-        document.getElementById("BancoEmisorId").value = $(this).val();
-    });
-
-
-
     function onlyNumber() {
-        var numbers = /^[0-9]{4,10}$/;
-        var inputtxt = document.getElementById("Referencia").value;
+        var numbers = /^[a-zA-Z0-9]{4,10}$/;
+        var inputtxt = document.getElementById("Reference").value;
         if (numbers.test(inputtxt)) {
             $("#ReferenciaValidate").removeClass("field-validation-error").addClass("field-validation-valid");
-            $("#Referencia").removeClass("input-validation-error");
+            $("#Reference").removeClass("input-validation-error");
             document.getElementById("ReferenciaValidate").innerHTML = "";
         }
         else {
-            $("#Referencia").addClass("input-validation-error");
+            $("#Reference").addClass("input-validation-error");
             $("#ReferenciaValidate").removeClass("field-validation-valid").addClass("field-validation-error");
-            if ($("#Referencia").val().length == 0) {
-                document.getElementById("ReferenciaValidate").innerHTML = messageInputVacio("la Referencia");
+            if ($("#Reference").val().length == 0) {
+                document.getElementById("ReferenciaValidate").innerHTML = messageInputVacio("la Referencia de Pago");
                 return;
             }
-
-            if ($("#Referencia").val().length < 8) {
+            if ($("#Reference").val().length < 8) {
                 document.getElementById("ReferenciaValidate").innerHTML = "Mínimo 4 carácteres";
                 return;
             } else {
                 document.getElementById("ReferenciaValidate").innerHTML = "Solo se admiten números.";
                 return;
             }
-
         }
     }
 
@@ -148,5 +129,4 @@
         } return true;
 
     }
-
 </script>

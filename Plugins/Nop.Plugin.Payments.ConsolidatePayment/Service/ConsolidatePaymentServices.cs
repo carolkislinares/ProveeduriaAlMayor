@@ -7,7 +7,9 @@ using Nop.Core.Caching;
 using Nop.Core.Data;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Payments.ConsolidatePayment.Domain;
+using Nop.Plugin.Payments.Transfer.Domain;
 using Nop.Plugin.Payments.Transfer.Services;
+using Nop.Plugin.Payments.Zelle.Domain;
 using Nop.Plugin.Payments.Zelle.Services;
 using Nop.Services.Orders;
 
@@ -38,6 +40,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
         private readonly IPaymentTransferService _transferServices;
         private readonly IPaymentZelleService _zelleServices;
         private readonly IOrderService _orderService;
+        private readonly IBankService _bankServices;
         private readonly IOrderProcessingService _orderProcessingService;
         private readonly IRepository<Order> _orderRepository;
 
@@ -48,7 +51,8 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
           IOrderService orderService,
           IRepository<Order> orderRepository,
            IPaymentTransferService transferServices,
-           IPaymentZelleService zelleServices)
+           IPaymentZelleService zelleServices,
+            IBankService bankService)
         {
             this._cacheManager = cacheManager;
             this._paymentRepository = paymentRepository;
@@ -56,6 +60,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
             this._orderService = orderService;
             this._orderProcessingService = orderProcessingService;
             this._transferServices = transferServices;
+            this._bankServices = bankService;
             this._zelleServices = zelleServices;
         }
 
@@ -119,7 +124,87 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                 if (payment == null)
                     throw new ArgumentNullException(nameof(payment));
 
-                _paymentRepository.Insert(payment);
+                var order2 = _orderService.GetOrderById(payment.OrdenId);
+                if (order2 == null)
+                    throw new ArgumentNullException(nameof(payment.OrdenId));
+
+                // datos de la orden
+                    payment.MontoTotalOrden = order2.OrderTotal;
+                    payment.MetodoPago = order2.PaymentMethodSystemName;
+                    payment.CodigoMoneda = order2.CustomerCurrencyCode;
+                    payment.TiendaId = order2.StoreId;
+                    payment.ClienteId = order2.CustomerId;
+                    payment.StatusPaymentOrder = order2.PaymentStatusId;
+
+
+                switch (payment.MetodoPago)
+                {
+                    case "Payments.Transfer":
+                    {
+                        try
+                        {
+                            var paymentTransfer = _transferServices.GetPaymentTransferByOrderId(payment.OrdenId);
+                            payment.BancoEmisor = _bankServices.GetBankById(payment.BancoEmisorId).Name;
+                            payment.BancoReceptor = payment.BancoEmisor;
+
+                            if (paymentTransfer == null)
+                            {
+                                var model = new PaymentTransfer
+                                {
+                                    IssuingBankId = payment.BancoEmisorId,
+                                    OrderId = payment.OrdenId,
+                                    ReceiverBankId = payment.BancoReceptorId,
+                                    ReferenceNumber = payment.Referencia
+                                };
+                                _transferServices.InsertPaymentTransfer(model);
+
+                            }else
+                            {
+                                UpdatePayment(payment);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new NopException("Error en insert transferencia: " + ex.Message, ex);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        try
+                        {
+                            var paymentZelle = _zelleServices.GetPaymentZelleByOrderId(payment.OrdenId);
+                            if (paymentZelle == null)
+                            {
+                                var model = new PaymentZelle
+                                {
+                                    IssuingEmail = payment.EmailEmisor,
+                                    OrderId = payment.OrdenId,
+                                    ReferenceNumber = payment.Referencia
+                                };
+
+                                _zelleServices.InsertPaymentZelle(model);
+
+                            }
+                            else
+                            {
+                                UpdatePayment(payment);
+                            }
+
+                            //paymentZelle.PaymentStatusOrder = (int)order2.PaymentStatus;
+                            //_zelleServices.UpdatePaymentZelle(paymentZelle);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new NopException("Error en insert zelle: " + ex.Message, ex);
+                        }
+                        break;
+                    }
+                }
+
+                if(payment.Id==0)
+                   _paymentRepository.Insert(payment);
+
                 _cacheManager.RemoveByPattern(PAYMENT_PATTERN_KEY);
             }
             catch (Exception ex)
@@ -138,7 +223,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                     var query = _paymentRepository.Table;
 
                     if (payment.TiendaId > 0)
-                        query = query.Where(b => b.TiendaId == storeId || b.TiendaId == 0);
+                        query = query.Where(b => b.TiendaId == payment.TiendaId || b.TiendaId == 0);
 
                     if (payment.OrdenId > 0)
                         query = query.Where(b => b.OrdenId == payment.OrdenId);
@@ -149,7 +234,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                     if (!string.IsNullOrWhiteSpace(payment.Referencia))
                         query = query.Where(b => b.Referencia.Contains(payment.Referencia));
 
-                    if (!string.IsNullOrWhiteSpace(payment.MetodoPago))
+                    if (!string.IsNullOrWhiteSpace(payment.MetodoPago) && !payment.MetodoPago.Equals("0"))
                         query = query.Where(b => b.MetodoPago.Contains(payment.MetodoPago));
 
                     if (payment.StatusPaymentOrder>0)
@@ -161,7 +246,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                     if (payment.BancoReceptorId > 0)
                         query = query.Where(b => b.BancoReceptorId == payment.BancoReceptorId);
 
-                    query = query.OrderBy(b => b.Id).ThenBy(b => b.FechaUltimaActualizacion);
+                    query = query.OrderByDescending(b => b.Id).ThenBy(b => b.FechaUltimaActualizacion);
 
                     return new PagedList<Consolidate>(query, pageIndex, pageSize);
                 });
@@ -178,24 +263,6 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
             {
                 if (payment == null)
                     throw new ArgumentNullException(nameof(payment));
-
-                //if (payment.OrdenId == 0)
-                //{
-                //    throw new ArgumentNullException(nameof(payment.OrdenId));
-                //}
-                //var order = _orderService.GetOrderById(payment.OrdenId);
-                //if (order == null)
-                //    throw new ArgumentNullException(nameof(payment.OrdenId));
-
-                //_orderProcessingService.MarkOrderAsPaid(order);
-
-
-                //if (paymentTransfer == null)
-                //    throw new ArgumentNullException(nameof(payment.OrdenId));
-
-                //var order2 = _orderService.GetOrderById(payment.OrdenId);
-                //if (order2 == null)
-                //    throw new ArgumentNullException(nameof(payment.OrdenId));
 
                 switch (payment.MetodoPago)
                 {
@@ -236,6 +303,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                 }
 
                  payment.FechaUltimaActualizacion = DateTime.Now;
+                  
                 _paymentRepository.Update(payment);
                 _cacheManager.RemoveByPattern(PAYMENT_PATTERN_KEY);
 

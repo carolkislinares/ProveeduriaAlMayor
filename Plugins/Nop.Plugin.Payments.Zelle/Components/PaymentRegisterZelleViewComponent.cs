@@ -7,7 +7,7 @@ using System;
 
 namespace Nop.Plugin.Payments.Zelle.Components
 {
-    [ViewComponent(Name = "PaymentRegisterZelle")]
+    [ViewComponent(Name = "PaymentRegisterZellee")]
     public class PaymentRegisterZelleViewComponent : NopViewComponent
     {
         private readonly IPaymentZelleService _zelleService;
@@ -45,7 +45,7 @@ namespace Nop.Plugin.Payments.Zelle.Components
                 {
                     model.Order = id;
                 }
-                return View("~/Plugins/Payments.Zelle/Views/RegisterPayment.cshtml", model);
+                return View("~/Plugins/Payments.ConsolidatePayment/Views/RegisterPaymentZelle.cshtml", model);
             }
             catch (Exception ex)
             {

@@ -46,12 +46,13 @@ namespace Nop.Plugin.Payments.SigoCreditos.Components {
             };
             var CustomerEcommerce = _workContext.CurrentCustomer;
             var selectedCustomerAttributesString = _GenericAttributeService.GetAttribute<string>(CustomerEcommerce, NopCustomerDefaults.CustomCustomerAttributes);
-            var documento = _CustomerService.ParseValues(selectedCustomerAttributesString, 1);
-            var tipoDocumento = _CustomerService.ParseValues(selectedCustomerAttributesString, 8);
-            string pDocumento = tipoDocumento.Equals("2") ? documento.FirstOrDefault() : documento.FirstOrDefault();
-            int pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == pDocumento.Substring(0, 1)).Key :
+            var documento = _CustomerService.ParseValues(selectedCustomerAttributesString, 1).FirstOrDefault();
+            var tipoDocumento = _CustomerService.ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
+            string pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
+            int pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.ToUpper().Substring(0, 1)).Key :
                                                           Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
-
+            ViewData["tipoDocumento"] = tipoDocumento;
+            
             var model = ObtenerPuntosxCliente(pTipoCodTipo, pDocumento);
             return View("~/Plugins/Payments.SigoCreditos/Views/_ConsumoSigoCreditos.cshtml", model);
         }

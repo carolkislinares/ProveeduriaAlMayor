@@ -21,17 +21,17 @@
   </ItemGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.InstaPago</OutputPath>
+    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.EpagosMercantil</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.InstaPago</OutputPath>
+    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.EpagosMercantil</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="logo.png">
+    <Content Include="logo.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="plugin.json">
@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="RestSharp" Version="106.11.4" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
 

@@ -423,6 +423,20 @@
         transition: background-color .1s ease;
     }
 
+    .productAddedToCartWindowCheckout {
+        background: url(../img/ico-cart.png) center no-repeat;
+        background-size: contain;
+        background-color: #aba8a8 !important;
+    }
+
+    .productAddedToCartWindowCheckout:hover {
+        background-color: #7f7d7d !important;
+    }
+
+    .continueShoppingLink {
+        background-color: #eebe00 !important;
+        color: #fff !important;
+    }
     .search-box form {
         display: block;
     }

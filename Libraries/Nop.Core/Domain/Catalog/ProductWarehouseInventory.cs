@@ -36,5 +36,10 @@ namespace Nop.Core.Domain.Catalog
         /// Gets the warehouse
         /// </summary>
         public virtual Warehouse Warehouse { get; set; }
+
+        /// <summary>
+        /// Precio de venta al consumidor
+        /// </summary>
+        public virtual decimal PVP { get; set; }
     }
 }

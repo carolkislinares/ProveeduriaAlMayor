@@ -3,7 +3,7 @@
 @model Nop.Plugin.Payments.Transfer.Models.PaymentInfoModel
 <div class="page  registration-page">
     <div class="panel-body">
-        <form asp-controller="Admin/PaymentTransfer" asp-action="RegisterPayment"
+        <form asp-controller="Admin/PaymentConsolidatePayment" asp-action="RegisterPayment"
               asp-route-btnId="@Context.Request.Query["btnId"]"
               asp-route-formId="@Context.Request.Query["formId"]" onsubmit="return submitForm()">
             <div class="content-header clearfix">

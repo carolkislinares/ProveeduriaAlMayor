@@ -262,10 +262,10 @@ input.productQuantityTextBox {
     width: calc(50% - 5px);
     font-size: 14px;
 }
-
+/*
 .productAddedToCartWindowSummary div {
     margin-left: 10px;
-}
+}*/
 
 .productAddedToCartWindowSummary a {
     border: none;
@@ -288,7 +288,6 @@ input.productQuantityTextBox {
 .ajaxCart .productAddedToCartWindowCheckout {
     width: 100%;
 }
-
 
 /* grouped */
 
@@ -653,5 +652,16 @@ input.productQuantityTextBox {
         max-width: calc(100% - 65px);
     }
 
+}
 
+.productAddedToCartWindowCheckout {
+    background-color: #eee !important;
+    background-image: url(../content/img/ico-cart.png) !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position-x: center !important;
+}
+
+.productAddedToCartWindowCheckout:hover {
+    background-color:#7f7d7d !important;
 }

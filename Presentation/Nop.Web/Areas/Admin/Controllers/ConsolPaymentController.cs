@@ -25,7 +25,7 @@ using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
-    public partial class ConsolidatePaymentController : BaseAdminController
+    public partial class ConsolPaymentController : BaseAdminController
     {
         #region Fields
 
@@ -51,7 +51,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Ctor
 
-        public ConsolidatePaymentController(IAclService aclService,
+        public ConsolPaymentController(IAclService aclService,
             ICategoryModelFactory categoryModelFactory,
             ICategoryService categoryService,
             ICustomerActivityService customerActivityService,

@@ -2954,5 +2954,16 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         #endregion
+
+
+        public virtual IActionResult Consolidar()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
+                return AccessDeniedKendoGridJson();
+             return RedirectToAction("Configure", "PaymentConsolidatePayment", new {  Area = "Admin" }); ;
+
+        }
+
+
     }
 }

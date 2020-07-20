@@ -30,7 +30,7 @@
     <div class="productAddedToCartWindowSummary">
         <a class="continueShoppingLink" href="#">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxContinueShopping")</a>
         <div>
-            <input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("Wishlist")" onclick="setLocation('@Url.RouteUrl("Wishlist")');" />
+            <input type="submit" class="button-1 productAddedToCartWindowCheckout NoCart" value="@T("Wishlist")" onclick="setLocation('@Url.RouteUrl("Wishlist")');" />
         </div>
     </div>
     @if (Model.EnableRelatedProductsInPopup)

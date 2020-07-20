@@ -280,6 +280,13 @@ namespace Nop.Plugin.Payments.ConsolidatePayment
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoEmisorId", "EmisorId");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoReceptorId", "ReceptorId");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.Referencia", "Referencia");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.FechaUltimaActualizacion", "F. Actualizacion");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancosEmisores", "Banco");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancosReceptores", "Banco");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.MetodosPago", "Metodo de Pago");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.Tiendas", "Tiendas");
+
+
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.BancoEmisor", "Banco");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.BancoReceptor", "Banco");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.EmailEmisor", "Email Emisor");
@@ -315,6 +322,13 @@ namespace Nop.Plugin.Payments.ConsolidatePayment
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoEmisorId");
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoReceptorId");
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.Referencia");
+            _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.FechaUltimaActualizacion");
+            _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancosEmisores");
+            _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancosReceptores");
+            _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.MetodosPago");
+            _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.Tiendas");
+
+
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.BancoEmisor");
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.BancoReceptor");
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.EmailEmisor");

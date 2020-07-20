@@ -12,7 +12,7 @@ using Nop.Web.Framework.Components;
 
 namespace Nop.Plugin.Payments.Transfer.Components
 {
-    [ViewComponent(Name = "PaymentRegisterTransfer")]
+    [ViewComponent(Name = "PaymentRegisterTransferw")]
     public class PaymentRegisterTransferViewComponent : NopViewComponent
     {
 
@@ -99,7 +99,7 @@ namespace Nop.Plugin.Payments.Transfer.Components
                     model.NroOrden = id;
                 }
 
-                return View("~/Plugins/Payments.Transfer/Views/RegisterPayment.cshtml", model);
+                return View("~/Plugins/Payments.ConsolidatePayment/Views/RegisterPaymentTransfer.cshtml", model);
             }
             catch (Exception ex)
             {

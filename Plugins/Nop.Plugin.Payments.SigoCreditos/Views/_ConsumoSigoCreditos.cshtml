@@ -22,7 +22,7 @@
         padding: 25px;
     }
 
-    #pinContainer {
+    #pinContainer,#montoContainer {
         margin-top: 0;
     }
 
@@ -44,7 +44,7 @@
         text-align: center;
     }
 
-    #montoContainer > label, #pinContainer > label , #DocumentoContainer > label {
+    #montoContainer > label, #pinContainer > label, #DocumentoContainer > label {
         font-weight: 700;
         color: #444;
         font-size: 18px;
@@ -88,7 +88,7 @@
                 @if (Model.Emisor.SaldoActualList.Count > 0)
                 {
                     <label for="checkConsumo"> @String.Format(_localizationService, @Model.Emisor.SaldoActualList.FirstOrDefault().MontoDisponible.ToString("N", new CultureInfo("is-IS")))</label>
-                  
+
                 }
 
             </div>
@@ -96,19 +96,26 @@
         <div id="consumoSigoCreditosContainer" class="row">
             <div class="col-12">
                 <div class="row" id="consumoInputRow">
-                    <div class="inputs col-6" id="DocumentoContainer">
-                        <label>Cédula</label>
-                        <input id="documentocliente" onblur="validarDocumento()" type="text" autocomplete="off" />
-                        <span for="documentocliente" id="DocumentoValidar"> </span>
-                    </div>
+                    @if (int.TryParse(ViewData["tipoDocumento"].ToString(), out int intValue))
+                    {
+                        if (intValue != 1)
+                        {
+                            <div class="inputs col-6" id="DocumentoContainer">
+                                <label>Cédula</label>
+                                <input id="documentocliente" onblur="validarDocumento()" type="text" autocomplete="documento-new" />
+                                <span for="documentocliente" id="DocumentoValidar"> </span>
+                            </div>
+                        }
+
+                    }
                     <div class="inputs col-6" id="pinContainer">
                         <label>PIN</label>
-                        <input id="pinConsumo" onblur="validarDocumento()" type="password" autocomplete="off" />
+                        <input id="pinConsumo" onblur="validarDocumento()" type="password" autocomplete="pin-new" />
                         <span for="pinConsumo" id="pinValidar"> </span>
                     </div>
                     <div class="inputs col-6" id="montoContainer">
                         <label>Monto</label>
-                        <input id="montoConsumo" onblur="validarDocumento()" type="text" autocomplete="off" />
+                        <input id="montoConsumo" onblur="validarDocumento()" type="text" autocomplete="monto-new" />
                         <span for="montoConsumo" id="MontoValidar"> </span>
 
                         <input id="montoDisponible" hidden value="@Model.Emisor.SaldoActualList.FirstOrDefault().MontoDisponible.ToString("N", new CultureInfo("is-IS"))" />
@@ -151,13 +158,12 @@
         });
 
         $("#usarButton").on("click", function () {
-        validarDocumento();
-        var testElements = document.getElementsByClassName('input-validation-error');
+            validarDocumento();
+            var testElements = document.getElementsByClassName('input-validation-error');
             if (testElements.length > 0) {
                 return;
-            } else
-            {
-                 ObtenerMonto();
+            } else {
+                ObtenerMonto();
             }
         });
 

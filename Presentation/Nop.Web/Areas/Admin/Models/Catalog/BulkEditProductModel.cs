@@ -16,6 +16,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.SKU")]
         public string Sku { get; set; }
 
+        [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.SKU")]
+        public string GTIN { get; set; }
+
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.Price")]
         public decimal Price { get; set; }
 
@@ -27,6 +30,12 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.StockQuantity")]
         public int StockQuantity { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.MinStockQuantity")]
+        public int MinStockQuantity { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.MinStockQuantity")]
+        public decimal ResultQuantity { get; set; }
 
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.Published")]
         public bool Published { get; set; }

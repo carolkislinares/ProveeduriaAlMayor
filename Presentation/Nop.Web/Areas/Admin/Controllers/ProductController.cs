@@ -2246,6 +2246,8 @@ namespace Nop.Web.Areas.Admin.Controllers
                 product.StockQuantity = pModel.StockQuantity;
                 product.Published = pModel.Published;
                 product.UpdatedOnUtc = DateTime.UtcNow;
+                product.MinStockQuantity = pModel.MinStockQuantity;
+                product.DisableBuyButton = pModel.StockQuantity <= pModel.MinStockQuantity;
                 _productService.UpdateProduct(product);
 
                 //back in stock notifications

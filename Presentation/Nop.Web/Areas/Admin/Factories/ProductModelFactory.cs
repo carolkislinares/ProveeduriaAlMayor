@@ -199,6 +199,7 @@ namespace Nop.Web.Areas.Admin.Factories
                     model.StockQuantity = productWarehouseInventory.StockQuantity;
                     model.ReservedQuantity = productWarehouseInventory.ReservedQuantity;
                     model.PlannedQuantity = _shipmentService.GetQuantityInShipments(product, productWarehouseInventory.WarehouseId, true, true);
+                    model.PVP = productWarehouseInventory.PVP;
                 }
 
                 models.Add(model);
@@ -1629,6 +1630,14 @@ namespace Nop.Web.Areas.Admin.Factories
                 keywords: searchModel.SearchProductName,
                 pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
 
+            //Filtro por GTIN
+            if (searchModel.SearchProductGTIN != null)
+            {
+                var ListaProductGtin = new PagedList<Product>(products.Where(x => x.Gtin == searchModel.SearchProductGTIN).ToList(), searchModel.Page - 1, searchModel.PageSize);
+                products = ListaProductGtin;
+            }
+
+
             //prepare list model
             var model = new BulkEditProductListModel
             {
@@ -1643,7 +1652,11 @@ namespace Nop.Web.Areas.Admin.Factories
                         OldPrice = product.OldPrice,
                         Price = product.Price,
                         StockQuantity = product.StockQuantity,
-                        Published = product.Published
+                        Published = product.Published,
+                        //Campo Agregado para edicion Masiva de producto.
+                        GTIN = product.Gtin,
+                        MinStockQuantity = product.MinStockQuantity,
+                        ResultQuantity = product.MinStockQuantity - product.StockQuantity
                     };
 
                     //fill in additional values (not existing in the entity)
@@ -1658,6 +1671,7 @@ namespace Nop.Web.Areas.Admin.Factories
                 Total = products.TotalCount
             };
 
+            model.Data = model.Data.OrderByDescending(x => x.ResultQuantity);
             return model;
         }
 
