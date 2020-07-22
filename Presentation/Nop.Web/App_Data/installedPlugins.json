@@ -34,6 +34,6 @@
   "Shipping.FixedByWeightByTotal",
   "Payments.PayPalStandard",
   "Payments.SigoCreditos",
-  "Payments.ConsolidatePayment",
-  "Payments.EpagosMercantil"
+  "Payments.EpagosMercantil",
+  "Payments.ConsolidatePayment"
 ]

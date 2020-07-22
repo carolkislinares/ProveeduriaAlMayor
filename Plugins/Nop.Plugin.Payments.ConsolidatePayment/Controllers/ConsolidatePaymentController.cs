@@ -225,7 +225,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 
         #region Export / Import
 
-        public virtual IActionResult ExportXml(ConfigurationModel search)
+        public virtual IActionResult ExportXlsxPendiente()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
                 return AccessDeniedView();
@@ -235,22 +235,16 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 
                 Consolidate payment = new Consolidate
                 {
-                    TiendaId = search.TiendaId,
-                    OrdenId = search.OrdenId,
-                    ClienteId = search.ClienteId,
-                    Referencia = search.Referencia == null ? "" : search.Referencia,
-                    MetodoPago = search.MetodoPago == null ? "" : search.MetodoPago,
-                    //StatusPaymentOrder = search.StatusPaymentOrder,
-                    StatusPaymentOrder = Convert.ToInt32(search.StatusPaymentOrder),
-                    BancoEmisorId = search.BancoReceptorId,
-                    BancoReceptorId = search.BancoReceptorId
+                   
+                    StatusPaymentOrder =10,
+                   
                 };
 
                 var transferList = _consolidateService.SearchPayment(payment);
 
-                var xml = _exportManager.ExportCategoriesToXml(transferList);
+                var xml = ExportPaymentToXlsx(transferList);
 
-                return File(Encoding.UTF8.GetBytes(xml), "application/xml", "categories.xml");
+                return File(xml, MimeTypes.TextXlsx, "PagosPendientes.xlsx");
             }
             catch (Exception exc)
             {
@@ -258,6 +252,63 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
                 return RedirectToAction("List");
             }
         }
+
+        public virtual IActionResult ExportXlsxConsolidado()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
+                return AccessDeniedView();
+
+            try
+            {
+
+                Consolidate payment = new Consolidate
+                {
+
+                    StatusPaymentOrder = 30,
+
+                };
+
+                var transferList = _consolidateService.SearchPayment(payment);
+
+                var xml = ExportPaymentToXlsx(transferList);
+
+                return File(xml, MimeTypes.TextXlsx, "PagosConsolidados.xlsx");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
+
+        public virtual IActionResult ExportXlsx(string status)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
+                return AccessDeniedView();
+
+            try
+            {
+
+                Consolidate payment = new Consolidate
+                {
+
+                    StatusPaymentOrder = Convert.ToInt32(status),
+
+                };
+
+                var transferList = _consolidateService.SearchPayment(payment);
+
+                var xml = ExportPaymentToXlsx(transferList);
+
+                return File(xml, MimeTypes.TextXlsx, "Pagos.xlsx");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
+
 
         //public virtual IActionResult ExportXlsx()
         //{
@@ -314,39 +365,31 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 
 
 
-        //public virtual byte[] ExportPaymentToXlsx()
-        //{
-        //    var parentCatagories = new List<ConfigurationModel>();
-        //    //if (_catalogSettings.ExportImportCategoriesUsingCategoryName)
-        //    //{
-        //    //    //performance optimization, load all parent categories in one SQL request
 
-        //    //   var parent = _settingService.LoadSetting<ConsolidatePaymentPaymentSettings>(_storeContext.ActiveStoreScopeConfiguration);
+        /// <summary>
+        /// Export payment to XLSX
+        /// </summary>
+        /// <param name="payment">Categories</param>
+        public virtual byte[] ExportPaymentToXlsx(IList<Consolidate> payment)
+        {
+          //  var parentCatagories = new List<Consolidate>();
+          
+            //property manager 
+            var manager = new PropertyManager<Consolidate>(new[]
+            {
+                new PropertyByName<Consolidate>("Id", p => p.Id),
+                new PropertyByName<Consolidate>("Fecha Última Actualización", p => p.FechaUltimaActualizacion.ToString("dd/MM/yyyy hh:mm:ss")),
+                new PropertyByName<Consolidate>("Tienda", p => p.Tienda),
+                new PropertyByName<Consolidate>("Metodo Pago", p => p.MetodoPago.Contains("Zelle")? "Zelle": "Transferencia Bancaria"),
+                new PropertyByName<Consolidate>("Orden #", p => p.OrdenId),
+                new PropertyByName<Consolidate>("Referencia", p => p.Referencia),
+                new PropertyByName<Consolidate>("Banco/Email", p => string.IsNullOrEmpty(p.BancoReceptor)? p.EmailEmisor:p.BancoReceptor),
+                new PropertyByName<Consolidate>("Monto Total", p => p.CodigoMoneda.Contains("Bs")? p.CodigoMoneda+p.MontoTotalOrden:"$"+p.MontoTotalOrden),
+            }, _catalogSettings);
 
-        //    //    parentCatagories.TransactModeId = Convert.ToInt32(parent.TransactMode);
-        //    //    parentCatagories.AdditionalFee = parent.AdditionalFee;
-        //    //    parentCatagories.AdditionalFeePercentage = parent.AdditionalFeePercentage;
-        //    //    parentCatagories.TransactModeValues = parent.TransactMode.ToSelectList();
-        //    //    parentCatagories.ActiveStoreScopeConfiguration = _storeContext.ActiveStoreScopeConfiguration;
+            return manager.ExportToXlsx(payment);
+        }
 
-
-        //    //}
-
-        //    //          //property manager 
-        //    //var manager = new PropertyManager<ConfigurationModel>(new[]
-        //    //{
-        //    //    new PropertyByName<ConfigurationModel>("TransactModeId", p => p.TransactModeId),
-        //    //    new PropertyByName<ConfigurationModel>("AdditionalFee", p => p.AdditionalFee),
-        //    //    new PropertyByName<ConfigurationModel>("ActiveStoreScopeConfiguration", p => p.ActiveStoreScopeConfiguration),
-        //    //    new PropertyByName<ConfigurationModel>("AdditionalFee_OverrideForStore", p => p.AdditionalFee_OverrideForStore)
-        //    //}, _catalogSettings);
-
-
-        //    //var configuration = new List<ConfigurationModel>();
-        //    //configuration.Add(parentCatagories);
-
-        //    //return manager.ExportToXlsx(configuration);
-        //}
 
 
 

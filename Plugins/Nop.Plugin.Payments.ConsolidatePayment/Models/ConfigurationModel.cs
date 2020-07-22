@@ -40,6 +40,9 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Models
         [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.OrdenId")]
         public int OrdenId { get; set; }
 
+        [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.Orden")]
+        public string Orden { get; set; }
+
         [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.ClienteId")]
         public int ClienteId { get; set; }
 
@@ -71,7 +74,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Models
         public string Tienda { get; set; }
 
         [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.MontoTotalOrden")]
-        public decimal MontoTotalOrden { get; set; }
+        public string MontoTotalOrden { get; set; }
 
         [NopResourceDisplayName("Plugins.Payments.ConsolidatePayment.Fields.CodigoMoneda")]
         public string CodigoMoneda { get; set; }

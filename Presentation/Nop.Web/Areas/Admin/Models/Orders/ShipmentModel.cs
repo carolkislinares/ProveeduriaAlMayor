@@ -60,5 +60,11 @@ namespace Nop.Web.Areas.Admin.Models.Orders
         public IList<ShipmentStatusEventModel> ShipmentStatusEvents { get; set; }
 
         #endregion
+
+        #region Dias de para entrega
+        [NopResourceDisplayName("Admin.Orders.Shipments.DaysToShipment")]
+        public int DaysToShipment { get; set; }
+
+        #endregion
     }
 }

@@ -36,7 +36,7 @@
                                             data: function() {
                                                 var data = {
                                                     TiendaId: $('#@Html.IdFor(model => model.TiendaId)').val(),
-                                                    OrdenId: $('#@Html.IdFor(model => model.OrdenId)').val(),
+                                                    OrdenId: parseInt($('#@Html.IdFor(model => model.Orden)').val()),
                                                     ClienteId: 0,
                                                     Referencia: $('#@Html.IdFor(model => model.Referencia)').val(),
                                                     MetodoPago: $('#@Html.IdFor(model => model.MetodoPago)').val(),
@@ -75,27 +75,36 @@
                                 scrollable: false,
                                 columns: [
                                     {
+                                        field: "OrdenId",
+                                         title: "@T("Plugins.Payments.Transfer.Fields.Order")",
+                                         width: 20,
+                                         headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        template: "<a href=@Url.Action("Edit", "Order")/#=OrdenId# name='order#:OrdenId#' id='order#:OrdenId#'>#:OrdenId#</a>"
+                                       
+                                    }, 
+                                    {
                                         field: "FechaUltimaActualizacion".toString("dd/MM/yyyy"),
                                         title: "@T("Plugins.Payments.ConsolidatePayment.UltimaActualizacion")",
-                                        width: 100,
+                                        width: 120,
                                         type: "date",
                                         format: "{0:G}"
                                     }, {
                                         field: "Tienda",
                                         title: "@T("Plugins.Payments.ConsolidatePayment.Tienda")",
                                         width: 150
-                                    },
+                                    },  
                                     {
                                         field: "MetodoPago",
                                         title: "@T("Plugins.Payments.ConsolidatePayment.MetodoPago")",
-                                        width: 100,
+                                        width: 150,
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         template: '# if(MetodoPago.includes("Zelle")) {# <span>Zelle</span> #} else {# <span>Transferencia bancaria</span> #} #'
                                     },   {
                                         field: "Referencia",
                                         title: "@T("Plugins.Payments.ConsolidatePayment.Referencia")",
-                                        width: 100,
+                                        width: 50,
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         //template: '# if(Published) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
@@ -103,7 +112,7 @@
                                      {
                                         field: "BancoReceptor",
                                         title: "@T("Plugins.Payments.ConsolidatePayment.BancoReceptor")",
-                                        width: 100,
+                                        width: 150,
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         template: '# if( BancoReceptor == null ) {# <span>No aplica</span> #} else {# <span>#:BancoReceptor#</span> #} #'
@@ -111,14 +120,15 @@
                                     }, {
                                         field: "MontoTotalOrden",
                                         title: "@T("Plugins.Payments.ConsolidatePayment.MontoTotalOrden")",
-                                         width: 100,
-                                         headerAttributes: { style: "text-align:rigth" },
-                                        attributes: { style: "text-align:right" },
-                                        template: '# #= currency(CodigoMoneda)#/*if(CodigoMoneda=="Bs.") {# <span id=\"aggregator-total-block\">#:CodigoMoneda##:MontoTotalOrden#</span> #} else {# <span id=\"aggregator-total-block\">$#:MontoTotalOrden#</span>#}*/ #'
+                                         width: 50,
+                                         headerAttributes: { style: "text-align:center" },
+                                         attributes: { style: "text-align:right" },
+                                        // format: "{0:n2}",
+                                         template: '#if(CodigoMoneda=="Bs.") {# <span id=\"aggregator-total-block\">#:CodigoMoneda##:MontoTotalOrden#</span> #} else {# <span id=\"aggregator-total-block\">$#:MontoTotalOrden#</span>#}#'
                                     }, {
                                         field: "Id",
                                         title: "@T("Plugins.Payments.ConsolidatePayment.Pay")",
-                                        width: 100,
+                                        width: 50,
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                          template:"# if(StatusPaymentOrder==10) {#<a href=@Url.Action("UpdateStatePayment", "PaymentConsolidatePayment")?id=#:Id# name='markorderaspaid#:Id#' id='markorderaspaid#:Id#' class='btn btn-primary'>@T("Admin.Orders.Fields.MarkAsPaid")</a> #} else {# <span class='grid-report-item green'>@T("Plugins.Payments.ConsolidatePayment.Consolidate")</span> #}# "
@@ -129,12 +139,6 @@
                             });
                         });
 
-                         function currency(data) {
-                            if (CodigoMoneda=="Bs.") {
-                                return kendo.toString("MontoTotalOrden", "###.###,##")
-                            }
-                           
-                        }
                     </script>
 
                     <script>

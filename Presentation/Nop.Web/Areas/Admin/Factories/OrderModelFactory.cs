@@ -1309,16 +1309,35 @@ namespace Nop.Web.Areas.Admin.Factories
            
             if (bool.Parse(_SettingService.GetSettingByKey("shipment.OrderDateShipment", "", 0, true))) //Setting
             {
-                //List<string> f = new List<string>();
-                //foreach (var item in shipments)
-                //{
-                //    var a = item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay"));
-                //    var b = a.Note.Split(",");
-                //    var c = b[1];
-                //    f.Add((item.CreatedOnUtc.AddDays(Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToString() + " - " + item.OrderId + "fecha:" + item.CreatedOnUtc);
-                //}
+                
+                List<string> f = new List<string>();
+                foreach (var item in shipments)
+                {
+                    var orderNote = item.Order.OrderNotes.FirstOrDefault(x => x.Note.Contains("ShippingDay"));
+                    if (orderNote != null)
+                    {
+                        var a = item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay"));
+                        var b = a.Note.Split(",");
+                        var c = b[1];
+                        var dias = Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]);
+                        var diasEntrega = item.CreatedOnUtc.Subtract(DateTime.UtcNow).Days;
+                        var realdays = diasEntrega + Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]);
+                        item.DaysToShipment = realdays;
+                        f.Add((item.CreatedOnUtc.AddDays(Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToString() + " - " + item.OrderId + " fecha:" + item.CreatedOnUtc);
+                    }
+                    else
+                    {
+                         item.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + _SettingService.GetSettingByKey("DefaultShippingDay", "", 0, true), DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
+                        _orderService.UpdateOrder(item.Order);
 
-                shipments = new PagedList<Shipment>(shipments.OrderByDescending(shipment => shipment.CreatedOnUtc.AddDays(Convert.ToInt32(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToList(), searchModel.Page - 1, searchModel.PageSize);
+                    }
+                    
+                
+                }
+                shipments = new PagedList<Shipment>(shipments.OrderBy(shipment => shipment.CreatedOnUtc.Subtract(DateTime.UtcNow).Days + Convert.ToInt32(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])).ToList(), searchModel.Page - 1, searchModel.PageSize);
+
+
+               // shipments = new PagedList<Shipment>(shipments.OrderByDescending(shipment => shipment.CreatedOnUtc.AddDays(Convert.ToInt32(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToList(), searchModel.Page - 1, searchModel.PageSize);
             }
 
             //prepare list model
@@ -1335,6 +1354,7 @@ namespace Nop.Web.Areas.Admin.Factories
                         CustomOrderNumber = shipment.Order.CustomOrderNumber
                     };
 
+                    shipmentModel.DaysToShipment = shipment.DaysToShipment;
                     //convert dates to the user time
                     shipmentModel.ShippedDate = shipment.ShippedDateUtc.HasValue
                         ? _dateTimeHelper.ConvertToUserTime(shipment.ShippedDateUtc.Value, DateTimeKind.Utc).ToString()

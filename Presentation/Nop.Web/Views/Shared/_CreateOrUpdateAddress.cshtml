@@ -50,7 +50,7 @@
         });
 
             $("#@Html.IdFor(model => model.CountryId)").on('submit', function () {
-
+                // document.getElementById('@Html.IdFor(model => model.CountryId)').value = 86;
                });
 
 
@@ -94,7 +94,7 @@
     {
         <div class="inputs">
             <label asp-for="CountryId" asp-postfix=":"></label>
-            <select asp-for="CountryId" asp-items="Model.AvailableCountries" disabled></select>
+            <select asp-for="CountryId" asp-items="Model.AvailableCountries" style="pointer-events: none; cursor: default;opacity:0.6;"></select>
             <nop-required />
             <span asp-validation-for="CountryId"></span>
         </div>
@@ -240,7 +240,7 @@
 
 
     $(document).ready(function () {
-
+        //debugger
         if (document.getElementById("@Html.IdFor(model => model.CountryId)") != null) {
             document.getElementById('@Html.IdFor(model => model.CountryId)').value = 86;
         }

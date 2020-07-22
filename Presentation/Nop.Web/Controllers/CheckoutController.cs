@@ -257,7 +257,14 @@ namespace Nop.Web.Controllers
             if (_orderSettings.OnePageCheckoutEnabled)
                 return RedirectToRoute("CheckoutOnePage");
 
-            return RedirectToRoute("CheckoutBillingAddress");
+            if (_orderSettings.DisableBillingAddressCheckoutStep)
+            {
+                return RedirectToRoute("CheckoutShippingAddress");
+            }
+            else
+            {
+                return RedirectToRoute("CheckoutBillingAddress");
+            }
         }
 
         public virtual IActionResult Completed(int? orderId)
@@ -334,9 +341,12 @@ namespace Nop.Web.Controllers
                     return SelectBillingAddress(model.ExistingAddresses.First().Id);
                 }
 
-                TryValidateModel(model);
-                TryValidateModel(model.BillingNewAddress);
-                return NewBillingAddress(model);
+                
+                    TryValidateModel(model);
+                    TryValidateModel(model.BillingNewAddress);
+                    return NewBillingAddress(model);
+                
+                
             }
 
             return View(model);
@@ -1184,6 +1194,7 @@ namespace Nop.Web.Controllers
                     throw new Exception(_localizationService.GetResource("Checkout.MinOrderPlacementInterval"));
 
                 //place order
+                _workContext.CurrentCustomer.BillingAddress = _workContext.CurrentCustomer.ShippingAddress;
                 processPaymentRequest.StoreId = _storeContext.CurrentStore.Id;
                 processPaymentRequest.CustomerId = _workContext.CurrentCustomer.Id;
                 processPaymentRequest.PaymentMethodSystemName = !pIndEsPagoTotal ?  _genericAttributeService.GetAttribute<string>(_workContext.CurrentCustomer,
@@ -1223,6 +1234,11 @@ namespace Nop.Web.Controllers
                         if(pShippingDay!=0)
                         {
                             postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + pShippingDay, DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
+                            _orderService.UpdateOrder(postProcessPaymentRequest.Order);
+                        }
+                        else
+                        {
+                            postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + _settingService.GetSettingByKey("DefaultShippingDay", "", 0, true) ,DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
                             _orderService.UpdateOrder(postProcessPaymentRequest.Order);
                         }
                         _paymentService.PostProcessPayment(postProcessPaymentRequest);

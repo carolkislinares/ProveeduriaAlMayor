@@ -18,7 +18,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Domain
         public string EmailEmisor { get; set; }
         public string Tienda { get; set; }
         public string MetodoPago { get; set; }
-        public decimal MontoTotalOrden  { get; set; }
+        public string MontoTotalOrden  { get; set; }
         public string CodigoMoneda { get; set; }
         public DateTime FechaRegistro { get; set; }
         public DateTime FechaUltimaActualizacion { get; set; }

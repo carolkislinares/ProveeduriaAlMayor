@@ -21,7 +21,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
         public static SigoCreditosInfoModel ObtenerPuntosxCliente(int pCodTipo, string pDocumento)
         {
             wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
-            Task<wsCRM.mCliente> result = cRMClient.ObtenerPuntosxClienteAsync(pCodTipo, pDocumento);
+            Task<wsCRM.mCliente> result = cRMClient.ObtenerDatosClienteInnovaPOSAsync(pCodTipo, pDocumento,0);
             return new SigoCreditosInfoModel(result.Result);
         }
 

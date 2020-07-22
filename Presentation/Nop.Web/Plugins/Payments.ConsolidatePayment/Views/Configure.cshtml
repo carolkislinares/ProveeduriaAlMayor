@@ -26,7 +26,7 @@
     <h1 class="pull-left">
         @T("Admin.Catalog.Payment.Manage")
     </h1>
-    <div class="pull-right" style="display:none">
+    <div class="pull-right">
         <a asp-action="Create" class="btn bg-blue" style="display:none">
             <i class="fa fa-plus-square"></i>
             @T("Admin.Common.AddNew")
@@ -42,19 +42,27 @@
             </button>
             <ul class="dropdown-menu" role="menu">
                 <li>
-                    <a asp-action="ExportXml">
-                        <i class="fa fa-file-code-o"></i>
-                        @T("Admin.Common.ExportToXml")
-                    </a>
-                </li>
-                <li>
-                    <a asp-action="ExportXlsx">
+                    <a asp-action="ExportXlsx" asp-route-status=@Model.StatusPaymentOrder>
                         <i class="fa fa-file-excel-o"></i>
                         @T("Admin.Common.ExportToExcel")
                     </a>
                 </li>
+                <li>
+                    <a asp-action="ExportXlsxPendiente">
+                        <i class="fa fa-file-excel-o"></i>
+                        @T("Admin.Common.ExportToExcel") Pendientes
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="ExportXlsxConsolidado">
+                        <i class="fa fa-file-excel-o"></i>
+                        @T("Admin.Common.ExportToExcel") Consolidados
+                    </a>
+                </li>
+
             </ul>
         </div>
+
         <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window" style="display:none">
             <i class="fa fa-upload"></i>
             @T("Admin.Common.Import")
@@ -67,7 +75,6 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-md-6">
-
                 <div class="form-group">
                     <div class="col-md-4">
                         <nop-label asp-for="TiendaId" />
@@ -118,10 +125,10 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <div class="col-md-4">
-                        <nop-label asp-for="OrdenId" />
+                        <nop-label asp-for="Orden" />
                     </div>
                     <div class="col-md-8">
-                        <nop-editor asp-for="OrdenId" />
+                        <nop-editor asp-for="Orden" />
                     </div>
                 </div>
             </div>
@@ -162,6 +169,11 @@
     </div>
 </div>
 
+<script src="~/js/jquery.mask.min.js"></script>
+<script type="text/javascript">
+    $('#@Html.IdFor(model => model.Orden)').mask('0000000');
+
+</script>
 
 @await Html.PartialAsync("~/Plugins/Payments.ConsolidatePayment/Views/_List.cshtml", Model)
 

@@ -274,11 +274,11 @@ namespace Nop.Plugin.Payments.ConsolidatePayment
 
             //locales
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Instructions", "This payment method stores credit card information in database (it's not sent to any third-party processor). In order to store credit card information, you must be PCI compliant.");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.TiendaId", "TiendaId");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.OrdenId", "OrdenId");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.ClienteId", "ClienteId");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoEmisorId", "EmisorId");
-            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoReceptorId", "ReceptorId");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.TiendaId", "Tienda");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.OrdenId", "Orden");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.ClienteId", "Cliente");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoEmisorId", "Emisor");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancoReceptorId", "Receptor");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.Referencia", "Referencia");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.FechaUltimaActualizacion", "F. Actualizacion");
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.BancosEmisores", "Banco");
@@ -298,7 +298,13 @@ namespace Nop.Plugin.Payments.ConsolidatePayment
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Consolidate", "Consolidado"); 
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Pay", "Pagar"); 
             _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.CodigoMoneda", "CodMoneda");
+            _localizationService.AddOrUpdatePluginLocaleResource("plugins.payments.consolidatepayment.referencia", "Referencia");
 
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.StatusPaymentOrder","Estatus");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.MetodoPago", "Metodo de Pago");
+            _localizationService.AddOrUpdatePluginLocaleResource("Admin.Orders.Consolidar", "Consolidar Pagos");
+            _localizationService.AddOrUpdatePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.Orden", "Orden");
+            _localizationService.AddOrUpdatePluginLocaleResource("admin.catalog.payment.manage", "Administrar pagos");
 
             _context.Install();
             base.Install();
@@ -340,7 +346,11 @@ namespace Nop.Plugin.Payments.ConsolidatePayment
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Consolidate");
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Pay");
             _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.CodigoMoneda");
-
+            _localizationService.DeletePluginLocaleResource("plugins.payments.consolidatepayment.referencia");
+            _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.StatusPaymentOrder");
+            _localizationService.DeletePluginLocaleResource("Plugins.Payments.ConsolidatePayment.Fields.MetodoPago");
+            _localizationService.DeletePluginLocaleResource("Admin.Orders.Consolidar");
+            _localizationService.DeletePluginLocaleResource("admin.catalog.payment.manage");
             _context.Uninstall();
             base.Uninstall();
         }

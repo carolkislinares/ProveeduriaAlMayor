@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Nop.Core;
@@ -129,7 +130,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                     throw new ArgumentNullException(nameof(payment.OrdenId));
 
                 // datos de la orden
-                    payment.MontoTotalOrden = order2.OrderTotal;
+                   
                     payment.MetodoPago = order2.PaymentMethodSystemName;
                     payment.CodigoMoneda = order2.CustomerCurrencyCode;
                     payment.TiendaId = order2.StoreId;
@@ -146,6 +147,9 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                             var paymentTransfer = _transferServices.GetPaymentTransferByOrderId(payment.OrdenId);
                             payment.BancoEmisor = _bankServices.GetBankById(payment.BancoEmisorId).Name;
                             payment.BancoReceptor = payment.BancoEmisor;
+                            var mnt = order2.OrderTotal;
+                            payment.MontoTotalOrden = mnt.ToString("N", new CultureInfo("es-VE"));
+
 
                             if (paymentTransfer == null)
                             {
@@ -154,7 +158,8 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                                     IssuingBankId = payment.BancoEmisorId,
                                     OrderId = payment.OrdenId,
                                     ReceiverBankId = payment.BancoReceptorId,
-                                    ReferenceNumber = payment.Referencia
+                                    ReferenceNumber = payment.Referencia, 
+                                    OrderTotal = order2.OrderTotal
                                 };
                                 _transferServices.InsertPaymentTransfer(model);
 
@@ -180,8 +185,9 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                                 {
                                     IssuingEmail = payment.EmailEmisor,
                                     OrderId = payment.OrdenId,
-                                    ReferenceNumber = payment.Referencia
-                                };
+                                    ReferenceNumber = payment.Referencia,
+                                    OrderTotal= order2.OrderTotal * order2.CurrencyRate
+                            };
 
                                 _zelleServices.InsertPaymentZelle(model);
 
@@ -190,7 +196,8 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                             {
                                 UpdatePayment(payment);
                             }
-
+                             var mnto = order2.OrderTotal * order2.CurrencyRate;
+                            payment.MontoTotalOrden = mnto.ToString("N", new CultureInfo("es-VE"));
                             //paymentZelle.PaymentStatusOrder = (int)order2.PaymentStatus;
                             //_zelleServices.UpdatePaymentZelle(paymentZelle);
                         }
@@ -201,8 +208,8 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Service
                         break;
                     }
                 }
-
-                if(payment.Id==0)
+                
+                if (payment.Id==0)
                    _paymentRepository.Insert(payment);
 
                 _cacheManager.RemoveByPattern(PAYMENT_PATTERN_KEY);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Nop.Core.Domain.Orders;
 
 namespace Nop.Core.Domain.Shipping
@@ -46,6 +47,15 @@ namespace Nop.Core.Domain.Shipping
         /// Gets or sets the entity creation date
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
+
+         /// <summary>
+        /// Gets or sets the entity creation date
+        /// </summary>
+        
+        [NotMapped]
+        public int DaysToShipment { get; set; }
+
+
 
         /// <summary>
         /// Gets the order
