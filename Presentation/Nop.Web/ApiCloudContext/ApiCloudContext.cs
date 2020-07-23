@@ -92,10 +92,11 @@ namespace Nop.Web.ApiCloudContext
 
                 return model;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
-                throw ex;
+                SigoCreditosInfoModel model = new SigoCreditosInfoModel();
+                return model;
             }
 
         }

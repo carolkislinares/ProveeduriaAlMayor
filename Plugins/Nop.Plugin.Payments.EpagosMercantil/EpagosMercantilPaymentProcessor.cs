@@ -2,26 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Core.Plugins;
-using System.Web;
 using Nop.Plugin.Payments.EpagosMercantil.Models;
 using Nop.Plugin.Payments.EpagosMercantil.Validators;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Payments;
-using Newtonsoft.Json;
-using Microsoft.IdentityModel.Protocols;
-using System.Configuration;
 using System.Diagnostics;
 using System.Security.Cryptography;
-using System.Globalization;
-using RestSharp;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace Nop.Plugin.Payments.EpagosMercantil
 {
@@ -408,7 +402,7 @@ namespace Nop.Plugin.Payments.EpagosMercantil
                 string tipotransaccion = "0200";
                 string monto = Convert.ToString(processPaymentRequest.OrderTotal).Replace(".", ",");
                 string fechavcto = String.Format(processPaymentRequest.CreditCardExpireMonth.ToString() + processPaymentRequest.CreditCardExpireYear.ToString().Substring(2));
-                
+
                 //                "Pago+Compra+EcommerceSigo",
                 //                processPaymentRequest.CreditCardName.Replace(" ", "+"),
                 //                processPaymentRequest.CreditCardNumberId,
@@ -418,77 +412,81 @@ namespace Nop.Plugin.Payments.EpagosMercantil
                 //                processPaymentRequest.CreditCardExpireYear, 
                 //                "c");
 
-                string apikey = Apikey(idComercio, tipotransaccion, Convert.ToString(processPaymentRequest.OrderTotal).Replace(".", ","),
-                                                                     "numerofact" + processPaymentRequest.OrderGuid,
-                                                                     processPaymentRequest.CreditCardNumberId,
-                                                                      processPaymentRequest.CreditCardName.Replace(" ", "+"),
-                                                                      processPaymentRequest.CreditCardNumber,
-                                                                       String.Format(processPaymentRequest.CreditCardExpireMonth.ToString() + processPaymentRequest.CreditCardExpireYear.ToString().Substring(2)),
-                                                                       processPaymentRequest.CreditCardCvv2, "1");
+                //string apikey = Apikey(idComercio, tipotransaccion, Convert.ToString(processPaymentRequest.OrderTotal).Replace(".", ","),
+                //                                                     "numerofact" + processPaymentRequest.OrderGuid,
+                //                                                     processPaymentRequest.CreditCardNumberId,
+                //                                                      processPaymentRequest.CreditCardName.Replace(" ", "+"),
+                //                                                      processPaymentRequest.CreditCardNumber,
+                //                                                       String.Format(processPaymentRequest.CreditCardExpireMonth.ToString() + processPaymentRequest.CreditCardExpireYear.ToString().Substring(2)),
+                //                                                       processPaymentRequest.CreditCardCvv2, "1");
 
-                var client = new RestClient(items.URLConnection);
-                var request = new RestRequest();
-                string timeStamp = Stopwatch.GetTimestamp().ToString();
-               
-                request.Method = Method.POST;
-                request.AddHeader("x-ibm-client-id", "ba54c4ba-0aba-48ee-a978-1b78392a40a5");
-                request.AddHeader("Apikey", apikey);
-                request.AddHeader("Timestamp", timeStamp);
-                request.AddHeader("Content-Length", apikey.Length.ToString());
-                request.AddHeader("Host", "apimbu.mercantilbanco.com:9443");
-                request.AddHeader("Accept", "application/json");
-                string strJSONContent = "{ \r\n  \"HEADER_PAGO_REQUEST\": { \r\n \"IDENTIFICADOR_UNICO_GLOBAL\": \"900\"," +
-                                                                            " \r\n \"IDENTIFICACION_CANAL\": \"06\", \r\n  " +
-                                                                            "  \"SIGLA_APLICACION\": \"APIC\", \r\n    " +
-                                                                            "\"IDENTIFICACION_USUARIO\": \"66\", \r\n   " +
-                                                                            " \"DIRECCION_IP_CONSUMIDOR\": \"192.237.245.234\", \r\n  " +
-                                                                            "  \"DIRECCION_IP_CLIENTE\": \"200.3.1.8\", \r\n   " +
-                                                                            " \"FECHA_ENVIO_MENSAJE\": \""+DateTime.Now.ToString("YYYYMMDD") +"\", \r\n  " +
-                                                                            "  \"HORA_ENVIO_MENSAJE\": \""+DateTime.Now.ToString("hhmmss") +"\", \r\n" +
-                                                                            "    \"ATRIBUTO_PAGINEO\": \"N\", \r\n  " +
-                                                                            "  \"CLAVE_BUSQUEDA\": \"\""+string.Empty+", \r\n  " +
-                                                                            "  \"CANTIDAD_REGISTROS\": 0 \r\n  }," +
-                                         "\r\n  \"BODY_PAGO_REQUEST\": { \r\n    " +
-                                                                            "\"IDENTIFICADOR_COMERCIO\": " + idComercio + ", \r\n  " +
-                                                                            "\"TIPO_TRANSACCION\": \""+tipotransaccion+"\", \r\n   " +
-                                                                            " \"MONTO_TRANSACCION\": " + monto + ", \r\n    " +
-                                                                            "\"NUMERO_FACTURA\": 88888888888, \r\n " +
-                                                                            "\"IDENTIFICACION_TARJETAHABIENTE\": \""+ processPaymentRequest.CreditCardNumberId + "\", \r\n  " +
-                                                                            "\"NOMBRE_TARJETAHABIENTE\": \""+ processPaymentRequest.CreditCardName + "\", \r\n   " +
-                                                                            "\"NUMERO_TARJETA\": \"" + processPaymentRequest.CreditCardNumber + "\", \r\n  " +
-                                                                             "\"FECHA_VENCIMIENTO_TARJETA\": "+fechavcto+", \r\n\t\"CODIGO_SEGURIDAD_TARJETA\": "+ processPaymentRequest.CreditCardCvv2 + ", " +
-                                                                             "\r\n    \"NUMERO_LOTE\": \"1\" \r\n  } \r\n} \r\n";
+                //var client = new RestClient(items.URLConnection);
+                //var request = new RestRequest();
+                //string timeStamp = Stopwatch.GetTimestamp().ToString();
+
+                //request.Method = Method.POST;
+                //request.AddHeader("x-ibm-client-id", "ba54c4ba-0aba-48ee-a978-1b78392a40a5");
+                //request.AddHeader("Apikey", apikey);
+                //request.AddHeader("Timestamp", timeStamp);
+                //request.AddHeader("Content-Length", apikey.Length.ToString());
+                //request.AddHeader("Host", "apimbu.mercantilbanco.com:9443");
+                //request.AddHeader("Accept", "application/json");
+                //string strJSONContent = "{ \r\n  \"HEADER_PAGO_REQUEST\": { \r\n \"IDENTIFICADOR_UNICO_GLOBAL\": \"900\"," +
+                //                                                            " \r\n \"IDENTIFICACION_CANAL\": \"06\", \r\n  " +
+                //                                                            "  \"SIGLA_APLICACION\": \"APIC\", \r\n    " +
+                //                                                            "\"IDENTIFICACION_USUARIO\": \"66\", \r\n   " +
+                //                                                            " \"DIRECCION_IP_CONSUMIDOR\": \"192.237.245.234\", \r\n  " +
+                //                                                            "  \"DIRECCION_IP_CLIENTE\": \"200.3.1.8\", \r\n   " +
+                //                                                            " \"FECHA_ENVIO_MENSAJE\": \""+DateTime.Now.ToString("YYYYMMDD") +"\", \r\n  " +
+                //                                                            "  \"HORA_ENVIO_MENSAJE\": \""+DateTime.Now.ToString("hhmmss") +"\", \r\n" +
+                //                                                            "    \"ATRIBUTO_PAGINEO\": \"N\", \r\n  " +
+                //                                                            "  \"CLAVE_BUSQUEDA\": \"\""+string.Empty+", \r\n  " +
+                //                                                            "  \"CANTIDAD_REGISTROS\": 0 \r\n  }," +
+                //                         "\r\n  \"BODY_PAGO_REQUEST\": { \r\n    " +
+                //                                                            "\"IDENTIFICADOR_COMERCIO\": " + idComercio + ", \r\n  " +
+                //                                                            "\"TIPO_TRANSACCION\": \""+tipotransaccion+"\", \r\n   " +
+                //                                                            " \"MONTO_TRANSACCION\": " + monto + ", \r\n    " +
+                //                                                            "\"NUMERO_FACTURA\": 88888888888, \r\n " +
+                //                                                            "\"IDENTIFICACION_TARJETAHABIENTE\": \""+ processPaymentRequest.CreditCardNumberId + "\", \r\n  " +
+                //                                                            "\"NOMBRE_TARJETAHABIENTE\": \""+ processPaymentRequest.CreditCardName + "\", \r\n   " +
+                //                                                            "\"NUMERO_TARJETA\": \"" + processPaymentRequest.CreditCardNumber + "\", \r\n  " +
+                //                                                             "\"FECHA_VENCIMIENTO_TARJETA\": "+fechavcto+", \r\n\t\"CODIGO_SEGURIDAD_TARJETA\": "+ processPaymentRequest.CreditCardCvv2 + ", " +
+                //                                                             "\r\n    \"NUMERO_LOTE\": \"1\" \r\n  } \r\n} \r\n";
+
+                //HttpBrowserCapabilities bc = Request.Browser;
+                string claveBanco = "B2CM3rcanti1#";
+                string json = "{" +
+                                 " merchant_identify: {"
+                                     + "integratorId: 31,"
+                                     + "merchantId: 150332,"
+                                     + "terminalId:abcde " +
+                                     "},"
+                                 + "client_identify: {"
+                                         + "ipaddress: 10.0.0.1,"
+                                         + "browser_agent: Chrome 18.1.3,"
+                                         + "mobile: { " +
+                                               "manufacturer: Samsung}"
+                                         + "},"
+                                   + "transaction: {"
+                                              + "trx_type: 'compra',"
+                                              + "payment_method:'tdc',"
+                                              + "card_number:"+ processPaymentRequest.CreditCardNumber + ","
+                                              + "customer_id:" + processPaymentRequest.CreditCardNumberId + ","
+                                              + "invoice_number: "+ processPaymentRequest.CreditCardNumberId + ","
+                                              + "expiration_date:" + processPaymentRequest.CreditCardExpireYear +"/"+processPaymentRequest.CreditCardExpireMonth.ToString("00")+ ","
+                                              + "cvv: "+ CvvEncrypter(processPaymentRequest.CreditCardCvv2, claveBanco) + ","
+                                              + "currency:ves,"
+                                              + "amount: "+ Convert.ToString(processPaymentRequest.OrderTotal) + 
+                                              "} " +
+                              "}";
 
 
 
-                //var json = {
-                //    "merchant_identify": {
-                //                                    "integratorId": 31,
-                //                                    "merchantId": 150332,
-                //                                    "terminalId":"abcde"},
-                //             "client_identify": {
-                //                                "ipaddress": "10.0.0.1",
-                //                                "browser_agent": "Chrome 18.1.3",
-                //                                "mobile": {"manufacturer": "Samsung"}
-                //                               },
-                //           "transaction": {
-                //                            "trx_type": "compra",
-                //                            "payment_method":"tdc",
-                //                            "card_number":"501878200048646634",
-                //                            "customer_id":"V18780283",
-                //                            "invoice_number": "1231243",
-                //                            "expiration_date":"2021/11",
-                //                            "cvv": "GYlTecZmlHYu7KFTeDaWCQ==",
-                //                            "currency":"ves",
-                //                            "amount": 30.11}
-                //             }"
 
+                //request.Parameters.Clear();
+                //request.AddParameter("application/json", strJSONContent, ParameterType.RequestBody);
 
-
-                request.Parameters.Clear();
-                request.AddParameter("application/json", strJSONContent, ParameterType.RequestBody);
-
-                var response = client.Execute(request);
+                //var response = client.Execute(request);
 
 
 
@@ -607,6 +605,45 @@ namespace Nop.Plugin.Payments.EpagosMercantil
         }
 
 
+
+
+         String CvvEncrypter(string cvv, string secretkey)
+        {
+            byte[] iv = new byte[16];
+            byte[] array;
+
+            using (Aes aes = Aes.Create())
+            {
+                aes.Key = ComputeSha256Hash(secretkey);
+                aes.IV = iv;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Mode = CipherMode.ECB;
+                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))
+                        {
+                            streamWriter.Write(cvv);
+                        }
+                        array = memoryStream.ToArray();
+                    }
+                }
+            }
+            return Convert.ToBase64String(array);
+        }
+        private byte[] ComputeSha256Hash(string rawData)
+        {
+
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] key = new byte[16];
+                byte[] hash = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+                Array.Copy(hash, key, 16);
+                return key;
+            }
+        }
         #endregion
     }
 }

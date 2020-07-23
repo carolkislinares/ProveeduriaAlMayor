@@ -74,9 +74,11 @@
                                     @T("Admin.Orders.Address.Address1")
                                 </td>
                                 <td>
-                                    @Model.BillingAddress.Address1
-                                </td>
-                            </tr>
+                                    @if (Model.IsShippable == true && Model.PickUpInStore && Model.PickupAddress != null) { @Model.PickupAddress.Address1 } else { @Model.BillingAddress.Address1 }
+                                   </td>
+
+
+                               </tr>
                         }
                         @if (Model.BillingAddress.StreetAddress2Enabled)
                         {
@@ -96,7 +98,7 @@
                                     @T("Admin.Orders.Address.City")
                                 </td>
                                 <td>
-                                    @Model.BillingAddress.City
+                                    @if (Model.IsShippable == true && Model.PickUpInStore && Model.PickupAddress != null) { @Model.PickupAddress.City } else { @Model.BillingAddress.City}
                                 </td>
                             </tr>
                         }
@@ -107,7 +109,7 @@
                                     @T("Admin.Orders.Address.County")
                                 </td>
                                 <td>
-                                    @Model.BillingAddress.County
+                                    @if (Model.IsShippable == true && Model.PickUpInStore && Model.PickupAddress != null) { @Model.PickupAddress.County } else { @Model.BillingAddress.County}
                                 </td>
                             </tr>
                         }
@@ -129,7 +131,7 @@
                                     @T("Admin.Orders.Address.ZipPostalCode")
                                 </td>
                                 <td>
-                                    @Model.BillingAddress.ZipPostalCode
+                                    @if (Model.IsShippable == true && Model.PickUpInStore && Model.PickupAddress != null) { @Model.PickupAddress.ZipPostalCode }else{ @Model.BillingAddress.ZipPostalCode }
                                 </td>
                             </tr>
                         }
@@ -140,7 +142,7 @@
                                     @T("Admin.Orders.Address.Country")
                                 </td>
                                 <td>
-                                    @Model.BillingAddress.CountryName
+                                    @if (Model.IsShippable == true && Model.PickUpInStore && Model.PickupAddress != null) { @Model.PickupAddress.CountryName } else { @Model.BillingAddress.CountryName}
                                 </td>
                             </tr>
                         }
