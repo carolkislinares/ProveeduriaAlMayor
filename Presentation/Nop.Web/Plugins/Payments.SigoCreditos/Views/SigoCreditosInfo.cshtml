@@ -23,6 +23,7 @@
     var EsValidoCRM = EngineContext.Current.Resolve<IGenericAttributeService>().GetAttribute<string>(Customerclient, "EsValidoCRM");
     var selectedCustomerAttributesString = EngineContext.Current.Resolve<IGenericAttributeService>().GetAttribute<string>(Customerclient, NopCustomerDefaults.CustomCustomerAttributes);
     var TipoDocumento = EngineContext.Current.Resolve<ICustomerAttributeParser>().ParseValues(selectedCustomerAttributesString, 8).FirstOrDefault();
+    var Documento = EngineContext.Current.Resolve<ICustomerAttributeParser>().ParseValues(selectedCustomerAttributesString, 1).FirstOrDefault();
 
 }
 
@@ -58,7 +59,9 @@
     .EmptyTable {
         text-align: center;
     }
-
+    .swal2-actions {
+flex-direction: row-reverse;
+}
     @@media screen and (max-width:425px) {
         .tableContainer {
             overflow: scroll !important;
@@ -208,23 +211,31 @@
                         </div>
                         <div class="col-lg-2 col-md-2 col-sm-2">
 
-                            @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM) || Model.Emisor.EntityId >= 0)
+                            @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
                             {
                                 <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
                             }
                             else
                             {
-                                @if (TipoDocumento.Contains("1"))
+                                @if (Model.Emisor.EntityId == 0)
                                 {
-                                    <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteNatural()">  @Model.Emisor.EntityId  @*@T("SigoCreditosPaypal.validationpin.button")*@</button>
+                                    <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
 
                                 }
                                 else
                                 {
-                                    <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteJuridico()">
-                                        @EsValidoCRM  @*@T("SigoCreditosPaypal.validationpin.button")*@
-                                    </button>
+                                    @if (TipoDocumento.Contains("1"))
+                                    {
+                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteNatural()"> @T("SigoCreditosPaypal.validationpin.button")</button>
 
+                                    }
+                                    else
+                                    {
+                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteJuridico()">
+                                            @T("SigoCreditosPaypal.validationpin.button")
+                                        </button>
+
+                                    }
                                 }
                             }
 
@@ -242,7 +253,6 @@
                                     {
                                         @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
                                         {
-
                                             @if (Model.Emisor.SaldoActualList.Count > 0)
                                             {
                                                 <table id="SaldoActualTable" width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
@@ -271,10 +281,14 @@
                                                 <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
                                             }
                                         }
+                                        else
+                                        {
+                                            <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
+                                        }
                                     }
                                     else
                                     {
-                                        <div class="EmptyTable"><span> @Model.Emisor.EntityId  + @EsValidoCRM  + @T("SigoCreditos.Abono.CustomerNotFound")</span></div>
+                                        <div class="EmptyTable"><span>@T("SigoCreditos.Abono.CustomerNotFound")</span></div>
                                     }
                                 </div>
                             </div>
@@ -372,7 +386,7 @@
                                                             <div>
                                                                 @if (SCP.Estatus_Operacion)
                                                                 {<span style="background-color: #00a65a;border-radius: .25em;color: white;padding: .1em .3em .1em;">Exitoso</span>}
-                                                                else    
+                                                                else
                                                                 { <span style="background-color: #dd4b39;border-radius: .25em;color: white;padding: .1em .3em .1em;">Sin Abonar</span>}
                                                             </div>
                                                         </td>
@@ -428,7 +442,7 @@
         Swal.fire({
             title: '@T("SigoCreditosPaypal.validationpin")',
             html:
-                  '<input id="swal-input3" value="@Model.Abono.Receptor.Documento" readonly autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> '
+                  '<input id="swal-input3" value="@Documento" readonly autocomplete="off" class="swal2-input" style="font-family: verdana;font-size: 0.9em; margin-bottom: 0em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> '
                 + '<input id="swal-input0" type="password" autocomplete="off" style="width:0px; height:0px; border:none"> '
                 + '<input id="swal-input4" type="password" autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0.5em!important; margin-top: 0em!important;font-size: 1.125em;padding: 0 .75em;" maxlength=6 placeholder="@T("SigoCreditosPaypal.validationpin.pinplaceholder")"> '
             ,
@@ -475,7 +489,7 @@
     function ValidarPin(pin) {
         var route = '@Html.Raw(Url.Action("ValidarPin", "Admin/SigoCreditosInfo", new { @entityid = "TD", @cedula= "cd", @pin = "DC", @tipoDoc = "TC"  }))';
             route = route.replace("TD", $("#@Html.IdFor(model=>model.Emisor.EntityId)").val());
-            route = route.replace("cd", $("#@Html.IdFor(model=>model.Emisor.Documento)").val());
+            route = route.replace("cd", @Documento);
             route = route.replace("DC", pin);
             route = route.replace("TC", @TipoDocumento);
         $.ajax({
@@ -508,7 +522,7 @@
             Swal.fire({
                 title: '@T("SigoCreditosPaypal.validationpin")',
                 html:
-                    '<input id="swal-input2" autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> '
+                    '<input id="swal-input2" autocomplete="off" class="swal2-input" style="font-family: verdana;font-size: 0.9em; margin-bottom: 0em!important" maxlength=8 placeholder="@T("SigoCreditosPaypal.validationpin.documentplaceholder")"> '
                     + '<input id="swal-input0" type="password" autocomplete="off" style="width:0px; height:0px; border:none"> '
                     + '<input id="swal-input1" autocomplete="off" class="swal2-input" style="font-family: verdana; margin-bottom: 0.5em!important; margin-top: 0em!important;font-size: 1.125em;padding: 0 .75em;" maxlength=6 placeholder="@T("SigoCreditosPaypal.validationpin.pinplaceholder")"> '
                     //+ '<script>setTimeout(function(){document.getElementById("swal-input1").type = "password";}, 10);<//script>'

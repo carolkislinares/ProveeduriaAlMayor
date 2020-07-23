@@ -21,7 +21,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
         public static SigoCreditosInfoModel ObtenerPuntosxCliente(int pCodTipo, string pDocumento)
         {
             wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
-            Task<wsCRM.mCliente> result = cRMClient.ObtenerDatosClienteInnovaPOSAsync(pCodTipo, pDocumento,0);
+            Task<wsCRM.mCliente> result = cRMClient.ObtenerDatosClienteInnovaPOSAsync(pCodTipo, pDocumento,-1);
             return new SigoCreditosInfoModel(result.Result);
         }
 
@@ -35,6 +35,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
         {
             wsCRM.IwsCRMClient cRMClient = new wsCRM.IwsCRMClient(wsCRM.IwsCRMClient.EndpointConfiguration.BasicHttpBinding_IwsCRM);
             Task<wsCRM.mCliente> result = cRMClient.ConsultarClientesAsync(pDocumento, pCodTipo);
+
             return result.Result !=null? new ClienteModel
             {
                 SigoClubId = result.Result.Cod_SigoClub,
@@ -43,7 +44,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
                 Documento = result.Result.Cedula,
                 Apellido = result.Result.Apellido,
                 Nombre = result.Result.Nombre,
-                Telefono = result.Result.TelefonoPrincipal,
+                Telefono = result.Result.TelefonoMovil,
                 Email = result.Result.Email,
             } : null;
         }

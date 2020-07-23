@@ -1194,7 +1194,8 @@ namespace Nop.Web.Controllers
                     throw new Exception(_localizationService.GetResource("Checkout.MinOrderPlacementInterval"));
 
                 //place order
-                _workContext.CurrentCustomer.BillingAddress = _workContext.CurrentCustomer.ShippingAddress;
+              _workContext.CurrentCustomer.BillingAddress = _workContext.CurrentCustomer.ShippingAddress == null ? new Address() { Email = "zzzzzz@gmail.com", Country = _countryService.GetCountryById(86), CreatedOnUtc = DateTime.Now } : _workContext.CurrentCustomer.ShippingAddress;
+                
                 processPaymentRequest.StoreId = _storeContext.CurrentStore.Id;
                 processPaymentRequest.CustomerId = _workContext.CurrentCustomer.Id;
                 processPaymentRequest.PaymentMethodSystemName = !pIndEsPagoTotal ?  _genericAttributeService.GetAttribute<string>(_workContext.CurrentCustomer,
