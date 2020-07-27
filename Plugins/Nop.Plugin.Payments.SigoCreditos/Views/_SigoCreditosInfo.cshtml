@@ -129,9 +129,9 @@
 
                         @if (string.IsNullOrWhiteSpace(Model.Emisor.Nombre))
                         {
-                            <div class="row">
-                                <label style="margin-left:42%;font-weight:100;color: #ff0404;" id="mensajeSigoCreditosPaypal">@T("SigoCreditosPaypal.CustomerCRM.NotFound")</label>
-                            </div>
+                        <div class="row">
+                            <label style="margin-left:42%;font-weight:100;color: #ff0404;" id="mensajeSigoCreditosPaypal">@T("SigoCreditosPaypal.CustomerCRM.NotFound")</label>
+                        </div>
                         }
 
                     </div>
@@ -250,19 +250,21 @@
 @if (Convert.ToBoolean(@_localizationService))
 {
     <!-- ///////////////////////////    Seccion Boton PayPal VentasO    ////////////////////////////////////////////////////////////////////////////////////////////// -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD"
-            data-sdk-integration-source="button-factory">
+<script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD"
+        data-sdk-integration-source="button-factory">
 
-    </script>
+</script>
 }
 else
 {
-    <!-- ///////////////////////////    Seccion Boton PayPal Sandox    ////////////////////////////////////////////////////////////////////////////////////////////// -->
-    <script src="https://www.paypal.com/sdk/js?client-id=AfbVJuARzopmc5Yqw6LnuMZGsvgUbjW2Z4omie4CRjBVsJ3lXV5tcrrVA1VTPi7SplXpK2nu6poae-qp&currency=USD"
-            data-sdk-integration-source="button-factory">
-    </script>
+ <!-- ///////////////////////////    Seccion Boton PayPal Sandox    ////////////////////////////////////////////////////////////////////////////////////////////// -->
+<script src="https://www.paypal.com/sdk/js?client-id=AfbVJuARzopmc5Yqw6LnuMZGsvgUbjW2Z4omie4CRjBVsJ3lXV5tcrrVA1VTPi7SplXpK2nu6poae-qp&currency=USD"
+        data-sdk-integration-source="button-factory">
+</script>
 }
-
+<div class="col-lg-12 col-md-12 col-sm-12">
+    <label><br/>@T("SigoCreditos.messageZelle")</label>
+</div>
 <script type="text/javascript">
 
 

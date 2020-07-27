@@ -2243,11 +2243,24 @@ namespace Nop.Web.Areas.Admin.Controllers
                 product.Sku = pModel.Sku;
                 product.Price = pModel.Price;
                 product.OldPrice = pModel.OldPrice;
-                product.StockQuantity = pModel.StockQuantity;
                 product.Published = pModel.Published;
                 product.UpdatedOnUtc = DateTime.UtcNow;
-                product.MinStockQuantity = pModel.MinStockQuantity;
                 product.DisableBuyButton = pModel.StockQuantity <= pModel.MinStockQuantity;
+                //if (product.UseMultipleWarehouses)
+                //{
+                //    product.StockQuantity = product.StockQuantity;
+                //    product.MinStockQuantity = product.MinStockQuantity;
+                //    product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == pModel.IdWarehouse).StockQuantity = pModel.StockQuantity;
+                //    product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == pModel.IdWarehouse).CantidadMinima = pModel.MinStockQuantity;
+                //    product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == pModel.IdWarehouse).DisableBuyButton = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == pModel.IdWarehouse).StockQuantity <=
+                //                                                                                                                  product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == pModel.IdWarehouse).CantidadMinima                                                               ;
+                //    product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == pModel.IdWarehouse).DisableBuyButton = pModel.DisableBuyButton;
+                //}
+                //else
+                //{
+                    product.StockQuantity = pModel.StockQuantity;
+                    product.MinStockQuantity = pModel.MinStockQuantity;
+                //}
                 _productService.UpdateProduct(product);
 
                 //back in stock notifications

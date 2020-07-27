@@ -45,6 +45,7 @@
                                             <nop-select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" />
                                         </div>
                                     </div>
+
                                     <div class="form-group" @(Model.AvailableManufacturers.SelectionIsNotPossible() ? Html.Raw("style=\"display:none\"") : null)>
                                         <div class="col-md-4">
                                             <nop-label asp-for="SearchManufacturerId" />
@@ -53,6 +54,8 @@
                                             <nop-select asp-for="SearchManufacturerId" asp-items="Model.AvailableManufacturers" />
                                         </div>
                                     </div>
+
+
                                     <div class="form-group">
                                         <div class="col-md-4">
                                             <nop-label asp-for="SearchProductTypeId" />
@@ -69,6 +72,14 @@
                                             <nop-editor asp-for="SearchProductGTIN" />
                                         </div>
                                     </div>
+                                    @*<div class="form-group" @(Model.AvailableWarehouses = Model.AvailableWarehouses.Where(c=>c.Value != "0").ToList())>
+                                        <div class="col-md-4">
+                                            <nop-label asp-for="SearchWarehouseId" />
+                                        </div>
+                                        <div class="col-md-8">
+                                            <nop-select asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses" />
+                                        </div>
+                                    </div>*@
                                     <div class="form-group">
                                         <div class="col-md-8 col-md-offset-4">
                                             <button type="button" id="search-products" class="btn btn-primary btn-search">
@@ -113,7 +124,7 @@
                                                         SearchManufacturerId: $('#SearchManufacturerId').val(),
                                                         SearchProductTypeId: $('#SearchProductTypeId').val(),
                                                         SearchProductGTIN: $('#@Html.IdFor(model => model.SearchProductGTIN)').val(),
-
+                                                        SearchWarehouseId :  $('#SearchWarehouseId').val(),
                                                     };
                                                     addAntiForgeryToken(data);
                                                     return data;
@@ -172,6 +183,7 @@
                                                     StockQuantity: { editable: true, type: "number" },
                                                     MintockQuantity: { editable: true, type: "number" },
                                                     Published: { editable: true, type: "boolean" },
+                                                   // DisableBuyButton: { editable: true, type: "boolean" },
                                                     Id: { editable: false, type: "number" }
                                                 }
                                             }
@@ -264,11 +276,15 @@
                                         //integer format
                                         format: "{0:0}",
                                         width: 150
-                                    },{
+                                    }@*,{
                                         field: "Published",
                                         title: "@T("Admin.Catalog.BulkEdit.Fields.Published")",
                                         width: 200
-                                    }@*, {
+                                    }*@@*,{
+                                        field: "DisableBuyButton",
+                                        title: "@T("Admin.Catalog.BulkEdit.Fields.DisableBuyButton")",
+                                        width: 200
+                                    }*@@*, {
                                         command: { name: "destroy", text: "@T("Admin.Common.Delete")" },
                                         title: "@T("Admin.Common.Delete")",
                                         width: 100
@@ -289,7 +305,6 @@
                                 });
 
                                     setInterval(function () {
-                                    console.log("Recarga")
                                      var grid = $('#products-grid').data('kendoGrid');
                                      grid.dataSource.read();
                                       }, 300000);

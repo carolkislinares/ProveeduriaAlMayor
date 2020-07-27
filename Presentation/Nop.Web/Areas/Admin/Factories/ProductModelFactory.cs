@@ -1605,6 +1605,8 @@ namespace Nop.Web.Areas.Admin.Factories
             //prepare available product types
             _baseAdminModelFactory.PrepareProductTypes(searchModel.AvailableProductTypes);
 
+          //  _baseAdminModelFactory.PrepareWarehouses(searchModel.AvailableWarehouses);
+
             //prepare page parameters
             searchModel.SetGridPageSize();
 
@@ -1623,12 +1625,24 @@ namespace Nop.Web.Areas.Admin.Factories
 
             //get products
             var products = _productService.SearchProducts(showHidden: true,
-                categoryIds: new List<int> { searchModel.SearchCategoryId },
-                manufacturerId: searchModel.SearchManufacturerId,
-                vendorId: _workContext.CurrentVendor?.Id ?? 0,
-                productType: searchModel.SearchProductTypeId > 0 ? (ProductType?)searchModel.SearchProductTypeId : null,
-                keywords: searchModel.SearchProductName,
-                pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
+            categoryIds: new List<int> { searchModel.SearchCategoryId },
+            manufacturerId: searchModel.SearchManufacturerId,
+            vendorId: _workContext.CurrentVendor?.Id ?? 0,
+            productType: searchModel.SearchProductTypeId > 0 ? (ProductType?)searchModel.SearchProductTypeId : null,
+            keywords: searchModel.SearchProductName,
+            pageIndex: searchModel.Page - 1,
+            pageSize: searchModel.PageSize 
+            //pageSize: searchModel.SearchWarehouseId == 0 ? searchModel.PageSize : int.MaxValue
+            );
+
+            //if (searchModel.SearchWarehouseId != 0)
+            //{
+               
+            //    var ListaProductWareHouse = new PagedList<Product>(products.Where(x => x.UseMultipleWarehouses == true && x.ProductWarehouseInventory.Any(c=>c.WarehouseId == searchModel.SearchWarehouseId)).ToList(), searchModel.Page - 1, searchModel.PageSize);
+            //        //ListaProductWareHouse = new PagedList<Product>(ListaProductWareHouse.Where(lp => lp.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == searchModel.SearchWarehouseId) != null).ToList(), searchModel.Page, searchModel.PageSize);
+            //        products = ListaProductWareHouse;
+           
+            //}
 
             //Filtro por GTIN
             if (searchModel.SearchProductGTIN != null)
@@ -1637,6 +1651,15 @@ namespace Nop.Web.Areas.Admin.Factories
                 products = ListaProductGtin;
             }
 
+            //if (searchModel.SearchWarehouseId != 0)
+            //{
+
+            //    var ListaProductWareHouse = new PagedList<Product>(products.Where(x => x.ProductWarehouseInventory. == searchModel.SearchProductGTIN).ToList(), searchModel.Page - 1, searchModel.PageSize);
+            //    products = ListaProductWareHouse;
+
+            //}
+
+            
 
             //prepare list model
             var model = new BulkEditProductListModel
@@ -1651,12 +1674,19 @@ namespace Nop.Web.Areas.Admin.Factories
                         Sku = product.Sku,
                         OldPrice = product.OldPrice,
                         Price = product.Price,
-                        StockQuantity = product.StockQuantity,
+                        StockQuantity =  product.StockQuantity,
                         Published = product.Published,
                         //Campo Agregado para edicion Masiva de producto.
                         GTIN = product.Gtin,
-                        MinStockQuantity = product.MinStockQuantity,
-                        ResultQuantity = product.MinStockQuantity - product.StockQuantity
+                        MinStockQuantity =  product.MinStockQuantity ,
+                        ResultQuantity = product.MinStockQuantity - product.StockQuantity,
+
+                        //StockQuantity = !product.UseMultipleWarehouses ? product.StockQuantity : product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == searchModel.SearchWarehouseId).StockQuantity,
+                        // MinStockQuantity = !product.UseMultipleWarehouses ? product.MinStockQuantity : product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == searchModel.SearchWarehouseId).CantidadMinima,
+                        //ResultQuantity = !product.UseMultipleWarehouses ? product.MinStockQuantity : product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == searchModel.SearchWarehouseId).CantidadMinima - product.StockQuantity,
+                        //DisableBuyButton = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == searchModel.SearchWarehouseId).DisableBuyButton,
+                        //StoreId = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == searchModel.SearchWarehouseId).StoreId,
+                        //IdWarehouse = searchModel.SearchWarehouseId
                     };
 
                     //fill in additional values (not existing in the entity)

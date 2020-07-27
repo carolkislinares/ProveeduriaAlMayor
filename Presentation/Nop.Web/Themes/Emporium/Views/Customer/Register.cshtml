@@ -504,7 +504,17 @@
     $(document).ready(function () {
 
             document.getElementById('customer_attribute_1').style.textTransform = "uppercase";
-            $('#customer_attribute_8_1').click();
+
+             var elementTxt = document.getElementById("customer_attribute_1").value;
+            if (elementTxt.length > 8){
+                $('#customer_attribute_8_2').click();
+            }
+            else {
+                $('#customer_attribute_8_1').click();
+            } 
+
+
+        //$('#customer_attribute_8_1').click();
             document.getElementById('CountryId').value = 86;
            @* var selectedItem = 86;
                     var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
@@ -585,8 +595,8 @@
             document.getElementById("customer_attribute_1Validate").innerHTML = ""
 
             $("#customer_attribute_1").focus(); 
-             $("#customer_attribute_1009").addClass("field-validation-valid");
-                $("#customer_attribute_1010").removeClass("field-validation-error").addClass("field-validation-valid");
+             $("#customer_attribute_1009").addClass("input-validation-valid");
+                $("#customer_attribute_1010").removeClass("field-validation-error").addClass("input-validation-valid");
 
 
              document.getElementById("customer_attribute_1009Validate").innerHTML = "";

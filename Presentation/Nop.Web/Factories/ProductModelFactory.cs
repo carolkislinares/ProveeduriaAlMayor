@@ -236,6 +236,19 @@ namespace Nop.Web.Factories
                                           !_permissionService.Authorize(StandardPermissionProvider.EnableShoppingCart) ||
                                           !_permissionService.Authorize(StandardPermissionProvider.DisplayPrices);
 
+            //priceModel.DisableBuyButton = !product.UseMultipleWarehouses ? product.DisableBuyButton ||
+            //                           !_permissionService.Authorize(StandardPermissionProvider.EnableShoppingCart) ||
+            //                           !_permissionService.Authorize(StandardPermissionProvider.DisplayPrices) :
+
+            //                          (product.ProductWarehouseInventory.FirstOrDefault(x => x.StoreId == _storeContext.CurrentStore.Id) != null ?
+            //                           product.ProductWarehouseInventory.FirstOrDefault(x => x.StoreId == _storeContext.CurrentStore.Id).DisableBuyButton : false
+            //                           )||
+            //                           !_permissionService.Authorize(StandardPermissionProvider.EnableShoppingCart) ||
+            //                           !_permissionService.Authorize(StandardPermissionProvider.DisplayPrices) ;
+
+
+
+
             //add to wishlist button
             priceModel.DisableWishlistButton = product.DisableWishlistButton ||
                                                !_permissionService.Authorize(StandardPermissionProvider.EnableWishlist) ||

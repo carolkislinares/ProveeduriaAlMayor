@@ -33,12 +33,24 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.MinStockQuantity")]
         public int MinStockQuantity { get; set; }
-
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.MinStockQuantity")]
         public decimal ResultQuantity { get; set; }
 
         [NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.Published")]
         public bool Published { get; set; }
+
+        //[NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.CantidadMinima")]
+        //public int CantidadMinima { get; set; }
+
+        //[NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.IdWarehouse")]
+        //public int IdWarehouse { get; set; }
+
+        //[NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.StoreId")]
+        //public int StoreId { get; set; }
+
+
+        //[NopResourceDisplayName("Admin.Catalog.BulkEdit.Fields.DisableBuyButton")]
+        //public bool DisableBuyButton { get; set; }
 
         #endregion
     }

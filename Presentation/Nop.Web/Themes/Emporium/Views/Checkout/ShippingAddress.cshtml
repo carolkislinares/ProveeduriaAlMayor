@@ -9,7 +9,7 @@
 @{
 
     Layout = "_ColumnsOne";
-    var EnabledProvinces = EngineContext.Current.Resolve<IStateProvinceService>().GetStateProvincesByCountryId(86).Where(x => x.Abbreviation != string.Empty).ToList();
+    var EnabledProvinces = EngineContext.Current.Resolve<IStateProvinceService>().GetStateProvincesByCountryId(86).Where(x => x.Abbreviation != null  && x.Abbreviation!= string.Empty).ToList();
     var ShippingDaySettings = EngineContext.Current.Resolve<ISettingService>().GetAllSettings().Where(x => x.Name.ToLowerInvariant().Contains("norkutshippingday".ToLowerInvariant())).ToList();
 
     var ShowShippingDay = EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("norkutshowshippingday".ToLower(), 0, storeContext.CurrentStore.Id, true);
@@ -385,12 +385,17 @@
                                         <select id="CbShp"  asp-items="@(new SelectList(DaysList, "Value", "Text"))" class="selectpicker" data-live-search="true"></select>
 
                                     }*@
-                                        <div class="select-button">
-                                            @*<input id="btnShp" type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="setLocation('@Url.RouteUrl("CheckoutSelectShippingAddress", new { addressid = item.Id ,NorkutShippingDay = "0" })') " />*@
-
+                                    <div class="select-button">
+                                        @*<input id="btnShp" type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="setLocation('@Url.RouteUrl("CheckoutSelectShippingAddress", new { addressid = item.Id ,NorkutShippingDay = "0" })') " />*@
+                                        @if (EnabledProvinces.Exists(x => x.Id == item.StateProvinceId))
+                                        {
                                             <input id="btnShp" type="button" value="@T("Checkout.ShipToThisAddress")" class="button-1 select-shipping-address-button" onclick="ObtenerIdDireccion(@item.Id) " />
-
-                                        </div>
+                                        }
+                                        else
+                                        {
+                                            <strong>@T("Checkout.ShippingAddressInvalid")</strong>
+                                        }
+                                    </div>
                                     </div>
                                 }
 

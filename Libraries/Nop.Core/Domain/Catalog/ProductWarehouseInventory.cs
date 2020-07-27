@@ -41,5 +41,25 @@ namespace Nop.Core.Domain.Catalog
         /// Precio de venta al consumidor
         /// </summary>
         public virtual decimal PVP { get; set; }
+
+        ///// <summary>
+        /////Stock minimo por Almacen
+        ///// </summary>
+        //public virtual int CantidadMinima { get; set; }
+
+
+        ///// <summary>
+        /////Stock minimo por Almacen
+        ///// </summary>
+        //public virtual int StoreId { get; set; }
+
+
+
+
+
+        ///// <summary>
+        ///// Gets or sets a value indicating whether to disable buy (Add to cart) button 
+        ///// </summary>
+        //public bool DisableBuyButton { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
             AvailableCategories = new List<SelectListItem>();
             AvailableManufacturers = new List<SelectListItem>();
             AvailableProductTypes = new List<SelectListItem>();
+            //AvailableWarehouses = new List<SelectListItem>();
         }
 
         #endregion
@@ -38,11 +39,18 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
 
+        //[NopResourceDisplayName("Admin.Catalog.Products.List.SearchWarehouse")]
+        //public int SearchWarehouseId { get; set; }
+
         public IList<SelectListItem> AvailableProductTypes { get; set; }
 
         public IList<SelectListItem> AvailableCategories { get; set; }
 
         public IList<SelectListItem> AvailableManufacturers { get; set; }
+
+       // public IList<SelectListItem> AvailableWarehouses { get; set; }
+
+
 
         #endregion
     }
