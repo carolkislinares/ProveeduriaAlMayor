@@ -11,11 +11,15 @@ namespace Nop.Plugin.Payments.SigoCreditos.Models
         /// <summary>
         /// Id de la operacion resultante de Paypal
         /// </summary>
+        /// 
+        [NopResourceDisplayName("Account.Fields.TransaccionPaypalID")]
         public string TransaccionPaypalID { get; set; }
 
         /// <summary>
         /// Id del abono que devuelve CRM
         /// </summary>
+        /// 
+        [NopResourceDisplayName("Account.Fields.TransaccionCreditID")]
         public long TransaccionCreditID { get; set; }
 
         /// <summary>
@@ -31,6 +35,8 @@ namespace Nop.Plugin.Payments.SigoCreditos.Models
         /// <summary>
         /// Datos del Receptor del abono
         /// </summary>
+        /// 
+        [NopResourceDisplayName("Account.Fields.NombreReceptor")]
         public string NombreReceptor { get; set; }
 
         /// <summary>

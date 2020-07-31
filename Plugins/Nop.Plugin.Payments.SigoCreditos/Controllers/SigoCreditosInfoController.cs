@@ -13,6 +13,12 @@ using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Services.Common;
 using Nop.Services.Customers;
+using Nop.Web.Framework.Kendoui;
+using System.Collections.Generic;
+using System.Linq;
+using Nop.Services.ExportImport.Help;
+using Nop.Core.Domain.Catalog;
+
 namespace Nop.Plugin.Payments.SigoCreditos.Controllers
 {
    
@@ -29,6 +35,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
         private readonly ISigoCreditosPaypalService _SigoCreditosPayPalService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ICustomerService _customerService;
+        private readonly CatalogSettings _catalogSettings;
         #endregion
 
         #region Ctor
@@ -40,6 +47,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
             ISigoCreditosPaypalService SigoCreditosPayPalService,
             IGenericAttributeService genericAttributeService,
             ICustomerService customerService,
+            CatalogSettings catalogSettings,
             IWorkContext workContext)
         {
             this._localizationService = localizationService;
@@ -50,6 +58,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
             this._genericAttributeService = genericAttributeService;
             this._customerService = customerService;
             this._workContext = workContext;
+            this._catalogSettings = catalogSettings;
 
 
         }
@@ -241,7 +250,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
             {
                 if (tipoDoc.Contains("2"))
                 {
-                    entityid = CRMContext.ApiCloudContext.ValidarAutorizado(entityid, cedula);
+                   // entityid = CRMContext.ApiCloudContext.ValidarAutorizado(entityid, cedula);
                     if(entityid==0)
                         return Json(2);
                 }
@@ -288,6 +297,142 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
         //}
 
         #endregion
+        #endregion
+
+        #region Abonos Sigo Creditos // Admin
+
+
+        public IActionResult ConfigureAbonosClientes()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManagePaymentMethods))
+                return AccessDeniedView();
+            var AbonosClientes = new ClienteAbonoModel();
+            //load settings for a chosen store scope
+            return View("~/Plugins/Payments.SigoCreditos/Views/ConfigureAbonosClientes.cshtml", AbonosClientes);
+        }
+
+
+        [HttpPost]
+        [AuthorizeAdmin]
+        [AdminAntiForgery]
+        public IActionResult ListAbonoClientes(ClienteAbonoModel search, DataSourceRequest command)
+        {
+
+            try
+            {
+                if (!_permissionService.Authorize(StandardPermissionProvider.ManageShippingSettings))
+                    return AccessDeniedKendoGridJson();
+
+                if (search == null)
+                    throw new ArgumentNullException(nameof(search));
+
+                var ListaClientesAbonos = _SigoCreditosPayPalService.SearchAbonosClientes(search, pageIndex: command.Page - 1, pageSize: command.PageSize);
+
+                return Json(new DataSourceResult
+                {
+                    Data = ListaClientesAbonos,
+                    Total = ListaClientesAbonos.TotalCount
+                });
+            }
+            catch (Exception ex)
+            {
+                throw new NopException(ex.Message, ex);
+            }
+
+
+        }
+        #endregion
+
+        #region Export / Import
+        [AuthorizeAdmin]
+        public virtual IActionResult ExportXlsxExitoso()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
+                return AccessDeniedView();
+
+            try
+            {
+
+                ClienteAbonoModel payment = new ClienteAbonoModel
+                {
+                    Transaccion = new TransaccionModel
+                    {
+                        Estatus_Operacion = true,
+                    }
+                    
+                };
+
+                var transferList = _SigoCreditosPayPalService.SearchAbonosClientes(payment);
+
+                var xml = ExportPaymentToXlsx(transferList);
+
+                return File(xml, MimeTypes.TextXlsx, "AbonosExitosos.xlsx");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
+
+        public virtual IActionResult ExportXlsxSinAbonar()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
+                return AccessDeniedView();
+
+            try
+            {
+
+                ClienteAbonoModel payment = new ClienteAbonoModel
+                {
+                    Transaccion = new TransaccionModel
+                    {
+                        Estatus_Operacion = false,
+                    }
+
+                };
+
+                var transferList = _SigoCreditosPayPalService.SearchAbonosClientes(payment);
+
+                var xml = ExportPaymentToXlsx(transferList);
+
+                return File(xml, MimeTypes.TextXlsx, "AbonosExitosos.xlsx");
+            }
+            catch (Exception exc)
+            {
+                ErrorNotification(exc);
+                return RedirectToAction("List");
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// Export payment to XLSX
+        /// </summary>
+        /// <param name="payment">Categories</param>
+        public virtual byte[] ExportPaymentToXlsx(IList<ClienteAbonoModel> payment)
+        {
+            //  var parentCatagories = new List<Consolidate>();
+
+            //property manager 
+            var manager = new PropertyManager<ClienteAbonoModel>(new[]
+            {
+                new PropertyByName<ClienteAbonoModel>("Fecha Creacion", p => p.Transaccion.FechaCreacion.ToString("dd/MM/yyyy hh:mm:ss")),
+                new PropertyByName<ClienteAbonoModel>("Emisor", p => p.Nombre),
+                new PropertyByName<ClienteAbonoModel>("Email emisor", p => p.Email),
+                new PropertyByName<ClienteAbonoModel>("R. Paypal", p => p.Transaccion.TransaccionPaypalID),
+                new PropertyByName<ClienteAbonoModel>("R. Sigo club", p => p.Transaccion.TransaccionCreditID.ToString()),
+                new PropertyByName<ClienteAbonoModel>("Receptor", p => p.Transaccion.NombreReceptor),
+                new PropertyByName<ClienteAbonoModel>("Monto Total", p => p.Transaccion.Monto.ToString()),
+                new PropertyByName<ClienteAbonoModel>("Estatus", p => p.Transaccion.Estatus_Operacion ? "Exitoso" : "")
+            }, _catalogSettings);
+
+            return manager.ExportToXlsx(payment);
+        }
+
+
         #endregion
     }
 }

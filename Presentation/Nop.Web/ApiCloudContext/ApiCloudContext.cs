@@ -43,12 +43,12 @@ namespace Nop.Web.ApiCloudContext
             try
             {
                 long a=0;
-                ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1 response = ApiClient.GetClientsCompanyAsync(pSigoClubId,1).Result;
-                var EntityID = response.body.Where(x => x.DNI.Contains(DocumentoCliente));
-                if (EntityID.ToList().Count > 0)
-                {
-                    a = EntityID.FirstOrDefault().Code;
-                }
+               // ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1 response = ApiClient.GetClientsCompanyAsync(pSigoClubId,1).Result;
+                //var EntityID = response.body.Where(x => x.DNI.Contains(DocumentoCliente));
+                //if (EntityID.ToList().Count > 0)
+                //{
+                //    a = EntityID.FirstOrDefault().Code;
+                //}
                 return a;
 
             }
@@ -63,8 +63,8 @@ namespace Nop.Web.ApiCloudContext
         {
             try
             {
-                ApiCloudService.MDBResponseOflong response = ApiClient.ConsumePointsAsync(model.SigoClubId, "34", model.NumberAccount, model.CustomerDocumentValue, model.OldAmount, model.Amount, 0, ApiCloudService.mConsume.eTipoOperacionesMovimiento.ConsumoSaldo_Ecommerce).Result;
-                return response.body != 0 ? true : false;
+                //ApiCloudService.MDBResponseOflong response = ApiClient.ConsumePointsAsync(model.SigoClubId, "34", model.NumberAccount, model.CustomerDocumentValue, model.OldAmount, model.Amount, 0, ApiCloudService.mConsume.eTipoOperacionesMovimiento.ConsumoSaldo_Ecommerce).Result;
+                return false;//response.body != 0 ? true : false;
             }
             catch (Exception ex)
             {

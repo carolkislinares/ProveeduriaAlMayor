@@ -58,8 +58,9 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
         /// <returns></returns>
        public static long ValidarAutorizado(long pIdSigoClub, string cedula)
         {
-            var listAutorizados = ApiClient.GetClientsCompanyAsync(pIdSigoClub,1).Result;
-            var idAutorizado = listAutorizados.body.Where(x => x.DNI.Contains(cedula)).FirstOrDefault() == null ? 0 : listAutorizados.body.Where(x => x.DNI.Equals(cedula)).FirstOrDefault().Code;
+            var idAutorizado = 0;
+            //var listAutorizados = ApiClient.GetClientsCompanyAsync(pIdSigoClub,1).Result;
+            // var idAutorizado = listAutorizados.body.Where(x => x.DNI.Contains(cedula)).FirstOrDefault() == null ? 0 : listAutorizados.body.Where(x => x.DNI.Equals(cedula)).FirstOrDefault().Code;
             return idAutorizado; 
         }
   

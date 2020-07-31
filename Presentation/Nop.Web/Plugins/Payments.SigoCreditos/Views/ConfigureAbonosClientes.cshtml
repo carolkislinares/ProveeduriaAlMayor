@@ -1,0 +1,170 @@
+﻿@model Nop.Plugin.Payments.SigoCreditos.Models.ClienteAbonoModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<style>
+    .bootstrap-touchspin {
+        max-width: unset;
+    }
+
+    .k-picker-wrap.k-state-default {
+        padding-right: 6.5em;
+        width: 100%;
+    }
+
+    #search-categories {
+        float: right;
+    }
+
+    #FechaUltimaActualizacion {
+        width: 120% !important;
+    }
+</style>
+
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("Admin.Catalog.Payment.Manage")
+    </h1>
+    <div class="pull-right">
+        <a asp-action="Create" class="btn bg-blue" style="display:none">
+            <i class="fa fa-plus-square"></i>
+            @T("Admin.Common.AddNew")
+        </a>
+        <div class="btn-group">
+            <button type="button" class="btn btn-success">
+                <i class="fa fa-download"></i>
+                @T("Admin.Common.Export")
+            </button>
+            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">&nbsp;</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a asp-action="ExportXlsxExitoso">
+                        <i class="fa fa-file-excel-o"></i>
+                        @T("Admin.Common.ExportToExcel") Exitoso
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="ExportXlsxSinAbonar">
+                        <i class="fa fa-file-excel-o"></i>
+                        @T("Admin.Common.ExportToExcel") Sin Abonar
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+        <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window" style="display:none">
+            <i class="fa fa-upload"></i>
+            @T("Admin.Common.Import")
+        </button>
+
+    </div>
+</div>
+
+<div class="panel panel-default panel-search">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="Nombre" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="Nombre" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="Email" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="Email" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="Email" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="Email" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="Transaccion.TransaccionPaypalID" />
+                    </div>
+                    <div class="col-md-8">
+                        <nop-editor asp-for="Transaccion.TransaccionPaypalID" />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <nop-label asp-for="Transaccion.Estatus_Operacion" />
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" asp-for="Transaccion.Estatus_Operacion">
+                            <option selected value="true">Exitoso</option>
+                            <option value="false">Sin abonar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="display: none;">
+                <div class="col-md-6">
+                    <div class="form-group">
+
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group" style="display: flex;">
+                        <button type="button" id="search-categories" class="btn btn-primary btn-search" style="margin: 10px auto;">
+                            <i class="fa fa-search"></i>@T("Admin.Common.Search")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/jquery.mask.min.js"></script>
+<script type="text/javascript">
+    @*$('#@Html.IdFor(model => model.Orden)').mask('0000000');*@
+
+</script>
+
+@await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_ListAbonosClientes.cshtml", Model)
+
+
+
+

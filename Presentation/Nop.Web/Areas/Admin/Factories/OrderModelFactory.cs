@@ -1318,23 +1318,29 @@ namespace Nop.Web.Areas.Admin.Factories
                     {
                         var a = item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay"));
                         var b = a.Note.Split(",");
-                        var c = b[1];
-                        var dias = Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]);
+                        var c = string.IsNullOrWhiteSpace(b[1]) ? "0" : b[1];
+                        var dias = Convert.ToInt32(!string.IsNullOrWhiteSpace(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]) ? item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1] : "0" );
                         var diasEntrega = item.CreatedOnUtc.Subtract(DateTime.UtcNow).Days;
-                        var realdays = diasEntrega + Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]);
+                        var realdays = diasEntrega + Convert.ToInt32(!string.IsNullOrWhiteSpace(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]) ? item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1] : "0");
                         item.DaysToShipment = realdays;
-                        f.Add((item.CreatedOnUtc.AddDays(Convert.ToInt32(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToString() + " - " + item.OrderId + " fecha:" + item.CreatedOnUtc);
+                        f.Add((item.CreatedOnUtc.AddDays(Convert.ToInt32(!string.IsNullOrWhiteSpace(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])? item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1] : "0")) - DateTime.UtcNow).ToString() + " - " + item.OrderId + " fecha:" + item.CreatedOnUtc);
                     }
                     else
                     {
-                         item.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + _SettingService.GetSettingByKey("DefaultShippingDay", "", 0, true), DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
+                        var ShippingDaySetting = !string.IsNullOrWhiteSpace(_SettingService.GetSettingByKey("DefaultShippingDay", "", 0, true)) ? _SettingService.GetSettingByKey("DefaultShippingDay", "", 0, true): "0";
+                         item.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + ShippingDaySetting , DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
                         _orderService.UpdateOrder(item.Order);
 
                     }
                     
                 
                 }
-                shipments = new PagedList<Shipment>(shipments.OrderBy(shipment => shipment.CreatedOnUtc.Subtract(DateTime.UtcNow).Days + Convert.ToInt32(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])).ToList(), searchModel.Page - 1, searchModel.PageSize);
+                shipments = new PagedList<Shipment>(shipments.OrderBy(shipment => shipment.CreatedOnUtc.Subtract(DateTime.UtcNow).Days + 
+                                                                                   Convert.ToInt32(!string.IsNullOrWhiteSpace(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]) ?
+                                                                                   shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1] :
+                                                                                   "0"
+                                                                                   )).ToList(),
+                                                                                   searchModel.Page - 1, searchModel.PageSize);
 
 
                // shipments = new PagedList<Shipment>(shipments.OrderByDescending(shipment => shipment.CreatedOnUtc.AddDays(Convert.ToInt32(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToList(), searchModel.Page - 1, searchModel.PageSize);

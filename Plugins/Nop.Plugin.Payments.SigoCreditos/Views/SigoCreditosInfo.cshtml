@@ -210,34 +210,35 @@ flex-direction: row-reverse;
                             <strong>@T("Account.BalancPersonalDetails")</strong>
                         </div>
                         <div class="col-lg-2 col-md-2 col-sm-2">
+                            <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
 
-                            @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
-                            {
-                                <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
-                            }
-                            else
-                            {
-                                @if (Model.Emisor.EntityId == 0)
+                            @*@if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
                                 {
                                     <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
-
                                 }
                                 else
                                 {
-                                    @if (TipoDocumento.Contains("1"))
-                                    {
-                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteNatural()"> @T("SigoCreditosPaypal.validationpin.button")</button>
+                                                    @if (Model.Emisor.EntityId == 0)
+                                                    {
+                                                        <button class="button-1 search-box-button" id="saldoCollapseButton" data-toggle="collapse" href="#saldoFormCollapse" role="button" aria-expanded="false" aria-controls="saldoFormCollapse">@T("abonoForm.CollapseButton.show")</button>
 
-                                    }
-                                    else
-                                    {
-                                        <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteJuridico()">
-                                            @T("SigoCreditosPaypal.validationpin.button")
-                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        @if (TipoDocumento.Contains("1"))
+                                                        {
+                                                            <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteNatural()"> @T("SigoCreditosPaypal.validationpin.button")</button>
 
-                                    }
-                                }
-                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="button-1 search-box-button" id="saldoPinButton" onclick="SwalfireClienteJuridico()">
+                                                                @T("SigoCreditosPaypal.validationpin.button")
+                                                            </button>
+
+                                                        }
+                                                    }
+                                                   }*@
 
 
                         </div>
@@ -251,40 +252,40 @@ flex-direction: row-reverse;
                                 <div class="col-lg-12 col-md-12 tableContainer" style="margin: 20px auto;">
                                     @if (Model.Emisor.EntityId > 0)
                                     {
-                                        @if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
+                                        @*@if (EsValidoCRM != null && Convert.ToBoolean(EsValidoCRM))
+                                            {*@
+                                        @if (Model.Emisor.SaldoActualList.Count > 0)
                                         {
-                                            @if (Model.Emisor.SaldoActualList.Count > 0)
-                                            {
-                                                <table id="SaldoActualTable" width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th><div>@T("Account.AccountTypeName")</div></th>
-                                                            <th><div>@T("Account.AccountTypeQuantity")</div></th>
-                                                            <th><div>@T("Account.AccountTypeCurrency")</div></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
+                                            <table id="SaldoActualTable" width="100%" cellspacing="2" cellpadding="1" border="0" style="margin: 0 auto;">
+                                                <thead>
+                                                    <tr>
+                                                        <th><div>@T("Account.AccountTypeName")</div></th>
+                                                        <th><div>@T("Account.AccountTypeQuantity")</div></th>
+                                                        <th><div>@T("Account.AccountTypeCurrency")</div></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
 
-                                                        @foreach (var account in Model.Emisor.SaldoActualList)
-                                                        {
-                                                            <tr>
-                                                                <td><div>@account.Descripcion</div></td>
-                                                                <td class="Monto"><div>$@account.MontoDisponible.ToString("N", new CultureInfo("is-IS"))</div></td>
-                                                                <td><div>@account.Moneda</div></td>
-                                                            </tr>
-                                                        }
-                                                    </tbody>
-                                                </table>
-                                            }
-                                            else
-                                            {
-                                                <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
-                                            }
+                                                    @foreach (var account in Model.Emisor.SaldoActualList)
+                                                    {
+                                                        <tr>
+                                                            <td><div>@account.Descripcion</div></td>
+                                                            <td class="Monto"><div>$@account.MontoDisponible.ToString("N", new CultureInfo("is-IS"))</div></td>
+                                                            <td><div>@account.Moneda</div></td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
                                         }
                                         else
                                         {
                                             <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
                                         }
+                                        @*}
+                                            else
+                                             {
+                                                 <div class="EmptyTable"><span>@T("Account.EmptyTable")</span></div>
+                                             }*@
                                     }
                                     else
                                     {

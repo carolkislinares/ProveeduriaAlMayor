@@ -398,8 +398,8 @@ namespace Nop.Plugin.Payments.EpagosMercantil
                     URLConnection = _settingService.GetSettingByKey("UrlMercantil", "", _storeContext.CurrentStore.Id, true),
                 };
              
-                string idComercio = "104755";
-                string tipotransaccion = "0200";
+                //string idComercio = "104755";
+                //string tipotransaccion = "0200";
                 string monto = Convert.ToString(processPaymentRequest.OrderTotal).Replace(".", ",");
                 string fechavcto = String.Format(processPaymentRequest.CreditCardExpireMonth.ToString() + processPaymentRequest.CreditCardExpireYear.ToString().Substring(2));
 

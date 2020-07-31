@@ -1681,5 +1681,19 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         #endregion
+
+
+        #region Abonos Sigo Creditos
+
+        public virtual IActionResult ListaAbonosClientes()
+        {
+
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+                return AccessDeniedView();
+            return RedirectToAction("ConfigureAbonosClientes", "SigoCreditosInfo", new { Area = "Admin" }); ;
+
+        }
+
+        #endregion
     }
 }

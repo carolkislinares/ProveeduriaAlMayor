@@ -29,7 +29,6 @@
   "Widgets.NivoSlider",
   "Payments.InstaPago",
   "Payments.Cash",
-  "Payments.Transfer",
   "Payments.Zelle",
   "Shipping.FixedByWeightByTotal",
   "Payments.PayPalStandard",

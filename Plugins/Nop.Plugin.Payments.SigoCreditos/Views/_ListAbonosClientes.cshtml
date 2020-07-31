@@ -1,0 +1,151 @@
+@model Nop.Plugin.Payments.SigoCreditos.Models.ClienteAbonoModel
+@inject Nop.Core.Domain.Common.AdminAreaSettings adminAreaSettings
+@using System.Globalization;
+@{
+    //page title
+    ViewBag.Title = T("Admin.Catalog.Categories.Manage").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Categories");
+    var defaultGridPageSize = adminAreaSettings.DefaultGridPageSize;
+    var gridPageSizes = adminAreaSettings.GridPageSizes;
+
+}
+
+<nop-antiforgery-token />
+
+
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="AbonosClientes-grid"></div>
+
+                    <script>
+                        $(document).ready(function() {
+                            $("#AbonosClientes-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("ListAbonoClientes", "SigoCreditosInfo"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: function() {
+                                                var data = {
+                                                    Nombre: $('#@Html.IdFor(model => model.Nombre)').val(),
+                                                    Email: $('#@Html.IdFor(model => model.Email)').val(),
+                                                    Transaccion:
+                                                    {
+                                                        TransaccionPaypalID: $('#@Html.IdFor(model => model.Transaccion.TransaccionPaypalID)').val(),
+                                                        TransaccionCreditID: $('#@Html.IdFor(model => model.Transaccion.TransaccionCreditID)').val(),
+                                                        NombreReceptor: $('#@Html.IdFor(model => model.Transaccion.TransaccionCreditID)').val(),
+                                                        Estatus_Operacion: $('#@Html.IdFor(model => model.Transaccion.Estatus_Operacion)').val()
+
+                                                    },
+
+                                                };
+                                                addAntiForgeryToken(data);
+                                                console.log($('#@Html.IdFor(model => model.Transaccion.TransaccionPaypalID)').val());
+                                                return data;
+                                            }
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors"
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(defaultGridPageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(gridPageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                editable: {
+                                    confirmation: "@T("Admin.Common.DeleteConfirmation")",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "Transaccion.FechaCreacion".toString("dd/MM/yyyy"),
+                                        title: "@T("Account.CreateDate")",
+                                        width: 120,
+                                        type: "date",
+                                        format: "{0:G}"
+                                    },{
+                                        field: "Nombre",
+                                         title: "@T("Account.NombreEmisor")",
+                                         width: 20,
+                                         headerAttributes: { style: "text-align:center" },
+                                         attributes: { style: "text-align:center" },
+                                    },
+                                    {
+                                        field: "Email",
+                                        title: "@T("Account.EmailEmisor")",
+                                        width: 120,
+                                    }, {
+                                        field: "Transaccion.TransaccionPaypalID",
+                                        title: "@T("Account.TransaccionPaypalID")",
+                                        width: 150
+                                    },{
+                                        field: "Transaccion.TransaccionCreditID",
+                                        title: "@T("Account.ReferenceSigoCreditos")",
+                                        width: 150
+                                    },{
+                                        field: "Transaccion.NombreReceptor",
+                                        title: "@T("Account.NombreReceptor")",
+                                        width: 150
+                                    },{
+                                        //field: "Transaccion.Monto".ToString("N", new CultureInfo("is-IS")),
+                                        field: "Transaccion.Monto",
+                                        title: "@T("Account.Monto")",
+                                        width: 150,
+                                        format:"{0:c2}"
+                                    }
+                                    ,{
+                                        field: "Transaccion.Estatus_Operacion",
+                                        title: "@T("Account.Estatus_Operacion")",
+                                        width: 150,
+                                        template: '# if( Transaccion.Estatus_Operacion) {# <span>Exitoso</span> #} else {# <span>Sin Abonar</span> #} #'
+                                    }
+                                ]
+                            });
+                        });
+
+                    </script>
+
+                    <script>
+                        $(document).ready(function() {
+                            //search button
+                            $('#search-categories').click(function() {
+                                //search
+                                var grid = $('#AbonosClientes-grid').data('kendoGrid');
+                                grid.dataSource.page(1); //new search. Set page size to 1
+                                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                                return false;
+                            });
+
+                            @*$("#@Html.IdFor(model => model.SearchCategoryName)").keydown(function(event) {
+                                if (event.keyCode == 13) {
+                                    $("#search-categories").click();
+                                    return false;
+                                }
+                            });*@
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

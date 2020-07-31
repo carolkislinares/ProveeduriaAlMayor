@@ -31,6 +31,7 @@ using static Nop.Web.ApiCloudContext.ApiCloudContext;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Tax;
 using Nop.Services.Discounts;
+using Nop.Services.Catalog;
 
 namespace Nop.Web.Controllers
 {
@@ -97,6 +98,8 @@ namespace Nop.Web.Controllers
         //Interfaz para atributos Genericos
         private readonly ICustomerAttributeParser _CustomerService;
         //
+        // SubTotal
+        private readonly IPriceFormatter _priceFormatter;
 
         #endregion
 
@@ -131,7 +134,8 @@ namespace Nop.Web.Controllers
             IShoppingCartModelFactory shoppingCartModelFactory,
             ICustomerAttributeParser CustomerService,
             TaxSettings taxSettings,
-            IOrderTotalCalculationService orderTotalCalculationService)
+            IOrderTotalCalculationService orderTotalCalculationService,
+            IPriceFormatter _priceFormatter)
         {
             this._addressSettings = addressSettings;
             this._customerSettings = customerSettings;
@@ -164,6 +168,8 @@ namespace Nop.Web.Controllers
 
             this._orderTotalCalculationService = orderTotalCalculationService;
             this._taxSettings = taxSettings;
+
+            this._priceFormatter = _priceFormatter;
         }
 
         #endregion
@@ -497,6 +503,14 @@ namespace Nop.Web.Controllers
 
             //model
             var model = _checkoutModelFactory.PrepareShippingAddressModel(prePopulateNewAddressWithCustomerFields: true);
+            
+            ////////////////////////
+            //subtotal
+            var subTotalIncludingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
+            _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax, out decimal orderSubTotalDiscountAmountBase, out List<DiscountForCaching> _, out decimal subTotalWithoutDiscountBase, out decimal _);
+            var subtotalBase = subTotalWithoutDiscountBase;
+            ViewBag.SubTotal = _currencyService.ConvertFromPrimaryStoreCurrency(subtotalBase, _workContext.WorkingCurrency);
+
             return View(model);
         }
 
@@ -1239,7 +1253,8 @@ namespace Nop.Web.Controllers
                         }
                         else
                         {
-                            postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + _settingService.GetSettingByKey("DefaultShippingDay", "", 0, true) ,DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
+                            var ShippingDaySetting = !string.IsNullOrWhiteSpace(_settingService.GetSettingByKey("DefaultShippingDay", "", 0, true)) ? _settingService.GetSettingByKey("DefaultShippingDay", "", 0, true) : "0";
+                            postProcessPaymentRequest.Order.OrderNotes.Add(new OrderNote { Note = "ShippingDay," + ShippingDaySetting, DisplayToCustomer = false, CreatedOnUtc = DateTime.UtcNow });
                             _orderService.UpdateOrder(postProcessPaymentRequest.Order);
                         }
                         _paymentService.PostProcessPayment(postProcessPaymentRequest);

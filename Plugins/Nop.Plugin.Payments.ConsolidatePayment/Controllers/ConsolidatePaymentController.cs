@@ -25,7 +25,7 @@ using Nop.Web.Framework.Mvc.Filters;
 
 namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
 {
-    [AuthorizeAdmin]
+   
     [Area(AreaNames.Admin)]
     public class PaymentConsolidatePaymentController : BasePaymentController
     {
@@ -66,7 +66,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
         #endregion
 
         #region Methods
-
+        [AuthorizeAdmin]
         public IActionResult Configure()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManagePaymentMethods))
@@ -224,7 +224,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
         #endregion
 
         #region Export / Import
-
+        [AuthorizeAdmin]
         public virtual IActionResult ExportXlsxPendiente()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
@@ -252,7 +252,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
                 return RedirectToAction("List");
             }
         }
-
+        [AuthorizeAdmin]
         public virtual IActionResult ExportXlsxConsolidado()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
@@ -280,7 +280,7 @@ namespace Nop.Plugin.Payments.ConsolidatePayment.Controllers
                 return RedirectToAction("List");
             }
         }
-
+        [AuthorizeAdmin]
         public virtual IActionResult ExportXlsx(string status)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
