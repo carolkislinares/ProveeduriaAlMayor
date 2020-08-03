@@ -72,12 +72,12 @@
     <div class="page-body">
         <form asp-route="Register" asp-route-returnurl="@Context.Request.Query[" ReturnUrl"]" method="post" onsubmit="return checkForm()">
             @*<div class="fieldset">
-                <div class="title">
-                    <strong>@T("Account.YourPersonalDetails")</strong>
+                    <div class="title">
+                        <strong>@T("Account.YourPersonalDetails")</strong>
 
-                </div>
-                
-            </div>*@
+                    </div>
+
+                </div>*@
 
             @if (Model.NewsletterEnabled || Model.CustomerAttributes.Count > 0)
             {
@@ -128,120 +128,120 @@
                     </div>
                 </div>
             }
-        @*<div class="form-fields" id="frmUsr" style="display: none;">
-            <div class="inputs">
-                <label asp-for="FirstName" asp-postfix=":"></label>
-                <input asp-for="FirstName" onblur="alphanumeric(this,'El')" />
-                <nop-required />
-                <span asp-validation-for="FirstName" id="FirstNameValidate"></span>
-            </div>
-            <div class="inputs">
-                <label asp-for="LastName" asp-postfix=":"></label>
-                <input asp-for="LastName" onblur="alphanumeric(this,'El')" />
-                <nop-required />
-                <span asp-validation-for="LastName" id="LastNameValidate"></span>
-            </div>
-        </div>*@
+            @*<div class="form-fields" id="frmUsr" style="display: none;">
+                    <div class="inputs">
+                        <label asp-for="FirstName" asp-postfix=":"></label>
+                        <input asp-for="FirstName" onblur="alphanumeric(this,'El')" />
+                        <nop-required />
+                        <span asp-validation-for="FirstName" id="FirstNameValidate"></span>
+                    </div>
+                    <div class="inputs">
+                        <label asp-for="LastName" asp-postfix=":"></label>
+                        <input asp-for="LastName" onblur="alphanumeric(this,'El')" />
+                        <nop-required />
+                        <span asp-validation-for="LastName" id="LastNameValidate"></span>
+                    </div>
+                </div>*@
             @*@if (Model.StreetAddressEnabled ||
-        Model.StreetAddress2Enabled ||
-        Model.ZipPostalCodeEnabled ||
-        Model.CityEnabled ||
-        Model.CountyEnabled ||
-        Model.CountryEnabled)
-           {
-               <div class="fieldset">
-                   <div class="title">
-                       <strong>@T("Account.YourAddress")</strong>
-                   </div>
-                   <div class="form-fields">
-                       @if (Model.StreetAddressEnabled)
-                       {
-                           <div class="inputs">
-                               <label asp-for="StreetAddress" asp-postfix=":"></label>
-                               <input asp-for="StreetAddress" onblur="alphanumericAddress(this, 'La')" />
-                               @if (Model.StreetAddressRequired)
-                               {
-                                   <nop-required />
-                               }
-                               <span asp-validation-for="StreetAddress" id="StreetAddressValidate"></span>
+                Model.StreetAddress2Enabled ||
+                Model.ZipPostalCodeEnabled ||
+                Model.CityEnabled ||
+                Model.CountyEnabled ||
+                Model.CountryEnabled)
+                   {
+                       <div class="fieldset">
+                           <div class="title">
+                               <strong>@T("Account.YourAddress")</strong>
                            </div>
-                       }
-                       @if (Model.StreetAddress2Enabled)
-                       {
-                           <div class="inputs">
-                               <label asp-for="StreetAddress2" asp-postfix=":"></label>
-                               <input asp-for="StreetAddress2" onblur="alphanumericAddress(this, 'La')" />
-                               @if (Model.StreetAddress2Required)
+                           <div class="form-fields">
+                               @if (Model.StreetAddressEnabled)
                                {
-                                   <nop-required />
+                                   <div class="inputs">
+                                       <label asp-for="StreetAddress" asp-postfix=":"></label>
+                                       <input asp-for="StreetAddress" onblur="alphanumericAddress(this, 'La')" />
+                                       @if (Model.StreetAddressRequired)
+                                       {
+                                           <nop-required />
+                                       }
+                                       <span asp-validation-for="StreetAddress" id="StreetAddressValidate"></span>
+                                   </div>
                                }
-                               <span asp-validation-for="StreetAddress2" id="StreetAddress2Validate"></span>
-                           </div>
-                       }
-                       @if (Model.ZipPostalCodeEnabled)
-                       {
-                           <div class="inputs">
-                               <label asp-for="ZipPostalCode" asp-postfix=":"></label>
-                               <input asp-for="ZipPostalCode" />
-                               @if (Model.ZipPostalCodeRequired)
+                               @if (Model.StreetAddress2Enabled)
                                {
-                                   <nop-required />
+                                   <div class="inputs">
+                                       <label asp-for="StreetAddress2" asp-postfix=":"></label>
+                                       <input asp-for="StreetAddress2" onblur="alphanumericAddress(this, 'La')" />
+                                       @if (Model.StreetAddress2Required)
+                                       {
+                                           <nop-required />
+                                       }
+                                       <span asp-validation-for="StreetAddress2" id="StreetAddress2Validate"></span>
+                                   </div>
                                }
-                               <span asp-validation-for="ZipPostalCode"></span>
-                           </div>
-                       }
-                       @if (Model.CountyEnabled)
-                       {
-                           <div class="inputs">
-                               <label asp-for="County" asp-postfix=":"></label>
-                               <input asp-for="County" onblur="alphanumeric(this, 'El')" />
-                               @if (Model.CountyRequired)
+                               @if (Model.ZipPostalCodeEnabled)
                                {
-                                   <nop-required />
+                                   <div class="inputs">
+                                       <label asp-for="ZipPostalCode" asp-postfix=":"></label>
+                                       <input asp-for="ZipPostalCode" />
+                                       @if (Model.ZipPostalCodeRequired)
+                                       {
+                                           <nop-required />
+                                       }
+                                       <span asp-validation-for="ZipPostalCode"></span>
+                                   </div>
                                }
-                               <span asp-validation-for="County" id="CountyValidate"></span>
-                           </div>
-                       }
-                       @if (Model.CityEnabled)
-                       {
-                           <div class="inputs">
-                               <label asp-for="City" asp-postfix=":"></label>
-                               <input asp-for="City" onblur="alphanumeric(this, 'La')" />
-                               @if (Model.CityRequired)
+                               @if (Model.CountyEnabled)
                                {
-                                   <nop-required />
+                                   <div class="inputs">
+                                       <label asp-for="County" asp-postfix=":"></label>
+                                       <input asp-for="County" onblur="alphanumeric(this, 'El')" />
+                                       @if (Model.CountyRequired)
+                                       {
+                                           <nop-required />
+                                       }
+                                       <span asp-validation-for="County" id="CountyValidate"></span>
+                                   </div>
                                }
-                               <span asp-validation-for="City" id="CityValidate"></span>
-                           </div>
-                       }
-                       @if (Model.CountryEnabled)
-                       {
-                           <div class="inputs">
-                               <label asp-for="CountryId" asp-postfix=":"></label>
-                               <select asp-for="CountryId" asp-items="Model.AvailableCountries"></select>
-                               @if (Model.CountryRequired)
+                               @if (Model.CityEnabled)
                                {
-                                   <nop-required />
+                                   <div class="inputs">
+                                       <label asp-for="City" asp-postfix=":"></label>
+                                       <input asp-for="City" onblur="alphanumeric(this, 'La')" />
+                                       @if (Model.CityRequired)
+                                       {
+                                           <nop-required />
+                                       }
+                                       <span asp-validation-for="City" id="CityValidate"></span>
+                                   </div>
                                }
-                               <span asp-validation-for="CountryId"></span>
-                           </div>
-                       }
-                       @if (Model.CountryEnabled && Model.StateProvinceEnabled)
-                       {
-                           <div class="inputs">
-                               <label asp-for="StateProvinceId" asp-postfix=":"></label>
-                               <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"></select>
-                               @if (Model.StateProvinceRequired)
+                               @if (Model.CountryEnabled)
                                {
-                                   <nop-required />
+                                   <div class="inputs">
+                                       <label asp-for="CountryId" asp-postfix=":"></label>
+                                       <select asp-for="CountryId" asp-items="Model.AvailableCountries"></select>
+                                       @if (Model.CountryRequired)
+                                       {
+                                           <nop-required />
+                                       }
+                                       <span asp-validation-for="CountryId"></span>
+                                   </div>
                                }
-                               <span asp-validation-for="StateProvinceId"></span>
-                               <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
+                               @if (Model.CountryEnabled && Model.StateProvinceEnabled)
+                               {
+                                   <div class="inputs">
+                                       <label asp-for="StateProvinceId" asp-postfix=":"></label>
+                                       <select asp-for="StateProvinceId" asp-items="Model.AvailableStates"></select>
+                                       @if (Model.StateProvinceRequired)
+                                       {
+                                           <nop-required />
+                                       }
+                                       <span asp-validation-for="StateProvinceId"></span>
+                                       <span id="states-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
+                                   </div>
+                               }
                            </div>
-                       }
-                   </div>
-               </div>
-           }*@
+                       </div>
+                   }*@
             @if (Model.PhoneEnabled || Model.FaxEnabled)
             {
                 <div class="fieldset">
@@ -300,20 +300,20 @@
                 </div>
                 <div class="form-fields">
                     @*<div class="inputs">
-            <label asp-for="Password" asp-postfix=":"></label>
-            <input asp-for="Password" />
-            <nop-required />
-            <span asp-validation-for="Password"></span>
-        </div>
-        <div class="inputs">
-            <label asp-for="ConfirmPassword" asp-postfix=":"></label>
-            <input asp-for="ConfirmPassword" />
-            <nop-required />
-            <span asp-validation-for="ConfirmPassword"></span>
-        </div>*@
+                            <label asp-for="Password" asp-postfix=":"></label>
+                            <input asp-for="Password" />
+                            <nop-required />
+                            <span asp-validation-for="Password"></span>
+                        </div>
+                        <div class="inputs">
+                            <label asp-for="ConfirmPassword" asp-postfix=":"></label>
+                            <input asp-for="ConfirmPassword" />
+                            <nop-required />
+                            <span asp-validation-for="ConfirmPassword"></span>
+                        </div>*@
                     @*<div class="form-fields">
 
-        </div>*@
+                        </div>*@
                     @if (Model.GenderEnabled)
                     {
                         <div class="inputs">
@@ -331,17 +331,17 @@
                         </div>
                     }
                     @*<div class="inputs">
-            <label asp-for="FirstName" asp-postfix=":"></label>
-            <input asp-for="FirstName" onblur="alphanumeric(this,'El')" />
-            <nop-required />
-            <span asp-validation-for="FirstName" id="FirstNameValidate"></span>
-        </div>
-        <div class="inputs">
-            <label asp-for="LastName" asp-postfix=":"></label>
-            <input asp-for="LastName" onblur="alphanumeric(this,'El')" />
-            <nop-required />
-            <span asp-validation-for="LastName" id="LastNameValidate"></span>
-        </div>*@
+                            <label asp-for="FirstName" asp-postfix=":"></label>
+                            <input asp-for="FirstName" onblur="alphanumeric(this,'El')" />
+                            <nop-required />
+                            <span asp-validation-for="FirstName" id="FirstNameValidate"></span>
+                        </div>
+                        <div class="inputs">
+                            <label asp-for="LastName" asp-postfix=":"></label>
+                            <input asp-for="LastName" onblur="alphanumeric(this,'El')" />
+                            <nop-required />
+                            <span asp-validation-for="LastName" id="LastNameValidate"></span>
+                        </div>*@
                     @if (Model.DateOfBirthEnabled)
                     {
                         <div class="inputs date-of-birth">
@@ -503,20 +503,19 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-            document.getElementById('customer_attribute_1').style.textTransform = "uppercase";
+        document.getElementById('customer_attribute_1').style.textTransform = "uppercase";
+         
+        var elementTxt = document.getElementById("customer_attribute_1").value;
 
-             var elementTxt = document.getElementById("customer_attribute_1").value;
-            if (elementTxt.length > 8){
-                $('#customer_attribute_8_2').click();
-            }
-            else {
-                $('#customer_attribute_8_1').click();
-            } 
-
-
-        //$('#customer_attribute_8_1').click();
-            document.getElementById('CountryId').value = 86;
-           @* var selectedItem = 86;
+        if (elementTxt.length > 8){
+            $('#customer_attribute_8_2').click();
+        }
+        else {
+            $('#customer_attribute_8_1').click();
+        }
+            //$('#customer_attribute_8_1').click();
+            @*document.getElementById('CountryId').value = 86;
+            var selectedItem = 86;
                     var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
                     var statesProgress = $("#states-loading-progress");
                     statesProgress.show();
@@ -551,7 +550,7 @@
                 $(document.getElementsByClassName('custom-attributes')[i]).show();
             }
             document.getElementById('customer_attribute_1_1').innerHTML = "Cédula";
-            $("#customer_attribute_5").css("display", "none"); 
+            $("#customer_attribute_5").css("display", "none");
             $("#customer_attribute_5_5").css("display", "none");
             $("#customer_attribute_1009").css("display", "block");
             $("#customer_attribute_1009_1009").css("display", "block");
@@ -575,6 +574,15 @@
             document.getElementById("customer_attribute_1Validate").innerHTML = ""
 
             $("#customer_attribute_1").focus(); 
+             $("#customer_attribute_1009").removeClass("input-validation-error").addClass("input-validation-valid");
+            $("#customer_attribute_1010").removeClass("input-validation-error").addClass("input-validation-valid");
+
+
+             document.getElementById("customer_attribute_1009Validate").innerHTML = "";
+            document.getElementById("customer_attribute_1010Validate").innerHTML = "";
+
+
+
         })
         $('#customer_attribute_8_2').click(function () {
             for (var i = 2; i < 7; i++) {
@@ -586,7 +594,7 @@
             $("#customer_attribute_5_5").css("display", "block");
             $("#customer_attribute_1009").css("display", "none");
             $("#customer_attribute_1009_1009").css("display", "none");
-            $("#customer_attribute_1010").css("display", "none"); 
+            $("#customer_attribute_1010").css("display", "none");
             $("#customer_attribute_1010_1010").css("display", "none");
 
             document.getElementById('customer_attribute_1_1').innerHTML = "R.I.F."
@@ -594,9 +602,9 @@
             $("#customer_attribute_1Validate").removeClass("field-validation-error").addClass("field-validation-valid");
             document.getElementById("customer_attribute_1Validate").innerHTML = ""
 
-            $("#customer_attribute_1").focus(); 
-             $("#customer_attribute_1009").addClass("input-validation-valid");
-                $("#customer_attribute_1010").removeClass("field-validation-error").addClass("input-validation-valid");
+            $("#customer_attribute_1").focus();
+            $("#customer_attribute_1009").removeClass("input-validation-error").addClass("input-validation-valid");
+            $("#customer_attribute_1010").removeClass("input-validation-error").addClass("input-validation-valid");
 
 
              document.getElementById("customer_attribute_1009Validate").innerHTML = "";
@@ -687,7 +695,8 @@
     }
 
     function alphanumericCompany(input) {
-        var letters = /^([\s.]?[a-zA-Z0-9\d\.\s]+)+$/;
+        var letters = /^([\s.]?[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+)+$/;
+        var lettersNumber = /^([\s.]?[0-9a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+)+$/;
         var numbers = /^[0-9]{6,8}$/;
         var numbersRif = /^[VEJGC]{1}[0-9]{7,9}$/;
         var numbersCed = /^[0-9]{6,8}$/;
@@ -712,20 +721,20 @@
                 //        break;
                 //    }
                 //}
-                   if (document.getElementById('customer_attribute_8_2').checked) {
-                      isValid = input.value.toUpperCase().match(numbersRif);
-                   }
-                   else {
-                      isValid = input.value.toUpperCase().match(numbersCed);
-                    }
+                if (document.getElementById('customer_attribute_8_2').checked) {
+                    isValid = input.value.toUpperCase().match(numbersRif);
+                }
+                else {
+                    isValid = input.value.toUpperCase().match(numbersCed);
+                }
 
 
 
                 if (isValid == null) {
                     if (document.getElementById('customer_attribute_8_2').checked) {
-                        mensaje = "Formato inválido de R.I.F. Por favor verifique";
+                        mensaje = "Formato inválido de R.I.F. Por favor verifique (Ej. J123456789)";
                     } else {
-                        mensaje = " Formato inválido de Cédula. Por favor verifique ";
+                        mensaje = " Formato inválido de Cédula. Por favor verifique (Ej. 12345678)";
                     }
 
                 }
@@ -740,7 +749,7 @@
             }
             case 'customer_attribute_5': {
                 if (document.getElementById('customer_attribute_8_2').checked) {
-                    isValid = input.value.match(letters);
+                    isValid = input.value.match(lettersNumber);
                     if (isValid == null) {
                         if (input.value.length == 0) {
                             mensaje = " la Razón Social.";
@@ -837,12 +846,6 @@
 
     function checkForm(form) {
         searchinputcOMPANY();
-
-        if (document.getElementById('customer_attribute_8_2').checked) {
-
-        }
-
-
         var testElements = document.getElementsByClassName('input-validation-error');
         if (testElements.length > 0) {
             return false;
@@ -868,8 +871,8 @@
                 document.getElementById("customer_attribute_5Validate").innerHTML = "La Razón Social es requerida"
             }
 
-                         $("#customer_attribute_1009").addClass("field-validation-valid");
-                $("#customer_attribute_1010").removeClass("field-validation-error").addClass("field-validation-valid");
+                $("#customer_attribute_1009").removeClass("input-validation-error").addClass("input-validation-valid");
+                $("#customer_attribute_1010").removeClass("input-validation-error").addClass("input-validation-valid");
 
 
              document.getElementById("customer_attribute_1009Validate").innerHTML = "";
@@ -885,18 +888,25 @@
         } else {
             //document.getElementById("customer_attribute_3").value="";
             //document.getElementById("customer_attribute_4").value="";
-            document.getElementById("customer_attribute_5").value="";
+            document.getElementById("customer_attribute_5").value = "";
             //document.getElementById("customer_attribute_6").value = "";
             //document.getElementById("customer_attribute_1009").value = "";
             //document.getElementById("customer_attribute_1010").value = "";
-
-
-                
-
-
+            var element9 = document.getElementById("customer_attribute_1009").value;
+            if (element9.length == 0) {
+                $("#customer_attribute_1009").addClass("input-validation-error");
+                $("#customer_attribute_1009Validate").removeClass("field-validation-valid").addClass("field-validation-error");
+                document.getElementById("customer_attribute_1009Validate").innerHTML = "El nombre es requerido"
+            }
+            var element10 = document.getElementById("customer_attribute_1010").value;
+            if (element10.length == 0) {
+                $("#customer_attribute_1010").addClass("input-validation-error");
+                $("#customer_attribute_1010Validate").removeClass("field-validation-valid").addClass("field-validation-error");
+                document.getElementById("customer_attribute_1010Validate").innerHTML = "El apellido es requerido"
             }
         }
-    
+    }
+
 
 
 

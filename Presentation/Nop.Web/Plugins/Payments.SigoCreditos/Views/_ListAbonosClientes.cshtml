@@ -10,14 +10,14 @@
     var gridPageSizes = adminAreaSettings.GridPageSizes;
 
 }
-
+    <style>
+        .panel-group .panel + .panel {
+            margin-top: 5px;
+        }
+    </style>
 <nop-antiforgery-token />
 
-
-<div class="content">
-    <div class="form-horizontal">
-        <div class="panel-group">
-            <div class="panel panel-default">
+            <div style="margin-top: 5px;" class="panel panel-default">
                 <div class="panel-body">
                     <div id="AbonosClientes-grid"></div>
 
@@ -80,15 +80,18 @@
                                     {
                                         field: "Transaccion.FechaCreacion".toString("dd/MM/yyyy"),
                                         title: "@T("Account.CreateDate")",
-                                        width: 120,
+                                        width: 150,
                                         type: "date",
-                                        format: "{0:G}"
+                                        format: "{0:dd-MMM-yyyy hh:mm:ss tt}",
+                                        parseFormats: ["yyyy-MM-dd'T'HH:mm:ss.zz"]
                                     },{
                                         field: "Nombre",
                                          title: "@T("Account.NombreEmisor")",
-                                         width: 20,
+                                         width: 200,
                                          headerAttributes: { style: "text-align:center" },
-                                         attributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        template: "<a href=@Url.Action("Edit", "Customer")/#=@Html.IdFor(model => model.EcommerceId)# name='Id#:@Html.IdFor(model => model.EcommerceId)#' id='order#:@Html.IdFor(model => model.EcommerceId)#'>#:Nombre#</a>"
+
                                     },
                                     {
                                         field: "Email",
@@ -110,7 +113,7 @@
                                         //field: "Transaccion.Monto".ToString("N", new CultureInfo("is-IS")),
                                         field: "Transaccion.Monto",
                                         title: "@T("Account.Monto")",
-                                        width: 150,
+                                        width: 50,
                                         format:"{0:c2}"
                                     }
                                     ,{
@@ -146,6 +149,4 @@
                     </script>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+ 

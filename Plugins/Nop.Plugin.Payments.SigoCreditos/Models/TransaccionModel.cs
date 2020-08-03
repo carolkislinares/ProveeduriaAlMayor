@@ -52,6 +52,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Models
         /// <summary>
         /// Estatus del abono dependiendo del resultado de la operacion CRM.
         /// </summary>
+       [NopResourceDisplayName("Account.Fields.EstatusOperacion")]
         public bool Estatus_Operacion { get; set; }
 
         /// <summary>

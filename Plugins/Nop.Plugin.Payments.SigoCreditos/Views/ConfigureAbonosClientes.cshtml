@@ -3,24 +3,6 @@
     Layout = "_ConfigurePlugin";
 }
 
-<style>
-    .bootstrap-touchspin {
-        max-width: unset;
-    }
-
-    .k-picker-wrap.k-state-default {
-        padding-right: 6.5em;
-        width: 100%;
-    }
-
-    #search-categories {
-        float: right;
-    }
-
-    #FechaUltimaActualizacion {
-        width: 120% !important;
-    }
-</style>
 
 <div class="content-header clearfix">
     <h1 class="pull-left">
@@ -42,15 +24,21 @@
             </button>
             <ul class="dropdown-menu" role="menu">
                 <li>
-                    <a asp-action="ExportXlsxExitoso">
+                    <a asp-action="ExportXlsx">
                         <i class="fa fa-file-excel-o"></i>
-                        @T("Admin.Common.ExportToExcel") Exitoso
+                        @T("Admin.Common.ExportToExcel")
                     </a>
                 </li>
                 <li>
-                    <a asp-action="ExportXlsxSinAbonar">
+                    <a asp-action="ExportXlsxPendiente">
                         <i class="fa fa-file-excel-o"></i>
-                        @T("Admin.Common.ExportToExcel") Sin Abonar
+                        @T("Admin.Common.ExportToExcel") Pendientes
+                    </a>
+                </li>
+                <li>
+                    <a asp-action="ExportXlsxConsolidado">
+                        <i class="fa fa-file-excel-o"></i>
+                        @T("Admin.Common.ExportToExcel") Consolidados
                     </a>
                 </li>
 
@@ -64,106 +52,103 @@
 
     </div>
 </div>
+<div class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="Nombre" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="Nombre" />
+                                </div>
+                            </div>
+                        </div>
 
-<div class="panel panel-default panel-search">
-    <div class="panel-body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <div class="col-md-4">
-                        <nop-label asp-for="Nombre" />
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="Transaccion.TransaccionPaypalID" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="Transaccion.TransaccionPaypalID" />
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <nop-editor asp-for="Nombre" />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="Email" />
+                                </div>
+                                <div class="col-md-8">
+                                    <nop-editor asp-for="Email" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <nop-label asp-for="Transaccion.Estatus_Operacion" />
+                                </div>
+                                <div class="col-md-8">
+                                    <select class="form-control" asp-for="Transaccion.Estatus_Operacion">
+                                        <option selected value="true">Exitoso</option>
+                                        <option value="false">Sin abonar</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="display: none;">
+                            <div class="col-md-6">
+                                <div class="form-group">
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group" style="display: flex;">
+                                    <button type="button" id="search-categories" class="btn btn-primary btn-search" style="margin: 10px auto;">
+                                        <i class="fa fa-search"></i>@T("Admin.Common.Search")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <div class="form-group">
-                    <div class="col-md-4">
-                        <nop-label asp-for="Email" />
-                    </div>
-                    <div class="col-md-8">
-                        <nop-editor asp-for="Email" />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <div class="col-md-4">
-                        <nop-label asp-for="Email" />
-                    </div>
-                    <div class="col-md-8">
-                        <nop-editor asp-for="Email" />
-                    </div>
-                </div>
-
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <div class="col-md-4">
-                        <nop-label asp-for="Transaccion.TransaccionPaypalID" />
-                    </div>
-                    <div class="col-md-8">
-                        <nop-editor asp-for="Transaccion.TransaccionPaypalID" />
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <div class="col-md-4">
-                        <nop-label asp-for="Transaccion.Estatus_Operacion" />
-                    </div>
-                    <div class="col-md-8">
-                        <select class="form-control" asp-for="Transaccion.Estatus_Operacion">
-                            <option selected value="true">Exitoso</option>
-                            <option value="false">Sin abonar</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="row" style="display: none;">
-                <div class="col-md-6">
-                    <div class="form-group">
-
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group" style="display: flex;">
-                        <button type="button" id="search-categories" class="btn btn-primary btn-search" style="margin: 10px auto;">
-                            <i class="fa fa-search"></i>@T("Admin.Common.Search")
-                        </button>
-                    </div>
-                </div>
+            @await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_ListAbonosClientes.cshtml", Model)
             </div>
         </div>
     </div>
-</div>
-<script src="~/js/jquery.mask.min.js"></script>
-<script type="text/javascript">
-    @*$('#@Html.IdFor(model => model.Orden)').mask('0000000');*@
 
-</script>
-
-@await Html.PartialAsync("~/Plugins/Payments.SigoCreditos/Views/_ListAbonosClientes.cshtml", Model)
+            <script src="~/js/jquery.mask.min.js"></script>
+            <script type="text/javascript">
+            </script>
 
 
 

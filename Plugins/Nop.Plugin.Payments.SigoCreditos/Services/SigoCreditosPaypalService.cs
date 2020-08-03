@@ -118,7 +118,8 @@ namespace Nop.Plugin.Payments.SigoCreditos.Services
                             
 
                             EcommerceId = SCPaypal.CustomerID,
-                            Nombre =  cliente.Addresses.FirstOrDefault(x=>x.FirstName != null).FirstName != null ? cliente.Addresses.FirstOrDefault(x => x.FirstName != null).FirstName : "S/D"+ " " + cliente.Addresses.FirstOrDefault(x => x.LastName != null).LastName != null ? cliente.Addresses.FirstOrDefault(x => x.LastName != null).LastName : "S/D" ,
+                            //Nombre =  cliente.Addresses != null ? cliente.Addresses.FirstOrDefault(x => x.FirstName != null).FirstName : 
+                            Nombre = (cliente.Addresses.FirstOrDefault(x => x.FirstName != null).FirstName ?? "S/D") + " " + (cliente.Addresses.FirstOrDefault(x => x.LastName != null).LastName ?? "S/D"),
                             Apellido = cliente.Addresses.FirstOrDefault(x => x.LastName != null).LastName != null ? cliente.Addresses.FirstOrDefault(x => x.LastName != null).LastName : "S/D" ,
                             Telefono = cliente.Addresses.FirstOrDefault(x => x.PhoneNumber != null).PhoneNumber != null ? cliente.Addresses.FirstOrDefault(x => x.PhoneNumber != null).PhoneNumber : "S/D" ,
                             Email =   cliente.Email != null ? cliente.Email : "S/D",
