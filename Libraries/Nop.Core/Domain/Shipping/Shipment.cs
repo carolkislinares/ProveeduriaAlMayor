@@ -55,6 +55,9 @@ namespace Nop.Core.Domain.Shipping
         [NotMapped]
         public int DaysToShipment { get; set; }
 
+        [NotMapped]
+        public DateTime DateToShipment { get; set; }
+
 
 
         /// <summary>

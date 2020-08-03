@@ -1304,13 +1304,11 @@ namespace Nop.Web.Areas.Admin.Factories
                 searchModel.Page - 1,
                 searchModel.PageSize);
 
- 
 
-           
+            #region Metodo Generico
             if (bool.Parse(_SettingService.GetSettingByKey("shipment.OrderDateShipment", "", 0, true))) //Setting
             {
-                
-                List<string> f = new List<string>();
+
                 foreach (var item in shipments)
                 {
                     var orderNote = item.Order.OrderNotes.FirstOrDefault(x => x.Note.Contains("ShippingDay"));
@@ -1323,7 +1321,10 @@ namespace Nop.Web.Areas.Admin.Factories
                         var diasEntrega = item.CreatedOnUtc.Subtract(DateTime.UtcNow).Days;
                         var realdays = diasEntrega + Convert.ToInt32(!string.IsNullOrWhiteSpace(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]) ? item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1] : "0");
                         item.DaysToShipment = realdays;
-                        f.Add((item.CreatedOnUtc.AddDays(Convert.ToInt32(!string.IsNullOrWhiteSpace(item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])? item.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1] : "0")) - DateTime.UtcNow).ToString() + " - " + item.OrderId + " fecha:" + item.CreatedOnUtc);
+                        item.DateToShipment = item.CreatedOnUtc.AddDays(dias);
+
+
+
                     }
                     else
                     {
@@ -1335,16 +1336,14 @@ namespace Nop.Web.Areas.Admin.Factories
                     
                 
                 }
-                shipments = new PagedList<Shipment>(shipments.OrderBy(shipment => shipment.CreatedOnUtc.Subtract(DateTime.UtcNow).Days + 
-                                                                                   Convert.ToInt32(!string.IsNullOrWhiteSpace(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1]) ?
-                                                                                   shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1] :
-                                                                                   "0"
-                                                                                   )).ToList(),
-                                                                                   searchModel.Page - 1, searchModel.PageSize);
-
-
-               // shipments = new PagedList<Shipment>(shipments.OrderByDescending(shipment => shipment.CreatedOnUtc.AddDays(Convert.ToInt32(shipment.Order.OrderNotes.First(x => x.Note.Contains("ShippingDay")).Note.Split(",")[1])) - DateTime.UtcNow).ToList(), searchModel.Page - 1, searchModel.PageSize);
+                shipments = new PagedList<Shipment>(shipments.OrderBy(shipment => shipment.DateToShipment)
+                                                             .ThenBy(shipment => shipment.DateToShipment.Hour)
+                                                             .ThenBy(shipment => shipment.DateToShipment.Minute)
+                                                             .ThenBy(shipment => shipment.DateToShipment.Second)
+                                                                        .ToList(),
+                                                                                  searchModel.Page - 1, searchModel.PageSize);
             }
+            #endregion
 
             //prepare list model
             var model = new ShipmentListModel
