@@ -654,7 +654,7 @@ input.productQuantityTextBox {
 
 }
 
-.productAddedToCartWindowCheckout {
+.productAddedToCartWindowCheckout#addedToCartButton {
     background-color: #eee !important;
     background-image: url(../content/img/ico-cart.png) !important;
     background-size: contain !important;
