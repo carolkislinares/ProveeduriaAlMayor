@@ -40,30 +40,40 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="Username"/>
+                        <nop-label asp-for="Username" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="Username"/>
+                        <nop-editor asp-for="Username" />
                         <span asp-validation-for="Username"></span>
                     </div>
                 </div>
             }
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="Email"/>
+                    <nop-label asp-for="Email" />
                 </div>
                 <div class="col-md-9">
-                    <nop-editor asp-for="Email"/>
-                    <span asp-validation-for="Email"></span>
+                    @if (Model.Id > 0)
+                    {
+                        <input asp-for="Email" class="form-control" readonly />
+                        <span asp-validation-for="Email"></span>
+                    }
+                    else
+                    {
+                        <nop-editor asp-for="Email" />
+                        <span asp-validation-for="Email"></span>
+                    }
+
+
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="Password"/>
+                    <nop-label asp-for="Password" />
                 </div>
                 <div class="col-md-9">
                     <div class="input-group">
-                        <nop-editor asp-for="Password"/>
+                        <nop-editor asp-for="Password" />
                         <div class="input-group-btn">
                             @if (Model.Id > 0)
                             {
@@ -80,7 +90,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="AssociatedExternalAuthRecords"/>
+                        <nop-label asp-for="AssociatedExternalAuthRecords" />
                     </div>
                     <div class="col-md-9">
                         <div id="externalauthrecords-grid"></div>
@@ -155,18 +165,18 @@
                     </div>
                 </div>
             }
-        <div class="form-group">
-            <div class="col-md-3">
-                <nop-label asp-for="SelectedCustomerRoleIds"/>
-            </div>
-            <div class="col-md-9">
-                <div class="input-group input-group-required">
-                    <nop-select asp-for="SelectedCustomerRoleIds" asp-items="Model.AvailableCustomerRoles" asp-multiple="true"/>
-                    <div class="input-group-btn">
-                        <nop-required />
-                    </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <nop-label asp-for="SelectedCustomerRoleIds" />
                 </div>
-                <script>
+                <div class="col-md-9">
+                    <div class="input-group input-group-required">
+                        <nop-select asp-for="SelectedCustomerRoleIds" asp-items="Model.AvailableCustomerRoles" asp-multiple="true" />
+                        <div class="input-group-btn">
+                            <nop-required />
+                        </div>
+                    </div>
+                    <script>
                     $(document).ready(function() {
                         var customerRolesIdsInput = $('#@Html.IdFor(model => model.SelectedCustomerRoleIds)').data("kendoMultiSelect");
                         customerRolesIdsInput.setOptions({
@@ -186,12 +196,12 @@
                             </text>
                         }
                     });
-                </script>
+                    </script>
+                </div>
             </div>
-        </div>
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="VendorId"/>
+                    <nop-label asp-for="VendorId" />
                 </div>
                 <div class="col-md-9">
                     <nop-select asp-for="VendorId" asp-items="Model.AvailableVendors" />
@@ -203,7 +213,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="Gender"/>
+                        <nop-label asp-for="Gender" />
                     </div>
                     <div class="col-md-9">
                         <div class="raw">
@@ -229,30 +239,40 @@
             }
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="FirstName"/>
+                    <nop-label asp-for="FirstName" />
                 </div>
                 <div class="col-md-9">
-                    <nop-editor asp-for="FirstName"/>
-                    <span asp-validation-for="FirstName"></span>
+                    @if (Model.Id > 0)
+                    {<input asp-for="FirstName" class="form-control" readonly />
+                        <span asp-validation-for="FirstName"></span>}
+                    else
+                    {<nop-editor asp-for="FirstName" />
+                        <span asp-validation-for="FirstName"></span>}
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="LastName"/>
+                    <nop-label asp-for="LastName" />
                 </div>
                 <div class="col-md-9">
-                    <nop-editor asp-for="LastName"/>
-                    <span asp-validation-for="LastName"></span>
+                    @if (Model.Id > 0)
+                    {<input asp-for="LastName" class="form-control" readonly />
+                        <span asp-validation-for="LastName"></span>}
+                    else
+                    {<nop-editor asp-for="LastName" />
+                        <span asp-validation-for="LastName"></span>}
+
+
                 </div>
             </div>
             @if (Model.DateOfBirthEnabled)
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="DateOfBirth"/>
+                        <nop-label asp-for="DateOfBirth" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="DateOfBirth"/>
+                        <nop-editor asp-for="DateOfBirth" />
                         <span asp-validation-for="DateOfBirth"></span>
                     </div>
                 </div>
@@ -261,10 +281,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="Company"/>
+                        <nop-label asp-for="Company" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="Company"/>
+                        <nop-editor asp-for="Company" />
                         <span asp-validation-for="Company"></span>
                     </div>
                 </div>
@@ -273,10 +293,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="StreetAddress"/>
+                        <nop-label asp-for="StreetAddress" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="StreetAddress"/>
+                        <nop-editor asp-for="StreetAddress" />
                         <span asp-validation-for="StreetAddress"></span>
                     </div>
                 </div>
@@ -285,10 +305,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="StreetAddress2"/>
+                        <nop-label asp-for="StreetAddress2" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="StreetAddress2"/>
+                        <nop-editor asp-for="StreetAddress2" />
                         <span asp-validation-for="StreetAddress2"></span>
                     </div>
                 </div>
@@ -297,10 +317,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="ZipPostalCode"/>
+                        <nop-label asp-for="ZipPostalCode" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="ZipPostalCode"/>
+                        <nop-editor asp-for="ZipPostalCode" />
                         <span asp-validation-for="ZipPostalCode"></span>
                     </div>
                 </div>
@@ -309,10 +329,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="City"/>
+                        <nop-label asp-for="City" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="City"/>
+                        <nop-editor asp-for="City" />
                         <span asp-validation-for="City"></span>
                     </div>
                 </div>
@@ -333,10 +353,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="CountryId"/>
+                        <nop-label asp-for="CountryId" />
                     </div>
                     <div class="col-md-9">
-                        <nop-select asp-for="CountryId" asp-items="Model.AvailableCountries"/>
+                        <nop-select asp-for="CountryId" asp-items="Model.AvailableCountries" />
                         <span asp-validation-for="CountryId"></span>
                     </div>
                 </div>
@@ -345,10 +365,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="StateProvinceId"/>
+                        <nop-label asp-for="StateProvinceId" />
                     </div>
                     <div class="col-md-9">
-                        <nop-select asp-for="StateProvinceId" asp-items="Model.AvailableStates"/>
+                        <nop-select asp-for="StateProvinceId" asp-items="Model.AvailableStates" />
                         <span asp-validation-for="StateProvinceId"></span>
                     </div>
                 </div>
@@ -357,10 +377,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="Phone"/>
+                        <nop-label asp-for="Phone" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="Phone"/>
+                        <nop-editor asp-for="Phone" />
                         <span asp-validation-for="Phone"></span>
                     </div>
                 </div>
@@ -369,33 +389,41 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="Fax"/>
+                        <nop-label asp-for="Fax" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="Fax"/>
+                        <nop-editor asp-for="Fax" />
                         <span asp-validation-for="Fax"></span>
                     </div>
                 </div>
             }
             @if (Model.CustomerAttributes.Count > 0)
             {
-                @await Html.PartialAsync("_CustomerAttributes", Model.CustomerAttributes)
+                @if (Model.Id == 0)
+                {
+                    @await Html.PartialAsync("_CustomerAttributes", Model.CustomerAttributes)
+                }
+                else
+                {
+                    @await Html.PartialAsync("_CustomerAttributesInfo", Model.CustomerAttributes)
+                }
+
             }
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="AdminComment"/>
+                    <nop-label asp-for="AdminComment" />
                 </div>
                 <div class="col-md-9">
-                    <nop-textarea asp-for="AdminComment"/>
+                    <nop-textarea asp-for="AdminComment" />
                     <span asp-validation-for="AdminComment"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="IsTaxExempt"/>
+                    <nop-label asp-for="IsTaxExempt" />
                 </div>
                 <div class="col-md-9">
-                    <nop-editor asp-for="IsTaxExempt"/>
+                    <nop-editor asp-for="IsTaxExempt" />
                     <span asp-validation-for="IsTaxExempt"></span>
                 </div>
             </div>
@@ -403,10 +431,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="TimeZoneId"/>
+                        <nop-label asp-for="TimeZoneId" />
                     </div>
                     <div class="col-md-9">
-                        <nop-select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones"/>
+                        <nop-select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones" />
                         <span asp-validation-for="TimeZoneId"></span>
                     </div>
                 </div>
@@ -415,7 +443,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="AffiliateId"/>
+                        <nop-label asp-for="AffiliateId" />
                     </div>
                     <div class="col-md-9">
                         <a asp-controller="Affiliate" asp-action="Edit" asp-route-id="@Model.AffiliateId">@Model.AffiliateName - @T("Admin.Common.View")</a>
@@ -429,10 +457,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="VatNumber"/>
+                        <nop-label asp-for="VatNumber" />
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="VatNumber"/>
+                        <nop-editor asp-for="VatNumber" />
                         <div class="margin-t-5">
                             (@string.Format(T("Admin.Customers.Customers.Fields.VatNumberStatus").Text, Model.VatNumberStatusNote))
                             <button type="submit" name="markVatNumberAsValid" class="btn btn-primary">
@@ -450,7 +478,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="SelectedNewsletterSubscriptionStoreIds"/>
+                        <nop-label asp-for="SelectedNewsletterSubscriptionStoreIds" />
                     </div>
                     <div class="col-md-9">
                         @foreach (var store in Model.AvailableNewsletterSubscriptionStores)
@@ -471,10 +499,10 @@
             }
             <div class="form-group">
                 <div class="col-md-3">
-                    <nop-label asp-for="Active"/>
+                    <nop-label asp-for="Active" />
                 </div>
                 <div class="col-md-9">
-                    <nop-editor asp-for="Active"/>
+                    <nop-editor asp-for="Active" />
                     <span asp-validation-for="Active"></span>
                 </div>
             </div>
@@ -482,7 +510,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="RegisteredInStore"/>
+                        <nop-label asp-for="RegisteredInStore" />
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.RegisteredInStore</div>
@@ -493,7 +521,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="LastIpAddress"/>
+                        <nop-label asp-for="LastIpAddress" />
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.LastIpAddress</div>
@@ -504,7 +532,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="CreatedOn"/>
+                        <nop-label asp-for="CreatedOn" />
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.CreatedOn</div>
@@ -515,7 +543,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="LastActivityDate"/>
+                        <nop-label asp-for="LastActivityDate" />
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.LastActivityDate</div>
@@ -526,7 +554,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <nop-label asp-for="LastVisitedPage"/>
+                        <nop-label asp-for="LastVisitedPage" />
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.LastVisitedPage</div>

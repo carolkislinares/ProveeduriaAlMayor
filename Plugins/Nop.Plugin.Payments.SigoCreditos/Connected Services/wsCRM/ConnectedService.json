@@ -6,7 +6,7 @@
   },
   "ExtendedData": {
     "inputs": [
-      "http://proveedurias.sigo.com.ve/wscrm/repository/wsCRM.svc"
+      "http://proveedurias.sigo.com.ve/wscrm/repository/wscrm.svc"
     ],
     "collectionTypes": [
       "System.Collections.Generic.Dictionary`2",

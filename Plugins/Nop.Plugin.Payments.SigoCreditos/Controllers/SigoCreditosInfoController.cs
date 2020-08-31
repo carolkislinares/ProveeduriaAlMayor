@@ -250,7 +250,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
             {
                 if (tipoDoc.Contains("2"))
                 {
-                   // entityid = CRMContext.ApiCloudContext.ValidarAutorizado(entityid, cedula);
+                    entityid = CRMContext.ApiCloudContext.ValidarAutorizado(entityid, cedula);
                     if(entityid==0)
                         return Json(2);
                 }
@@ -424,6 +424,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Controllers
                 new PropertyByName<ClienteAbonoModel>("Email emisor", p => p.Email),
                 new PropertyByName<ClienteAbonoModel>("R. Paypal", p => p.Transaccion.TransaccionPaypalID),
                 new PropertyByName<ClienteAbonoModel>("R. Sigo club", p => p.Transaccion.TransaccionCreditID.ToString()),
+                new PropertyByName<ClienteAbonoModel>("Cedula Receptor", p => p.Transaccion.CedulaReceptor),
                 new PropertyByName<ClienteAbonoModel>("Receptor", p => p.Transaccion.NombreReceptor),
                 new PropertyByName<ClienteAbonoModel>("Monto Total", p => p.Transaccion.Monto.ToString()),
                 new PropertyByName<ClienteAbonoModel>("Estatus", p => p.Transaccion.Estatus_Operacion ? "Exitoso" : "")

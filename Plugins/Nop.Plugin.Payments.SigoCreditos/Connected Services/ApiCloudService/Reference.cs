@@ -104,7 +104,11 @@ namespace ApiCloudService
         
         private string MovilPhoneField;
         
+        private bool PointsAcccessField;
+        
         private string RifField;
+        
+        private string SecurityTokenField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Collections.Generic.List<ApiCloudService.mAccount> Account
@@ -328,6 +332,19 @@ namespace ApiCloudService
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool PointsAcccess
+        {
+            get
+            {
+                return this.PointsAcccessField;
+            }
+            set
+            {
+                this.PointsAcccessField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Rif
         {
             get
@@ -337,6 +354,19 @@ namespace ApiCloudService
             set
             {
                 this.RifField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SecurityToken
+        {
+            get
+            {
+                return this.SecurityTokenField;
+            }
+            set
+            {
+                this.SecurityTokenField = value;
             }
         }
     }
@@ -702,279 +732,6 @@ namespace ApiCloudService
             set
             {
                 this.SymbolField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="mConsume", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.Models")]
-    public partial class mConsume : object
-    {
-        
-        private decimal AmountField;
-        
-        private long Cod_OperadorField;
-        
-        private ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMovField;
-        
-        private long NumberAccountField;
-        
-        private string NumberDocumentField;
-        
-        private decimal OldAmountField;
-        
-        private long SigoClubField;
-        
-        private string SucursalField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal Amount
-        {
-            get
-            {
-                return this.AmountField;
-            }
-            set
-            {
-                this.AmountField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long Cod_Operador
-        {
-            get
-            {
-                return this.Cod_OperadorField;
-            }
-            set
-            {
-                this.Cod_OperadorField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov
-        {
-            get
-            {
-                return this.Cod_TipoOperacionMovField;
-            }
-            set
-            {
-                this.Cod_TipoOperacionMovField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long NumberAccount
-        {
-            get
-            {
-                return this.NumberAccountField;
-            }
-            set
-            {
-                this.NumberAccountField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string NumberDocument
-        {
-            get
-            {
-                return this.NumberDocumentField;
-            }
-            set
-            {
-                this.NumberDocumentField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public decimal OldAmount
-        {
-            get
-            {
-                return this.OldAmountField;
-            }
-            set
-            {
-                this.OldAmountField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long SigoClub
-        {
-            get
-            {
-                return this.SigoClubField;
-            }
-            set
-            {
-                this.SigoClubField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Sucursal
-        {
-            get
-            {
-                return this.SucursalField;
-            }
-            set
-            {
-                this.SucursalField = value;
-            }
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
-        [System.Runtime.Serialization.DataContractAttribute(Name="mConsume.eTipoOperacionesMovimiento", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.Models")]
-        public enum eTipoOperacionesMovimiento : int
-        {
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            AbonoCambioCaja_NorkutPOS = 1,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            ConsumoFacturacion_NorkutPOS = 2,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            DevolucionFacturacion_NorkutPOS = 3,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            AbonoCambioCaja_InnovaPOS = 4,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            AbonoSaldoCaja_InnovaPOS = 5,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            ConsumoFacturacion_InnovaPOS = 6,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            DevolucionFacturacion_InnovaPOS = 7,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            DevolucionSaldoCaja_InnovaPOS = 8,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            AbonoDirectoSaldo_CRM = 9,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            AbonoGiftCard_CRM = 10,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            AbonoSaldoContrato_CRM = 11,
-            
-            [System.Runtime.Serialization.EnumMemberAttribute()]
-            ConsumoFacturacion_GS = 12,
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MDBResponseOflong", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.StructureResponse")]
-    public partial class MDBResponseOflong : object
-    {
-        
-        private long bodyField;
-        
-        private string descriptionField;
-        
-        private int idField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long body
-        {
-            get
-            {
-                return this.bodyField;
-            }
-            set
-            {
-                this.bodyField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string description
-        {
-            get
-            {
-                return this.descriptionField;
-            }
-            set
-            {
-                this.descriptionField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int id
-        {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.StructureResponse")]
-    public partial class MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj : object
-    {
-        
-        private System.Collections.Generic.Dictionary<long, long> bodyField;
-        
-        private string descriptionField;
-        
-        private int idField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.Dictionary<long, long> body
-        {
-            get
-            {
-                return this.bodyField;
-            }
-            set
-            {
-                this.bodyField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string description
-        {
-            get
-            {
-                return this.descriptionField;
-            }
-            set
-            {
-                this.descriptionField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int id
-        {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
             }
         }
     }
@@ -1508,6 +1265,452 @@ namespace ApiCloudService
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MDBResponseOfmSystemVersion3GCkhWO1", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.StructureResponse")]
+    public partial class MDBResponseOfmSystemVersion3GCkhWO1 : object
+    {
+        
+        private ApiCloudService.mSystemVersion bodyField;
+        
+        private string descriptionField;
+        
+        private int idField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiCloudService.mSystemVersion body
+        {
+            get
+            {
+                return this.bodyField;
+            }
+            set
+            {
+                this.bodyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string description
+        {
+            get
+            {
+                return this.descriptionField;
+            }
+            set
+            {
+                this.descriptionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int id
+        {
+            get
+            {
+                return this.idField;
+            }
+            set
+            {
+                this.idField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="mSystemVersion", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.Models")]
+    public partial class mSystemVersion : object
+    {
+        
+        private long CodeField;
+        
+        private System.DateTime DateField;
+        
+        private byte[] FileField;
+        
+        private bool IndActVersionField;
+        
+        private string LinkField;
+        
+        private string NameField;
+        
+        private string VersionField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long Code
+        {
+            get
+            {
+                return this.CodeField;
+            }
+            set
+            {
+                this.CodeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime Date
+        {
+            get
+            {
+                return this.DateField;
+            }
+            set
+            {
+                this.DateField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public byte[] File
+        {
+            get
+            {
+                return this.FileField;
+            }
+            set
+            {
+                this.FileField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IndActVersion
+        {
+            get
+            {
+                return this.IndActVersionField;
+            }
+            set
+            {
+                this.IndActVersionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Link
+        {
+            get
+            {
+                return this.LinkField;
+            }
+            set
+            {
+                this.LinkField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Name
+        {
+            get
+            {
+                return this.NameField;
+            }
+            set
+            {
+                this.NameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Version
+        {
+            get
+            {
+                return this.VersionField;
+            }
+            set
+            {
+                this.VersionField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="mConsume", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.Models")]
+    public partial class mConsume : object
+    {
+        
+        private decimal AmountField;
+        
+        private long Cod_OperadorField;
+        
+        private ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMovField;
+        
+        private long NumberAccountField;
+        
+        private string NumberDocumentField;
+        
+        private decimal OldAmountField;
+        
+        private long SigoClubField;
+        
+        private string SucursalField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public decimal Amount
+        {
+            get
+            {
+                return this.AmountField;
+            }
+            set
+            {
+                this.AmountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long Cod_Operador
+        {
+            get
+            {
+                return this.Cod_OperadorField;
+            }
+            set
+            {
+                this.Cod_OperadorField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov
+        {
+            get
+            {
+                return this.Cod_TipoOperacionMovField;
+            }
+            set
+            {
+                this.Cod_TipoOperacionMovField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long NumberAccount
+        {
+            get
+            {
+                return this.NumberAccountField;
+            }
+            set
+            {
+                this.NumberAccountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NumberDocument
+        {
+            get
+            {
+                return this.NumberDocumentField;
+            }
+            set
+            {
+                this.NumberDocumentField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public decimal OldAmount
+        {
+            get
+            {
+                return this.OldAmountField;
+            }
+            set
+            {
+                this.OldAmountField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long SigoClub
+        {
+            get
+            {
+                return this.SigoClubField;
+            }
+            set
+            {
+                this.SigoClubField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Sucursal
+        {
+            get
+            {
+                return this.SucursalField;
+            }
+            set
+            {
+                this.SucursalField = value;
+            }
+        }
+        
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+        [System.Runtime.Serialization.DataContractAttribute(Name="mConsume.eTipoOperacionesMovimiento", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.Models")]
+        public enum eTipoOperacionesMovimiento : int
+        {
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            AbonoCambioCaja_NorkutPOS = 1,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            ConsumoFacturacion_NorkutPOS = 2,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            DevolucionFacturacion_NorkutPOS = 3,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            AbonoCambioCaja_InnovaPOS = 4,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            AbonoSaldoCaja_InnovaPOS = 5,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            ConsumoFacturacion_InnovaPOS = 6,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            DevolucionFacturacion_InnovaPOS = 7,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            DevolucionSaldoCaja_InnovaPOS = 8,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            AbonoDirectoSaldo_CRM = 9,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            AbonoGiftCard_CRM = 10,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            AbonoSaldoContrato_CRM = 11,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            ConsumoFacturacion_GS = 12,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            ReversoAbono_Ecommerce = 13,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            AbonoSaldo_Ecommerce = 14,
+            
+            [System.Runtime.Serialization.EnumMemberAttribute()]
+            ConsumoSaldo_Ecommerce = 15,
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MDBResponseOflong", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.StructureResponse")]
+    public partial class MDBResponseOflong : object
+    {
+        
+        private long bodyField;
+        
+        private string descriptionField;
+        
+        private int idField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long body
+        {
+            get
+            {
+                return this.bodyField;
+            }
+            set
+            {
+                this.bodyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string description
+        {
+            get
+            {
+                return this.descriptionField;
+            }
+            set
+            {
+                this.descriptionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int id
+        {
+            get
+            {
+                return this.idField;
+            }
+            set
+            {
+                this.idField = value;
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj", Namespace="http://schemas.datacontract.org/2004/07/Proveeduria.Apis.StructureResponse")]
+    public partial class MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj : object
+    {
+        
+        private System.Collections.Generic.Dictionary<long, long> bodyField;
+        
+        private string descriptionField;
+        
+        private int idField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.Dictionary<long, long> body
+        {
+            get
+            {
+                return this.bodyField;
+            }
+            set
+            {
+                this.bodyField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string description
+        {
+            get
+            {
+                return this.descriptionField;
+            }
+            set
+            {
+                this.descriptionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int id
+        {
+            get
+            {
+                return this.idField;
+            }
+            set
+            {
+                this.idField = value;
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ApiCloudService.IApiCloudService")]
     public interface IApiCloudService
@@ -1516,11 +1719,8 @@ namespace ApiCloudService
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetClientBalance", ReplyAction="http://tempuri.org/IApiCloudService/GetClientBalanceResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmClient3GCkhWO1> GetClientBalanceAsync(int pType, string pDocument);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ConsumePoints", ReplyAction="http://tempuri.org/IApiCloudService/ConsumePointsResponse")]
-        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOflong> ConsumePointsAsync(long pSigoClub, string pSucursal, long pNumberAccount, string pNumberDocument, decimal pOldAmount, decimal amount, long Cod_Operador, ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ConsumePointsL", ReplyAction="http://tempuri.org/IApiCloudService/ConsumePointsLResponse")]
-        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj> ConsumePointsLAsync(System.Collections.Generic.List<ApiCloudService.mConsume> pConsumes);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetClientData", ReplyAction="http://tempuri.org/IApiCloudService/GetClientDataResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmClient3GCkhWO1> GetClientDataAsync(int pType, string pDocument);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetHistoricMovements", ReplyAction="http://tempuri.org/IApiCloudService/GetHistoricMovementsResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmMovement3GCkhWO1> GetHistoricMovementsAsync(string pSucursal);
@@ -1537,11 +1737,35 @@ namespace ApiCloudService
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ConfirmPass", ReplyAction="http://tempuri.org/IApiCloudService/ConfirmPassResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> ConfirmPassAsync(long pUsuario, string pPass);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/HavePass", ReplyAction="http://tempuri.org/IApiCloudService/HavePassResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> HavePassAsync(long pUsuario);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetClientsCompany", ReplyAction="http://tempuri.org/IApiCloudService/GetClientsCompanyResponse")]
-        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub);
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub, int pPermitido);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ActualizarAutorizadosCtasPuntos", ReplyAction="http://tempuri.org/IApiCloudService/ActualizarAutorizadosCtasPuntosResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfstring> ActualizarAutorizadosCtasPuntosAsync(long pCodSigoClub, long pCodEntidad, bool pIndCuentasPuntos);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetConsumePointsGraph", ReplyAction="http://tempuri.org/IApiCloudService/GetConsumePointsGraphResponse")]
         System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmBasic3GCkhWO1> GetConsumePointsGraphAsync(string pSucursal, long pStart, long pEnd);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/GetInfoLastSystemVersion", ReplyAction="http://tempuri.org/IApiCloudService/GetInfoLastSystemVersionResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmSystemVersion3GCkhWO1> GetInfoLastSystemVersionAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/SendLastSystemVersion", ReplyAction="http://tempuri.org/IApiCloudService/SendLastSystemVersionResponse")]
+        System.Threading.Tasks.Task<byte[]> SendLastSystemVersionAsync(string route);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/CreatePass", ReplyAction="http://tempuri.org/IApiCloudService/CreatePassResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> CreatePassAsync(string pCodCliente, string pClave);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ModificarPass", ReplyAction="http://tempuri.org/IApiCloudService/ModificarPassResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> ModificarPassAsync(string pCodCliente, string pClave, long pCodOperador);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ConsumePoints", ReplyAction="http://tempuri.org/IApiCloudService/ConsumePointsResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOflong> ConsumePointsAsync(long pSigoClub, string pSucursal, long pNumberAccount, string pNumberDocument, decimal pOldAmount, decimal amount, long Cod_Operador, ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IApiCloudService/ConsumePointsL", ReplyAction="http://tempuri.org/IApiCloudService/ConsumePointsLResponse")]
+        System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj> ConsumePointsLAsync(System.Collections.Generic.List<ApiCloudService.mConsume> pConsumes);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
@@ -1599,14 +1823,9 @@ namespace ApiCloudService
             return base.Channel.GetClientBalanceAsync(pType, pDocument);
         }
         
-        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOflong> ConsumePointsAsync(long pSigoClub, string pSucursal, long pNumberAccount, string pNumberDocument, decimal pOldAmount, decimal amount, long Cod_Operador, ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov)
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmClient3GCkhWO1> GetClientDataAsync(int pType, string pDocument)
         {
-            return base.Channel.ConsumePointsAsync(pSigoClub, pSucursal, pNumberAccount, pNumberDocument, pOldAmount, amount, Cod_Operador, Cod_TipoOperacionMov);
-        }
-        
-        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj> ConsumePointsLAsync(System.Collections.Generic.List<ApiCloudService.mConsume> pConsumes)
-        {
-            return base.Channel.ConsumePointsLAsync(pConsumes);
+            return base.Channel.GetClientDataAsync(pType, pDocument);
         }
         
         public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmMovement3GCkhWO1> GetHistoricMovementsAsync(string pSucursal)
@@ -1634,14 +1853,54 @@ namespace ApiCloudService
             return base.Channel.ConfirmPassAsync(pUsuario, pPass);
         }
         
-        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub)
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> HavePassAsync(long pUsuario)
         {
-            return base.Channel.GetClientsCompanyAsync(pCodSIGOClub);
+            return base.Channel.HavePassAsync(pUsuario);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmClient3GCkhWO1> GetClientsCompanyAsync(long pCodSIGOClub, int pPermitido)
+        {
+            return base.Channel.GetClientsCompanyAsync(pCodSIGOClub, pPermitido);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfstring> ActualizarAutorizadosCtasPuntosAsync(long pCodSigoClub, long pCodEntidad, bool pIndCuentasPuntos)
+        {
+            return base.Channel.ActualizarAutorizadosCtasPuntosAsync(pCodSigoClub, pCodEntidad, pIndCuentasPuntos);
         }
         
         public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfmBasic3GCkhWO1> GetConsumePointsGraphAsync(string pSucursal, long pStart, long pEnd)
         {
             return base.Channel.GetConsumePointsGraphAsync(pSucursal, pStart, pEnd);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfmSystemVersion3GCkhWO1> GetInfoLastSystemVersionAsync()
+        {
+            return base.Channel.GetInfoLastSystemVersionAsync();
+        }
+        
+        public System.Threading.Tasks.Task<byte[]> SendLastSystemVersionAsync(string route)
+        {
+            return base.Channel.SendLastSystemVersionAsync(route);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> CreatePassAsync(string pCodCliente, string pClave)
+        {
+            return base.Channel.CreatePassAsync(pCodCliente, pClave);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfboolean> ModificarPassAsync(string pCodCliente, string pClave, long pCodOperador)
+        {
+            return base.Channel.ModificarPassAsync(pCodCliente, pClave, pCodOperador);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOflong> ConsumePointsAsync(long pSigoClub, string pSucursal, long pNumberAccount, string pNumberDocument, decimal pOldAmount, decimal amount, long Cod_Operador, ApiCloudService.mConsume.eTipoOperacionesMovimiento Cod_TipoOperacionMov)
+        {
+            return base.Channel.ConsumePointsAsync(pSigoClub, pSucursal, pNumberAccount, pNumberDocument, pOldAmount, amount, Cod_Operador, Cod_TipoOperacionMov);
+        }
+        
+        public System.Threading.Tasks.Task<ApiCloudService.MDBResponseOfArrayOfKeyValueOflonglonguHEDJ7Dj> ConsumePointsLAsync(System.Collections.Generic.List<ApiCloudService.mConsume> pConsumes)
+        {
+            return base.Channel.ConsumePointsLAsync(pConsumes);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()

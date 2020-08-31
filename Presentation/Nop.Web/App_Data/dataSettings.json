@@ -3,6 +3,7 @@
   //"DataConnectionString": "Data Source=dbsigo01.sigocorp.com,1460;Initial Catalog=Ecommerce_Supermarket;Integrated Security=False;Persist Security Info=False; MultipleActiveResultSets=True; User ID=UserEcommerce;Password=.*Us3r3c0mm3rc3*.",
   //"DataConnectionString": "Data Source=192.168.15.50\\FIXES;Initial Catalog=Ecommerce_Supermarket;Integrated Security=False;Persist Security Info=False; MultipleActiveResultSets=True; User ID=UserEcommerce;Password=.*Us3r3c0mm3rc3*.",
   "DataConnectionString": "Data Source=LTFABSIS021\\LTFABSIS02019;Initial Catalog=Ecommerce_Supermarket;Integrated Security=False;Persist Security Info=False; MultipleActiveResultSets=True; User ID=sa;Password=Ci18432645",
+  //"DataConnectionString": "Data Source=10.55.7.37,1460;Initial Catalog=Ecommerce_Supermarket;Integrated Security=False;Persist Security Info=False; MultipleActiveResultSets=True; User ID=UserEcommerce;Password=.*Us3r3c0mm3rc3*.",
 
   "RawDataSettings": {}
 }

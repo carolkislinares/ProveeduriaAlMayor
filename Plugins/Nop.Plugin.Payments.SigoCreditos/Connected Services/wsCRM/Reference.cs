@@ -959,6 +959,12 @@ namespace wsCRM
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         EcormmerceConsumoSaldo = 15,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ClubMovilAbono = 17,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ClubMovilConsumo = 22,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -972,6 +978,8 @@ namespace wsCRM
         private wsCRM.mCliente ClienteField;
         
         private long Cod_AbonoField;
+        
+        private long Cod_Abono1Field;
         
         private long Cod_ContratoField;
         
@@ -1039,6 +1047,19 @@ namespace wsCRM
             set
             {
                 this.Cod_AbonoField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long Cod_Abono1
+        {
+            get
+            {
+                return this.Cod_Abono1Field;
+            }
+            set
+            {
+                this.Cod_Abono1Field = value;
             }
         }
         
@@ -1350,6 +1371,33 @@ namespace wsCRM
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Codigos.TipoAplicacion", Namespace="http://schemas.datacontract.org/2004/07/InnovaLite.Model.Utils")]
+    public enum CodigosTipoAplicacion : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NokutPOS = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        InnovaPOS = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        CRM = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        GestiondeSucursales = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        EcommerceSigoMayor = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        EcommerceSigoDetal = 6,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ClubMovil = 7,
+    }
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
     [System.Runtime.Serialization.DataContractAttribute(Name="mMovimientosClub", Namespace="http://schemas.datacontract.org/2004/07/InnovaLite.Modelo.CRM")]
@@ -1546,6 +1594,10 @@ namespace wsCRM
         
         private string Des_MonedaField;
         
+        private string IdentificadorTipoField;
+        
+        private bool IndActivoField;
+        
         private string NombreEmpresaField;
         
         private string NumeroCuentaField;
@@ -1670,6 +1722,32 @@ namespace wsCRM
             set
             {
                 this.Des_MonedaField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string IdentificadorTipo
+        {
+            get
+            {
+                return this.IdentificadorTipoField;
+            }
+            set
+            {
+                this.IdentificadorTipoField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IndActivo
+        {
+            get
+            {
+                return this.IndActivoField;
+            }
+            set
+            {
+                this.IndActivoField = value;
             }
         }
         
@@ -1903,6 +1981,8 @@ namespace wsCRM
         
         private string IdentificadorTipoField;
         
+        private bool IndActivoField;
+        
         private bool IndCuentasPuntosField;
         
         private string MontoField;
@@ -2012,6 +2092,19 @@ namespace wsCRM
             set
             {
                 this.IdentificadorTipoField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IndActivo
+        {
+            get
+            {
+                return this.IndActivoField;
+            }
+            set
+            {
+                this.IndActivoField = value;
             }
         }
         
@@ -2730,6 +2823,43 @@ namespace wsCRM
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="mAplicacion", Namespace="http://schemas.datacontract.org/2004/07/InnovaLite.Modelo.Maestros")]
+    public partial class mAplicacion : object
+    {
+        
+        private string AplicacionField;
+        
+        private int Cod_aplicacionField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Aplicacion
+        {
+            get
+            {
+                return this.AplicacionField;
+            }
+            set
+            {
+                this.AplicacionField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Cod_aplicacion
+        {
+            get
+            {
+                return this.Cod_aplicacionField;
+            }
+            set
+            {
+                this.Cod_aplicacionField = value;
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.1-preview-30422-0661")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="wsCRM.IwsCRM")]
     public interface IwsCRM
@@ -2766,13 +2896,13 @@ namespace wsCRM
         System.Threading.Tasks.Task<wsCRM.mAbonosCredito> GenerarAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, int pCodMoneda, wsCRM.mCliente cliente, string pNumeroDocumento, decimal pMonto, long pCodOperador, long pCodBanco, string pObservaciones, bool pIndGiftcard, string pDescripcionMoneda, wsCRM.CodigosTipoOperacionMov pCodTipoOperacionMov, int pCodTipoCuenta);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ReversoAbonoPuntos", ReplyAction="http://tempuri.org/IwsCRM/ReversoAbonoPuntosResponse")]
-        System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, int pCodAbono, decimal pMonto, long pNumeroCuenta, long pCodOperador, int pCodTipoOperacionMov);
+        System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(string pCodSucursal, long pCodAbono, long pCodOperador, int pCodMotivo, string pObservaciones, wsCRM.CodigosTipoOperacionMov pCodTipoOperacionMov);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ObtenerGiftCardMontosDisponible", ReplyAction="http://tempuri.org/IwsCRM/ObtenerGiftCardMontosDisponibleResponse")]
         System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mGiftCard>> ObtenerGiftCardMontosDisponibleAsync(int pCodMoneda);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/VenderGiftCard", ReplyAction="http://tempuri.org/IwsCRM/VenderGiftCardResponse")]
-        System.Threading.Tasks.Task<int> VenderGiftCardAsync(long pCodOperadorActualiza, long pCodEntidadCompra, wsCRM.mCliente cliente, int pCantidadPorComprar, int pCodMoneda, decimal pMonto, string pDescripcionMoneda);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/CrearVenderGiftCard", ReplyAction="http://tempuri.org/IwsCRM/CrearVenderGiftCardResponse")]
+        System.Threading.Tasks.Task<int> CrearVenderGiftCardAsync(long pCodOperadorActualiza, long pCodEntidadCompra, wsCRM.mCliente cliente, int pCantidadPorComprar, int pCodMoneda, decimal pMonto, string pDescripcionMoneda, wsCRM.CodigosTipoAplicacion pCodAplicacion);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ObtenerConsultarEdoCuentaPuntos", ReplyAction="http://tempuri.org/IwsCRM/ObtenerConsultarEdoCuentaPuntosResponse")]
         System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mMovimientosClub>> ObtenerConsultarEdoCuentaPuntosAsync(int pNumerocuenta, System.DateTime pFechaDesde, System.DateTime pFechaHasta);
@@ -2780,11 +2910,17 @@ namespace wsCRM
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/CrearContratoyAutorizados", ReplyAction="http://tempuri.org/IwsCRM/CrearContratoyAutorizadosResponse")]
         System.Threading.Tasks.Task<string> CrearContratoyAutorizadosAsync(string pCodSucursal, long pCodEntidadTitular, long pCodEntidadContacto, long pCodDireccionFiscal, int pCodTipoContrato, string pNroSSO, string pNroNIL, System.DateTime FechaInicio, System.Collections.Generic.List<wsCRM.mCliente> pXMLClientes);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ActualizarContrato", ReplyAction="http://tempuri.org/IwsCRM/ActualizarContratoResponse")]
+        System.Threading.Tasks.Task<string> ActualizarContratoAsync(long pCodContratoCredito, long pCodEntidadContacto);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ActualizarAutorizadosContratos", ReplyAction="http://tempuri.org/IwsCRM/ActualizarAutorizadosContratosResponse")]
+        System.Threading.Tasks.Task<string> ActualizarAutorizadosContratosAsync(long pCodContratoCredito, long pCodEntidad, bool pIndActivo);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/AgregarContratoyAutorizados", ReplyAction="http://tempuri.org/IwsCRM/AgregarContratoyAutorizadosResponse")]
         System.Threading.Tasks.Task<string> AgregarContratoyAutorizadosAsync(string pCodContratoCredito, System.Collections.Generic.List<wsCRM.mCliente> pXMLClientes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ObtenerConsultarAutorizadosxContrato", ReplyAction="http://tempuri.org/IwsCRM/ObtenerConsultarAutorizadosxContratoResponse")]
-        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mCuentasAfiliado>> ObtenerConsultarAutorizadosxContratoAsync(long pCodContratoCredito, long pCod_Entidad, string pCedula);
+        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mCuentasAfiliado>> ObtenerConsultarAutorizadosxContratoAsync(long pCodContratoCredito, long pCod_Entidad, string pCedula, int pIndActivo);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ActualizarAutorizadosCtasPuntos", ReplyAction="http://tempuri.org/IwsCRM/ActualizarAutorizadosCtasPuntosResponse")]
         System.Threading.Tasks.Task<string> ActualizarAutorizadosCtasPuntosAsync(long pCodSigoClub, long pCodEntidad, bool pIndCuentasPuntos);
@@ -2882,13 +3018,16 @@ namespace wsCRM
         System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mVivienda>> ObtenerViviendasAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ObtenerTipoOperacionMovimientos", ReplyAction="http://tempuri.org/IwsCRM/ObtenerTipoOperacionMovimientosResponse")]
-        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mTipoOperacionMov>> ObtenerTipoOperacionMovimientosAsync();
+        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mTipoOperacionMov>> ObtenerTipoOperacionMovimientosAsync(int pCodTipoOperacionMov, int CopAplicacion);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ObtenerAplicaciones", ReplyAction="http://tempuri.org/IwsCRM/ObtenerAplicacionesResponse")]
+        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAplicacion>> ObtenerAplicacionesAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ObtenerConsultarAbonosCreditos", ReplyAction="http://tempuri.org/IwsCRM/ObtenerConsultarAbonosCreditosResponse")]
-        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ObtenerConsultarAbonosCreditosAsync(long pCodAbono, long pCodContrato, string pCodSucursal, System.Nullable<System.DateTime> pFechaDesde, System.Nullable<System.DateTime> pFechaHasta, string pTipoCuentas, int pCodTipo, long pCodSigoClub, long pCodOperador, int pCodTipoMov, string pAplicacion);
+        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ObtenerConsultarAbonosCreditosAsync(long pCodAbono, long pCodContrato, string pCodSucursal, System.Nullable<System.DateTime> pFechaDesde, System.Nullable<System.DateTime> pFechaHasta, string pTipoCuentas, int pCodTipo, long pCodSigoClub, long pCodOperador, int pCodTipoMov, int pCodAplicacion, int pAbonoCancelado, long pCodOpeCancela, int pCodMotivo);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ConsultarCLUMovimientos", ReplyAction="http://tempuri.org/IwsCRM/ConsultarCLUMovimientosResponse")]
-        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ConsultarCLUMovimientosAsync(long pCodMovimiento, int pCodTransaccion, int pCodTipoAbono, int pNumeroCuenta, long pCodSigoClub, string pCodSucursal, System.Nullable<System.DateTime> pDesde, System.Nullable<System.DateTime> pHasta, int pCodTipoCuenta, string pTipoCuentas, int pCodTipo, long pCodOperador, int pCodTipoMov, string pAplicacion);
+        System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ConsultarCLUMovimientosAsync(long pCodMovimiento, int pCodTransaccion, int pCodTipoAbono, int pNumeroCuenta, long pCodSigoClub, string pCodSucursal, System.Nullable<System.DateTime> pDesde, System.Nullable<System.DateTime> pHasta, int pCodTipoCuenta, string pTipoCuentas, int pCodTipo, long pCodOperador, int pCodTipoMov, int pCodAplicacion);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IwsCRM/ConsultarTotalSucursal", ReplyAction="http://tempuri.org/IwsCRM/ConsultarTotalSucursalResponse")]
         System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ConsultarTotalSucursalAsync(int pCodMoneda, string pCodSucursal, System.Nullable<System.DateTime> pFechaDesde, System.Nullable<System.DateTime> pFechaHasta, string pTipoCuentas);
@@ -2997,9 +3136,9 @@ namespace wsCRM
             return base.Channel.GenerarAbonoPuntosAsync(pCodSigoClub, pCodSucursal, pCodMoneda, cliente, pNumeroDocumento, pMonto, pCodOperador, pCodBanco, pObservaciones, pIndGiftcard, pDescripcionMoneda, pCodTipoOperacionMov, pCodTipoCuenta);
         }
         
-        public System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(long pCodSigoClub, string pCodSucursal, int pCodAbono, decimal pMonto, long pNumeroCuenta, long pCodOperador, int pCodTipoOperacionMov)
+        public System.Threading.Tasks.Task<long> ReversoAbonoPuntosAsync(string pCodSucursal, long pCodAbono, long pCodOperador, int pCodMotivo, string pObservaciones, wsCRM.CodigosTipoOperacionMov pCodTipoOperacionMov)
         {
-            return base.Channel.ReversoAbonoPuntosAsync(pCodSigoClub, pCodSucursal, pCodAbono, pMonto, pNumeroCuenta, pCodOperador, pCodTipoOperacionMov);
+            return base.Channel.ReversoAbonoPuntosAsync(pCodSucursal, pCodAbono, pCodOperador, pCodMotivo, pObservaciones, pCodTipoOperacionMov);
         }
         
         public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mGiftCard>> ObtenerGiftCardMontosDisponibleAsync(int pCodMoneda)
@@ -3007,9 +3146,9 @@ namespace wsCRM
             return base.Channel.ObtenerGiftCardMontosDisponibleAsync(pCodMoneda);
         }
         
-        public System.Threading.Tasks.Task<int> VenderGiftCardAsync(long pCodOperadorActualiza, long pCodEntidadCompra, wsCRM.mCliente cliente, int pCantidadPorComprar, int pCodMoneda, decimal pMonto, string pDescripcionMoneda)
+        public System.Threading.Tasks.Task<int> CrearVenderGiftCardAsync(long pCodOperadorActualiza, long pCodEntidadCompra, wsCRM.mCliente cliente, int pCantidadPorComprar, int pCodMoneda, decimal pMonto, string pDescripcionMoneda, wsCRM.CodigosTipoAplicacion pCodAplicacion)
         {
-            return base.Channel.VenderGiftCardAsync(pCodOperadorActualiza, pCodEntidadCompra, cliente, pCantidadPorComprar, pCodMoneda, pMonto, pDescripcionMoneda);
+            return base.Channel.CrearVenderGiftCardAsync(pCodOperadorActualiza, pCodEntidadCompra, cliente, pCantidadPorComprar, pCodMoneda, pMonto, pDescripcionMoneda, pCodAplicacion);
         }
         
         public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mMovimientosClub>> ObtenerConsultarEdoCuentaPuntosAsync(int pNumerocuenta, System.DateTime pFechaDesde, System.DateTime pFechaHasta)
@@ -3022,14 +3161,24 @@ namespace wsCRM
             return base.Channel.CrearContratoyAutorizadosAsync(pCodSucursal, pCodEntidadTitular, pCodEntidadContacto, pCodDireccionFiscal, pCodTipoContrato, pNroSSO, pNroNIL, FechaInicio, pXMLClientes);
         }
         
+        public System.Threading.Tasks.Task<string> ActualizarContratoAsync(long pCodContratoCredito, long pCodEntidadContacto)
+        {
+            return base.Channel.ActualizarContratoAsync(pCodContratoCredito, pCodEntidadContacto);
+        }
+        
+        public System.Threading.Tasks.Task<string> ActualizarAutorizadosContratosAsync(long pCodContratoCredito, long pCodEntidad, bool pIndActivo)
+        {
+            return base.Channel.ActualizarAutorizadosContratosAsync(pCodContratoCredito, pCodEntidad, pIndActivo);
+        }
+        
         public System.Threading.Tasks.Task<string> AgregarContratoyAutorizadosAsync(string pCodContratoCredito, System.Collections.Generic.List<wsCRM.mCliente> pXMLClientes)
         {
             return base.Channel.AgregarContratoyAutorizadosAsync(pCodContratoCredito, pXMLClientes);
         }
         
-        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mCuentasAfiliado>> ObtenerConsultarAutorizadosxContratoAsync(long pCodContratoCredito, long pCod_Entidad, string pCedula)
+        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mCuentasAfiliado>> ObtenerConsultarAutorizadosxContratoAsync(long pCodContratoCredito, long pCod_Entidad, string pCedula, int pIndActivo)
         {
-            return base.Channel.ObtenerConsultarAutorizadosxContratoAsync(pCodContratoCredito, pCod_Entidad, pCedula);
+            return base.Channel.ObtenerConsultarAutorizadosxContratoAsync(pCodContratoCredito, pCod_Entidad, pCedula, pIndActivo);
         }
         
         public System.Threading.Tasks.Task<string> ActualizarAutorizadosCtasPuntosAsync(long pCodSigoClub, long pCodEntidad, bool pIndCuentasPuntos)
@@ -3165,19 +3314,24 @@ namespace wsCRM
             return base.Channel.ObtenerViviendasAsync();
         }
         
-        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mTipoOperacionMov>> ObtenerTipoOperacionMovimientosAsync()
+        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mTipoOperacionMov>> ObtenerTipoOperacionMovimientosAsync(int pCodTipoOperacionMov, int CopAplicacion)
         {
-            return base.Channel.ObtenerTipoOperacionMovimientosAsync();
+            return base.Channel.ObtenerTipoOperacionMovimientosAsync(pCodTipoOperacionMov, CopAplicacion);
         }
         
-        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ObtenerConsultarAbonosCreditosAsync(long pCodAbono, long pCodContrato, string pCodSucursal, System.Nullable<System.DateTime> pFechaDesde, System.Nullable<System.DateTime> pFechaHasta, string pTipoCuentas, int pCodTipo, long pCodSigoClub, long pCodOperador, int pCodTipoMov, string pAplicacion)
+        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAplicacion>> ObtenerAplicacionesAsync()
         {
-            return base.Channel.ObtenerConsultarAbonosCreditosAsync(pCodAbono, pCodContrato, pCodSucursal, pFechaDesde, pFechaHasta, pTipoCuentas, pCodTipo, pCodSigoClub, pCodOperador, pCodTipoMov, pAplicacion);
+            return base.Channel.ObtenerAplicacionesAsync();
         }
         
-        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ConsultarCLUMovimientosAsync(long pCodMovimiento, int pCodTransaccion, int pCodTipoAbono, int pNumeroCuenta, long pCodSigoClub, string pCodSucursal, System.Nullable<System.DateTime> pDesde, System.Nullable<System.DateTime> pHasta, int pCodTipoCuenta, string pTipoCuentas, int pCodTipo, long pCodOperador, int pCodTipoMov, string pAplicacion)
+        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ObtenerConsultarAbonosCreditosAsync(long pCodAbono, long pCodContrato, string pCodSucursal, System.Nullable<System.DateTime> pFechaDesde, System.Nullable<System.DateTime> pFechaHasta, string pTipoCuentas, int pCodTipo, long pCodSigoClub, long pCodOperador, int pCodTipoMov, int pCodAplicacion, int pAbonoCancelado, long pCodOpeCancela, int pCodMotivo)
         {
-            return base.Channel.ConsultarCLUMovimientosAsync(pCodMovimiento, pCodTransaccion, pCodTipoAbono, pNumeroCuenta, pCodSigoClub, pCodSucursal, pDesde, pHasta, pCodTipoCuenta, pTipoCuentas, pCodTipo, pCodOperador, pCodTipoMov, pAplicacion);
+            return base.Channel.ObtenerConsultarAbonosCreditosAsync(pCodAbono, pCodContrato, pCodSucursal, pFechaDesde, pFechaHasta, pTipoCuentas, pCodTipo, pCodSigoClub, pCodOperador, pCodTipoMov, pCodAplicacion, pAbonoCancelado, pCodOpeCancela, pCodMotivo);
+        }
+        
+        public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ConsultarCLUMovimientosAsync(long pCodMovimiento, int pCodTransaccion, int pCodTipoAbono, int pNumeroCuenta, long pCodSigoClub, string pCodSucursal, System.Nullable<System.DateTime> pDesde, System.Nullable<System.DateTime> pHasta, int pCodTipoCuenta, string pTipoCuentas, int pCodTipo, long pCodOperador, int pCodTipoMov, int pCodAplicacion)
+        {
+            return base.Channel.ConsultarCLUMovimientosAsync(pCodMovimiento, pCodTransaccion, pCodTipoAbono, pNumeroCuenta, pCodSigoClub, pCodSucursal, pDesde, pHasta, pCodTipoCuenta, pTipoCuentas, pCodTipo, pCodOperador, pCodTipoMov, pCodAplicacion);
         }
         
         public System.Threading.Tasks.Task<System.Collections.Generic.List<wsCRM.mAbonosCredito>> ConsultarTotalSucursalAsync(int pCodMoneda, string pCodSucursal, System.Nullable<System.DateTime> pFechaDesde, System.Nullable<System.DateTime> pFechaHasta, string pTipoCuentas)

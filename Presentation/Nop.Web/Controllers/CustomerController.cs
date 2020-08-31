@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -19,6 +21,7 @@ using Nop.Services.Authentication;
 using Nop.Services.Authentication.External;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
+using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Events;
@@ -40,6 +43,10 @@ using Nop.Web.Framework.Security;
 using Nop.Web.Framework.Security.Captcha;
 using Nop.Web.Framework.Validators;
 using Nop.Web.Models.Customer;
+using SSO.Interface;
+using SSO.Interface.Models;
+using SSO.Interface.Models.Bodies;
+using static Nop.Web.ApiCloudContext.ApiCloudContext;
 
 namespace Nop.Web.Controllers
 {
@@ -87,7 +94,13 @@ namespace Nop.Web.Controllers
         private readonly MediaSettings _mediaSettings;
         private readonly StoreInformationSettings _storeInformationSettings;
         private readonly TaxSettings _taxSettings;
+        // private readonly SSOInterface _ssoInterface;
+        private readonly ISettingService _settingService;
 
+        //Interfaz para atributos Genericos
+        private readonly ICustomerAttributeParser _CustomerService;
+        private readonly ILogger _logger;
+        //
         #endregion
 
         #region Ctor
@@ -131,7 +144,12 @@ namespace Nop.Web.Controllers
             LocalizationSettings localizationSettings,
             MediaSettings mediaSettings,
             StoreInformationSettings storeInformationSettings,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            ICustomerAttributeParser CustomerService,
+            ISettingService settingService,
+            ILogger logger
+            )
+        // SSOInterface ssoInterFace)
         {
             this._addressSettings = addressSettings;
             this._captchaSettings = captchaSettings;
@@ -173,6 +191,10 @@ namespace Nop.Web.Controllers
             this._mediaSettings = mediaSettings;
             this._storeInformationSettings = storeInformationSettings;
             this._taxSettings = taxSettings;
+            this._CustomerService = CustomerService;
+            this._settingService = settingService;
+            this._logger = logger;
+            // this._ssoInterface = ssoInterFace;
         }
 
         #endregion
@@ -289,6 +311,10 @@ namespace Nop.Web.Controllers
             {
                 ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_localizationService));
             }
+            if (string.IsNullOrWhiteSpace(model.Password))
+            {
+                ModelState.AddModelError("", _localizationService.GetResource("Account.Login.WrongCredentials"));
+            }
 
             if (ModelState.IsValid)
             {
@@ -296,7 +322,30 @@ namespace Nop.Web.Controllers
                 {
                     model.Username = model.Username.Trim();
                 }
-                var loginResult = _customerRegistrationService.ValidateCustomer(_customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+
+
+                var usuario = new mLoginBody()
+                {
+                    User = model.Email,
+                    Password = model.Password
+                };
+                CustomerLoginResults loginResult;
+                mRespuesta<mCredencial> Autenticar = new mRespuesta<mCredencial>();
+
+                bool esSigoDetal = Convert.ToBoolean(_settingService.GetSettingByKey("esSigoDetal".ToLower(), "", _storeContext.CurrentStore.Id, true));
+               
+
+                if (Convert.ToBoolean(_settingService.GetSettingByKey("Customer.Login.SSO.Active".ToLower(), "", _storeContext.CurrentStore.Id, true)))
+                {
+                    SSOInterface Auth = new SSOInterface();
+                    Autenticar = Auth.Autenticar(usuario);
+                    loginResult = Autenticar.StatusCode == HttpStatusCode.OK ? CustomerLoginResults.Successful : CustomerLoginResults.WrongPassword;
+                }
+                else
+                {
+                     loginResult = _customerRegistrationService.ValidateCustomer(_customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password);
+                }
+                
                 switch (loginResult)
                 {
                     case CustomerLoginResults.Successful:
@@ -304,7 +353,92 @@ namespace Nop.Web.Controllers
                             var customer = _customerSettings.UsernamesEnabled
                                 ? _customerService.GetCustomerByUsername(model.Username)
                                 : _customerService.GetCustomerByEmail(model.Email);
+                            if (customer == null)
+                            {
 
+                                var formCol = new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>
+                                {
+                                    { _settingService.GetSettingByKey("customer.attribute.sso.documento".ToLower(), "", _storeContext.CurrentStore.Id, true),    Autenticar.detalle.CodTipo == 1 ? Autenticar.detalle.Documento : Autenticar.detalle.Identificacion},
+                                    { _settingService.GetSettingByKey("customer.attribute.sso.codtipo".ToLower(), "", _storeContext.CurrentStore.Id, true),      Autenticar.detalle.CodTipo == 1 ? Autenticar.detalle.CodTipo.ToString() : 2.ToString()},
+                                    { _settingService.GetSettingByKey("customer.attribute.sso.razonsocial".ToLower(), "", _storeContext.CurrentStore.Id, true),  Autenticar.detalle.CodTipo == 1 ? "" : Autenticar.detalle.Nombres},
+                                    { _settingService.GetSettingByKey("customer.attribute.sso.nombre".ToLower(), "", _storeContext.CurrentStore.Id, true),       Autenticar.detalle.CodTipo == 1 ? Autenticar.detalle.Nombres : ""},
+                                    { _settingService.GetSettingByKey("customer.attribute.sso.apellido".ToLower(), "", _storeContext.CurrentStore.Id, true),     Autenticar.detalle.Apellidos},
+                                    { "Phone", string.IsNullOrWhiteSpace(Autenticar.detalle.Telefono) ?  "" : Autenticar.detalle.Telefono },
+                                    { "Email", Autenticar.detalle.Correo},
+                                    { "Password", Autenticar.detalle.Clave},
+                                    { "ConfirmPassword", Autenticar.detalle.Clave}
+                                });
+
+                                var customerAttributesXml = ParseCustomCustomerAttributes(formCol);
+                                customer = new Customer
+                                {
+                                    CustomerGuid = Guid.NewGuid(),
+                                    Email = Autenticar.detalle.Correo,
+                                    Username = Autenticar.detalle.Correo,
+                                    VendorId = 0,
+                                    AdminComment = "",
+                                    IsTaxExempt = false,
+                                    Active = true,
+                                    CreatedOnUtc = DateTime.UtcNow,
+                                    LastActivityDateUtc = DateTime.UtcNow,
+                                    RegisteredInStoreId = _storeContext.CurrentStore.Id
+                                };
+
+                                var isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
+                                var registrationRequest = new CustomerRegistrationRequest(customer,
+                                    Autenticar.detalle.Correo,
+                                    _customerSettings.UsernamesEnabled ? Autenticar.detalle.Correo : Autenticar.detalle.Correo,
+                                    model.Password,
+                                    _customerSettings.DefaultPasswordFormat,
+                                    _storeContext.CurrentStore.Id,
+                                    isApproved);
+                                var registrationResult = _customerRegistrationService.RegisterCustomer(registrationRequest);
+
+                                if (registrationResult.Success)
+                                {
+                                    //save customer attributes
+                                    _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.CustomCustomerAttributes, customerAttributesXml);
+
+                                    if (_customerSettings.GenderEnabled)
+                                        _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.GenderAttribute, Autenticar.detalle.Sexo);
+                                    _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.FirstNameAttribute, Autenticar.detalle.Nombres);
+                                    _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.LastNameAttribute, Autenticar.detalle.Apellidos);
+                                    if (_customerSettings.StreetAddressEnabled)
+                                        _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.StreetAddressAttribute, Autenticar.detalle.Direccion);
+                                    if (_customerSettings.CityEnabled)
+                                        _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.CityAttribute, Autenticar.detalle.Ciudad);
+                                    if (_customerSettings.CountyEnabled)
+                                        _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.CountyAttribute, Autenticar.detalle.Pais);
+                                    if (_customerSettings.PhoneEnabled)
+                                        if(!string.IsNullOrWhiteSpace(Autenticar.detalle.Telefono))
+                                        _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.PhoneAttribute, Autenticar.detalle.Telefono);
+                                    //sign in new customer
+                                    _authenticationService.SignIn(customer, model.RememberMe);
+
+                                     _settingService.SetSetting("Api.Info", true, _storeContext.CurrentStore.Id);
+
+                                      return this.RedirectToAction("Info");
+                                }
+
+                            }
+
+                        // Actualiza los datos 
+                        if (Convert.ToBoolean(_settingService.GetSettingByKey("Customer.Login.SSO.Active".ToLower(), "", _storeContext.CurrentStore.Id, true)) && Autenticar.detalle!=null)
+                        {
+                            if (_customerSettings.GenderEnabled)
+                                _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.GenderAttribute, Autenticar.detalle.Sexo);
+                            _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.FirstNameAttribute, Autenticar.detalle.Nombres);
+                            _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.LastNameAttribute, Autenticar.detalle.Apellidos);
+                            if (_customerSettings.StreetAddressEnabled)
+                                _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.StreetAddressAttribute, Autenticar.detalle.Direccion);
+                            if (_customerSettings.CityEnabled)
+                                _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.CityAttribute, Autenticar.detalle.Ciudad);
+                            if (_customerSettings.CountyEnabled)
+                                _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.CountyAttribute, Autenticar.detalle.Pais);
+                            if (_customerSettings.PhoneEnabled)
+                                if (!string.IsNullOrWhiteSpace(Autenticar.detalle.Telefono))
+                                    _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.PhoneAttribute, Autenticar.detalle.Telefono);
+                        }
                             //migrate shopping cart
                             _shoppingCartService.MigrateShoppingCart(_workContext.CurrentCustomer, customer, true);
 
@@ -519,6 +653,16 @@ namespace Nop.Web.Controllers
 
             if (ModelState.IsValid)
             {
+                var credenciales = new mUpdateClave()
+                {
+                    Usuario = customer.Email,
+                    NuevaClave = model.NewPassword,
+                    CodApp = Convert.ToInt32(_settingService.GetSettingByKey("Customer.CodAplicacion".ToLower(), "", _storeContext.CurrentStore.Id, true))
+
+                };
+                SSOInterface SSO = new SSOInterface();
+                var CambiarClave = SSO.ActualizarClave(credenciales);
+
                 var response = _customerRegistrationService.ChangePassword(new ChangePasswordRequest(email,
                     false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
                 if (response.Success)
@@ -592,7 +736,57 @@ namespace Nop.Web.Controllers
             {
                 ModelState.AddModelError("", error);
             }
+             SSOInterface Auth = new SSOInterface();
+            Dictionary<int, string> TipoDocumentoJuridico = new Dictionary<int, string>()
+                    {
+                        { 2, "J" },
+                        { 3, "G" },
+                        { 6, "V" },
+                        { 7, "E" },
+                        { 8, "C" },
+                    };
+            var selectedCustomerAttributesString = _genericAttributeService.GetAttribute<string>(customer, NopCustomerDefaults.CustomCustomerAttributes);
+            var documento = _CustomerService.ParseValues(customerAttributesXml, 1).FirstOrDefault();
+            var tipoDocumento = _CustomerService.ParseValues(customerAttributesXml, 8).FirstOrDefault();
+            var NombreCliente = _CustomerService.ParseValues(customerAttributesXml, 10).FirstOrDefault();
+            var ApellidoCliente = _CustomerService.ParseValues(customerAttributesXml, 11).FirstOrDefault();
+            var RazonSocial = _CustomerService.ParseValues(customerAttributesXml, 5).FirstOrDefault();
+            var pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
+            var pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.ToUpper().Substring(0, 1)).Key :
+                                                          Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
 
+            mVerifyDocumentExistBody body = new mVerifyDocumentExistBody();
+            body.DocTypeId = pTipoCodTipo;
+            body.Document = pDocumento;
+            mRespuesta<bool> DocumentoExiste = Auth.VerificarExistenciaNumeroDocumento(body);
+            if (DocumentoExiste.detalle)
+            {
+                ModelState.AddModelError("", _localizationService.GetResource("Account.Login.SSO.Conflict"));
+                _logger.Warning(_localizationService.GetResource("Account.Login.SSO.Conflict"), null, customer);
+            } else if (DocumentoExiste.StatusCode == 0)
+            {
+                ModelState.AddModelError("", DocumentoExiste.message + " DocumentoExiste");
+               // _logger.Warning(DocumentoExiste.message + "DocumentoExiste", null, customer);
+            }
+
+
+
+            var usr = new mLoginBody()
+            {
+                User = model.Email
+            };
+
+            var ValidarCorreo = Auth.Autenticar(usr);
+            if (ValidarCorreo.detalle!=null && !string.IsNullOrWhiteSpace(ValidarCorreo.detalle.Correo))
+            {
+                ModelState.AddModelError("", _localizationService.GetResource("Account.Login.SSO.EmailExist"));
+                _logger.Warning(_localizationService.GetResource("Account.Login.SSO.Conflict"), null, customer);
+            }
+            else if (ValidarCorreo.StatusCode == 0)
+            {
+                ModelState.AddModelError("", ValidarCorreo.message + " ValidarCorreo");
+               // _logger.Warning(ValidarCorreo.message + " ValidarCorreo", null, customer);
+            }
             //validate CAPTCHA
             if (_captchaSettings.Enabled && _captchaSettings.ShowOnRegistrationPage && !captchaValid)
             {
@@ -745,10 +939,7 @@ namespace Nop.Web.Controllers
 
                     //save customer attributes
                     _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.CustomCustomerAttributes, customerAttributesXml);
-
-                    //login customer now
-                    if (isApproved)
-                        _authenticationService.SignIn(customer, true);
+                   
 
                     //insert default address (if possible)
                     var defaultAddress = new Address
@@ -795,13 +986,56 @@ namespace Nop.Web.Controllers
                     //raise event       
                     _eventPublisher.Publish(new CustomerRegisteredEvent(customer));
 
-                    switch (_customerSettings.UserRegistrationType)
+                    
+                    ///Metodo Para insertar Uusaruio en Msgt_entidades
+                    ////Consulta para data generica del Cliente Documento-TipoDocumento
+
+                 
+                    var usuario = new mRegistrarAccountBody();
+                    var DataCliente = new Models.SigoCreditos.SigoCreditosInfoModel();
+
+                    //DataCliente = ApiCloudContext.ApiCloudContext.ObtenerCliente(pTipoCodTipo, pDocumento);
+                    var esSigoDetal = Convert.ToBoolean(_settingService.GetSettingByKey("esSigoDetal".ToLower(), "", _storeContext.CurrentStore.Id, true));
+
+                    var EntityId = _customerService.CreateCustomerEntidades(customer.Id,esSigoDetal);
+
+                    usuario = new mRegistrarAccountBody()
                     {
-                        case UserRegistrationType.EmailValidation:
+                        
+                        CodEntidad = EntityId,
+                        Usuario = model.Email,
+                        Clave = model.Password,
+                        Nombres = pTipoCodTipo == 1 ? NombreCliente : RazonSocial,
+                        Apellidos = pTipoCodTipo == 1 ? ApellidoCliente : RazonSocial,
+                        CodTipo = pTipoCodTipo,
+                        Documento = pDocumento,
+                        Telefono = model.Phone,
+                            Sexo = model.Gender == null ? "" : model.Gender,
+                            Direccion = model.StreetAddress == null ? "" : model.StreetAddress,
+                            Ciudad = model.City == null ? "" : model.City,
+                            Pais = model.County == null ? "" : model.County,
+                        CodApp = Convert.ToInt32(_settingService.GetSettingByKey("Customer.CodAplicacion".ToLower(), "", _storeContext.CurrentStore.Id, true))
+                    };
+
+
+
+                    if (EntityId > 0)
+                    {
+                          
+                        SSOInterface SSO = new SSOInterface();
+                        var Autenticar = SSO.RegistrarCuenta(usuario);
+                        if (Autenticar.StatusCode == HttpStatusCode.OK)
+                        {
+                            //login customer now
+                            if (isApproved)
+                                _authenticationService.SignIn(customer, true);
+                            switch (_customerSettings.UserRegistrationType)
                             {
-                                //email validation message
-                                _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.AccountActivationTokenAttribute, Guid.NewGuid().ToString());
-                                _workflowMessageService.SendCustomerEmailValidationMessage(customer, _workContext.WorkingLanguage.Id);
+                                case UserRegistrationType.EmailValidation:
+                                    {
+                                        //email validation message
+                                        _genericAttributeService.SaveAttribute(customer, NopCustomerDefaults.AccountActivationTokenAttribute, Guid.NewGuid().ToString());
+                                        _workflowMessageService.SendCustomerEmailValidationMessage(customer, _workContext.WorkingLanguage.Id);
 
                                 //result
                                 return RedirectToRoute("RegisterResult",
@@ -826,13 +1060,51 @@ namespace Nop.Web.Controllers
                             {
                                 return RedirectToRoute("HomePage");
                             }
+                        }
                     }
+                    else if (Autenticar.StatusCode == HttpStatusCode.Conflict)
+                    {
+
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.SSO.Invalid"));
+                        _logger.Warning(_localizationService.GetResource("Account.Login.SSO.Invalid"),null,customer);
+                        //If we got this far, something failed, redisplay form
+                        model = _customerModelFactory.PrepareRegisterModel(model, true, customerAttributesXml);
+                        return View(model);
+                    }
+                    else
+                    {
+
+                            ModelState.AddModelError("", _localizationService.GetResource("Account.Login.SSO.ServerError"));
+                            _logger.Warning(_localizationService.GetResource("Account.Login.SSO.ServerError"), null, customer);
+                            //If we got this far, something failed, redisplay form
+                            model = _customerModelFactory.PrepareRegisterModel(model, true, customerAttributesXml);
+                            return View(model);
+                        }
+                      
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", _localizationService.GetResource("Account.Login.SSO.ApiNotRegister"));
+                        _logger.Warning(_localizationService.GetResource("Account.Login.SSO.ApiNotRegister"), null, customer);
+
+                    }
+
                 }
 
                 //errors
                 foreach (var error in registrationResult.Errors)
                     ModelState.AddModelError("", error);
             }
+
+            if (Convert.ToBoolean(_settingService.GetSettingByKey("Customer.Login.SSO.ModelError".ToLower(), "", _storeContext.CurrentStore.Id, true)))
+            {
+                var message = string.Join(" | ", ModelState.Values
+                               .SelectMany(v => v.Errors)
+                               .Select(e => e.ErrorMessage));
+                ModelState.AddModelError("", message.ToString());
+
+            }
+
 
             //If we got this far, something failed, redisplay form
             model = _customerModelFactory.PrepareRegisterModel(model, true, customerAttributesXml);
@@ -951,7 +1223,117 @@ namespace Nop.Web.Controllers
                 return Challenge();
 
             var customer = _workContext.CurrentCustomer;
+            var selectedCustomerAttributesString = _genericAttributeService.GetAttribute<string>(customer, NopCustomerDefaults.CustomCustomerAttributes);
+            var NombreCliente = _CustomerService.ParseValues(selectedCustomerAttributesString, 10).FirstOrDefault();
+            var ApellidoCliente = _CustomerService.ParseValues(selectedCustomerAttributesString, 11).FirstOrDefault();
+            var RazonSocial = _CustomerService.ParseValues(selectedCustomerAttributesString, 5).FirstOrDefault();
+            var usuario = new mLoginBody()
+            {
+                User = model.Email
+            };
+            SSOInterface Auth = new SSOInterface();
+            mUpdateAccountBody DatosActualizados = new mUpdateAccountBody();
+            var DataCliente = Auth.Autenticar(usuario);
+            DatosActualizados.Usuario = model.Email;
 
+            if (!string.IsNullOrWhiteSpace(NombreCliente))
+            {
+                if (!String.Equals(NombreCliente, DataCliente.detalle.Nombres))
+                    DatosActualizados.Nombres = NombreCliente;
+                else
+                    DatosActualizados.Nombres = DataCliente.detalle.Nombres;
+            }
+            else
+            {
+                DatosActualizados.Nombres = DataCliente.detalle.Nombres;
+            }
+
+            if (!string.IsNullOrWhiteSpace(ApellidoCliente))
+            {
+                if (!String.Equals(ApellidoCliente, DataCliente.detalle.Apellidos))
+                    DatosActualizados.Apellidos = ApellidoCliente;
+                else
+                    DatosActualizados.Apellidos = DataCliente.detalle.Apellidos;
+            }
+            else
+            {
+                DatosActualizados.Apellidos = DataCliente.detalle.Apellidos;
+            }
+            if (!string.IsNullOrWhiteSpace(RazonSocial))
+            {
+                if (!String.Equals(RazonSocial, DataCliente.detalle.Nombres))
+                    DatosActualizados.Nombres = RazonSocial;
+                else
+                    DatosActualizados.Nombres = DataCliente.detalle.Nombres;
+            }
+            else
+            {
+                DatosActualizados.Nombres = DataCliente.detalle.Nombres;
+
+            }
+            if (!string.IsNullOrWhiteSpace(model.Phone))
+            {
+                if (!String.Equals(model.Phone, DataCliente.detalle.Telefono))
+                    DatosActualizados.Telefono = model.Phone;
+                else
+                    DatosActualizados.Telefono = DataCliente.detalle.Telefono;
+            }
+            else
+            {
+                DatosActualizados.Telefono = DataCliente.detalle.Telefono;
+            }
+            if (!string.IsNullOrWhiteSpace(model.StreetAddress))
+            {
+                if (!String.Equals(model.StreetAddress, DataCliente.detalle.Direccion))
+                    DatosActualizados.Direccion = model.StreetAddress;
+                else
+                    DatosActualizados.Direccion = DataCliente.detalle.Direccion;
+            }
+            else
+            {
+                DatosActualizados.Direccion = DataCliente.detalle.Direccion;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.City))
+            {
+                if (!String.Equals(model.City, DataCliente.detalle.Ciudad))
+                    DatosActualizados.Ciudad = model.City;
+                else
+                    DatosActualizados.Ciudad = DataCliente.detalle.Ciudad;
+            }
+            else
+            {
+                DatosActualizados.Ciudad = DataCliente.detalle.Ciudad;
+            }
+            if (!string.IsNullOrWhiteSpace(model.County))
+            {
+                if (!String.Equals(model.County, DataCliente.detalle.Pais))
+                    DatosActualizados.Pais = model.County;
+                else
+                    DatosActualizados.Pais = DataCliente.detalle.Pais;
+            }
+            else
+            {
+                DatosActualizados.Pais = DataCliente.detalle.Pais;
+            }
+            DatosActualizados.CodApp = Convert.ToInt32(_settingService.GetSettingByKey("Customer.CodAplicacion".ToLower(), "", _storeContext.CurrentStore.Id, true));
+            DatosActualizados.Sexo = "";
+            var ActualizarRegistro = Auth.ActualizarCuenta(DatosActualizados);
+
+            //mUpdateAccountBody ClienteActualizar = new mUpdateAccountBody()
+            //{
+            //    Nombres = !string.IsNullOrWhiteSpace(NombreCliente) ?
+            //              (!String.Equals(NombreCliente, DataCliente.detalle.Nombres) ? NombreCliente : DataCliente.detalle.Nombres) : 
+            //              DataCliente.detalle.Nombres,
+
+            //    Apellidos = !string.IsNullOrWhiteSpace(ApellidoCliente) ?
+            //              (!String.Equals(ApellidoCliente, DataCliente.detalle.Apellidos) ? ApellidoCliente : DataCliente.detalle.Apellidos) :
+            //              DataCliente.detalle.Apellidos,
+
+            //};
+
+
+            _settingService.SetSetting("Api.Info", false, 0);
             //custom customer attributes
             var customerAttributesXml = ParseCustomCustomerAttributes(model.Form);
             var customerAttributeWarnings = _customerAttributeParser.GetAttributeWarnings(customerAttributesXml);
@@ -959,19 +1341,20 @@ namespace Nop.Web.Controllers
             {
                 ModelState.AddModelError("", error);
             }
-
-            try
+            if (ActualizarRegistro.StatusCode == HttpStatusCode.OK)
             {
-                if (ModelState.IsValid)
+                try
                 {
-                    //username 
-                    if (_customerSettings.UsernamesEnabled && this._customerSettings.AllowUsersToChangeUsernames)
+                    if (ModelState.IsValid)
                     {
-                        if (
-                            !customer.Username.Equals(model.Username.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                        //username 
+                        if (_customerSettings.UsernamesEnabled && this._customerSettings.AllowUsersToChangeUsernames)
                         {
-                            //change username
-                            _customerRegistrationService.SetUsername(customer, model.Username.Trim());
+                            if (
+                                !customer.Username.Equals(model.Username.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                //change username
+                                _customerRegistrationService.SetUsername(customer, model.Username.Trim());
 
                             //re-authenticate
                             //do not authenticate users in impersonation mode
@@ -1144,6 +1527,11 @@ namespace Nop.Web.Controllers
             {
                 ModelState.AddModelError("", exc.Message);
             }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Error al actualizar los datos del cliente");
+            }
 
             //If we got this far, something failed, redisplay form
             model = _customerModelFactory.PrepareCustomerInfoModel(model, customer, true, customerAttributesXml);
@@ -1159,7 +1547,7 @@ namespace Nop.Web.Controllers
 
             //ensure it's our record
             var ear = _workContext.CurrentCustomer.ExternalAuthenticationRecords.FirstOrDefault(x => x.Id == id);
-
+            _settingService.SetSetting("Api.Info", false, _storeContext.CurrentStore.Id);
             if (ear == null)
             {
                 return Json(new
@@ -1457,18 +1845,36 @@ namespace Nop.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var changePasswordRequest = new ChangePasswordRequest(customer.Email,
-                    true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
-                var changePasswordResult = _customerRegistrationService.ChangePassword(changePasswordRequest);
-                if (changePasswordResult.Success)
+                var credenciales = new mUpdateClave()
                 {
-                    model.Result = _localizationService.GetResource("Account.ChangePassword.Success");
-                    return View(model);
-                }
+                    Usuario = customer.Email,
+                    ClaveAnterior = model.OldPassword,
+                    NuevaClave = model.NewPassword,
+                    CodApp = Convert.ToInt32(_settingService.GetSettingByKey("Customer.CodAplicacion".ToLower(), "", _storeContext.CurrentStore.Id, true))
+                };
+                SSOInterface Auth = new SSOInterface();
+                var Autenticar = Auth.CambiarClave(credenciales);
 
-                //errors
-                foreach (var error in changePasswordResult.Errors)
-                    ModelState.AddModelError("", error);
+                if (Autenticar.StatusCode == HttpStatusCode.OK)
+                {
+                    var changePasswordRequest = new ChangePasswordRequest(customer.Email,
+                    true, _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
+                    var changePasswordResult = _customerRegistrationService.ChangePassword(changePasswordRequest);
+                    if (!changePasswordResult.Success)
+                    {
+                        foreach (var error in changePasswordResult.Errors)
+                            ModelState.AddModelError("", error);
+                    }
+                    model.Result = _localizationService.GetResource("Account.ChangePassword.Success");
+                    return View(model); 
+                    //errors
+                }
+                else
+                {
+                    ModelState.AddModelError("", _localizationService.GetResource("Account.ChangePassword.Error"));
+
+                }
+             
             }
 
             //If we got this far, something failed, redisplay form

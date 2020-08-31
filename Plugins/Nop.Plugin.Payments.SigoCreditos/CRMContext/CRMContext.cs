@@ -101,7 +101,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.CRMContext
             {
                 wsCRM.mCliente client = cRMClient.ObtenerPuntosxClienteAsync(pGifcardModel.Abono.Receptor.TipoDocumento, pGifcardModel.Abono.Receptor.Documento).Result;
 
-                // var result=  cRMClient.CrearVenderGiftCardAsync(0, pGifcardModel.Abono.Receptor.EntityId, client, 1, 2, Convert.ToDecimal(pGifcardModel.Abono.MontoTransaccionGiftCard), "Dolares", true).Result;
+               // var result=  cRMClient.CrearVenderGiftCardAsync(0, pGifcardModel.Abono.Receptor.EntityId, client, 1, 2, Convert.ToDecimal(pGifcardModel.Abono.MontoTransaccionGiftCard), "Dolares", true).Result;
                 var vResult = new wsCRM.mAbonosCredito
                 {
                     Cod_Abono = 0//result

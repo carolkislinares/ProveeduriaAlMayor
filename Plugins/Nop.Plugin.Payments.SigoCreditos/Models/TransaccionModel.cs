@@ -30,6 +30,7 @@ namespace Nop.Plugin.Payments.SigoCreditos.Models
         /// <summary>
         /// Cedula del receptor
         /// </summary>
+        [NopResourceDisplayName("Account.Fields.CedulaReceptor")]
         public string CedulaReceptor { get; set; }
 
         /// <summary>

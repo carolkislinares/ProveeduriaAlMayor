@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="productAddedToCartWindowSummary row">
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style=" margin: 0; padding: 0; ">
+        @*<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style=" margin: 0; padding: 0; ">
             @if (!Model.MiniShoppingCart.DisplayCheckoutButton) {
                 var checkoutUrl = "";
                 if (Model.MiniShoppingCart.AnonymousCheckoutAllowed && Model.MiniShoppingCart.CurrentCustomerIsGuest) {
@@ -38,25 +38,33 @@
                 }
 
                 <a class="viewBasketLink" href="@Url.RouteUrl("ShoppingCart")">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxViewYourBasket")</a>
-                <div class="checkoutButtonWrapper" style="width:95%;">
+                <div class="checkoutButtonWrapper" style="width:95%;">*@
                     @*<input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("Checkout.Button")" onclick="setLocation('@checkoutUrl');" />*@
-                    <input id="addedToCartButton" type="submit" class="button-1 productAddedToCartWindowCheckout" value="" onclick="setLocation('@checkoutUrl');" @*style="background-image: url('images/ico-cart.png')"*@ />
+                    @*<input id="addedToCartButton" type="submit" class="button-1 productAddedToCartWindowCheckout" value="" onclick="setLocation('@checkoutUrl');" />
                 </div>
             } else {
-                <div class="shoppingCartButtonWrapper" style="width:95%;">
+                <div class="shoppingCartButtonWrapper" style="width:95%;">*@
                     @*<input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("ShoppingCart.Mini.ViewCart")" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />*@
-                    <input id="addedToWishlistButton" type="submit" class="button-1 productAddedToCartWindowCheckout" value="" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />
+                    @*<input id="addedToWishlistButton" type="submit" class="button-1 productAddedToCartWindowCheckout" value="" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />
                 </div>
             }
+        </div>*@
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style=" margin: 0; padding: 0; ">
+            <div class="shoppingCartButtonWrapper" style="width:95%;">
+                @*<input type="submit" class="button-1 productAddedToCartWindowCheckout" value="@T("ShoppingCart.Mini.ViewCart")" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />*@
+                <input id="addedToCartButton" type="submit" class="button-1 productAddedToCartWindowCheckout" value="" onclick="setLocation('@Url.RouteUrl("ShoppingCart")');" />
+            </div>
         </div>
   <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style=" margin: 0; padding: 0; ">
             <a class="continueShoppingLink" href="#" style="width: 100%;">@T("SevenSpikes.NopAjaxCart.ShoppingCartNotificationBoxContinueShopping")</a>
         </div>
-        @if (Model.EnableRelatedProductsInPopup) {
+        @if (Model.EnableRelatedProductsInPopup)
+        {
             @await Component.InvokeAsync("NopAjaxCartPopupRelatedProducts", new { productId = shoppingCartItemModel.ProductId });
         }
 
-        @if (Model.EnableCrossSellProductsInPopup) { 
+        @if (Model.EnableCrossSellProductsInPopup)
+        {
             @await Component.InvokeAsync("NopAjaxCartPopupCrossSellProducts", new { productId = shoppingCartItemModel.ProductId });
         }
     </div>

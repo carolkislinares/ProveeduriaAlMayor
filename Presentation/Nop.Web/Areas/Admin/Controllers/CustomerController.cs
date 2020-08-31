@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ using Nop.Core.Domain.Gdpr;
 using Nop.Core.Domain.Messages;
 using Nop.Core.Domain.Tax;
 using Nop.Services.Common;
+using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.ExportImport;
 using Nop.Services.Forums;
@@ -33,6 +35,9 @@ using Nop.Web.Areas.Admin.Models.Customers;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
+using SSO.Interface;
+using SSO.Interface.Models.Bodies;
+using static Nop.Web.ApiCloudContext.ApiCloudContext;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
@@ -71,6 +76,12 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IWorkflowMessageService _workflowMessageService;
         private readonly TaxSettings _taxSettings;
 
+        //Interfaz para atributos Genericos
+        private readonly ICustomerAttributeParser _CustomerService;
+        private readonly ILogger _logger;
+        private readonly ISettingService _settingService;
+        //
+
         #endregion
 
         #region Ctor
@@ -104,7 +115,11 @@ namespace Nop.Web.Areas.Admin.Controllers
             ITaxService taxService,
             IWorkContext workContext,
             IWorkflowMessageService workflowMessageService,
-            TaxSettings taxSettings)
+            TaxSettings taxSettings,
+            ICustomerAttributeParser CustomerService,
+            ISettingService settingService,
+            ILogger logger
+            )
         {
             this._customerSettings = customerSettings;
             this._dateTimeSettings = dateTimeSettings;
@@ -136,6 +151,9 @@ namespace Nop.Web.Areas.Admin.Controllers
             this._workContext = workContext;
             this._workflowMessageService = workflowMessageService;
             this._taxSettings = taxSettings;
+            this._CustomerService = CustomerService;
+            this._settingService = settingService;
+            this._logger = logger;
         }
 
         #endregion
@@ -303,6 +321,18 @@ namespace Nop.Web.Areas.Admin.Controllers
             {
                 ModelState.AddModelError(string.Empty, "Username is already registered");
             }
+            var usr = new mLoginBody()
+            {
+                User = model.Email
+            };
+
+            SSOInterface Auth = new SSOInterface();
+            var ValidarCorreo = Auth.Autenticar(usr);
+            if (ValidarCorreo.detalle != null && !string.IsNullOrWhiteSpace(ValidarCorreo.detalle.Correo))
+            {
+                ModelState.AddModelError("", _localizationService.GetResource("Account.Login.SSO.EmailExist"));
+                _logger.Warning(_localizationService.GetResource("Account.Login.SSO.EmailExist"), null, null);
+            }
 
             //validate customer roles
             var allCustomerRoles = _customerService.GetAllCustomerRoles(true);
@@ -351,6 +381,38 @@ namespace Nop.Web.Areas.Admin.Controllers
                     LastActivityDateUtc = DateTime.UtcNow,
                     RegisteredInStoreId = _storeContext.CurrentStore.Id
                 };
+                Dictionary<int, string> TipoDocumentoJuridico = new Dictionary<int, string>()
+                    {
+                        { 2, "J" },
+                        { 3, "G" },
+                        { 6, "V" },
+                        { 7, "E" },
+                        { 8, "C" },
+                    };
+                var documento = _CustomerService.ParseValues(customerAttributesXml, 1).FirstOrDefault();
+                var tipoDocumento = _CustomerService.ParseValues(customerAttributesXml, 8).FirstOrDefault();
+                var pDocumento = tipoDocumento.Equals("2") ? documento.Substring(1) : documento;
+                var pTipoCodTipo = tipoDocumento.Equals("2") ? TipoDocumentoJuridico.FirstOrDefault(x => x.Value == documento.ToUpper().Substring(0, 1)).Key :
+                                                              Convert.ToInt64(pDocumento) > 80000000 ? (int)TipoDocumentoNatural.E : (int)TipoDocumentoNatural.V;
+                var NombreCliente = _CustomerService.ParseValues(customerAttributesXml, 10).FirstOrDefault();
+                var ApellidoCliente = _CustomerService.ParseValues(customerAttributesXml, 11).FirstOrDefault();
+                // var DataCliente = ApiCloudContext.ApiCloudContext.ObtenerCliente(pTipoCodTipo, pDocumento);
+
+                mVerifyDocumentExistBody body = new mVerifyDocumentExistBody();
+                body.DocTypeId = pTipoCodTipo;
+                body.Document = pDocumento;
+                mRespuesta<bool> DocumentoExiste = Auth.VerificarExistenciaNumeroDocumento(body);
+                if (DocumentoExiste.detalle)
+                {
+                    ModelState.AddModelError("", _localizationService.GetResource("Account.Login.SSO.DocumentExist"));
+                    _logger.Warning(_localizationService.GetResource("Account.Login.SSO.DocumentExist"), null, null);
+                    //prepare model
+                    model = _customerModelFactory.PrepareCustomerModel(model, null, true);
+
+                    //if we got this far, something failed, redisplay form
+                    return View(model);
+                }
+
                 _customerService.InsertCustomer(customer);
 
                 //form fields
@@ -472,7 +534,33 @@ namespace Nop.Web.Areas.Admin.Controllers
                 _customerActivityService.InsertActivity("AddNewCustomer",
                     string.Format(_localizationService.GetResource("ActivityLog.AddNewCustomer"), customer.Id), customer);
 
-                SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
+
+                #region Insertar MultiSucursal
+
+                var esSigoDetal = Convert.ToBoolean(_settingService.GetSettingByKey("esSigoDetal".ToLower(), "", _storeContext.CurrentStore.Id, true));
+                var EntityId = _customerService.CreateCustomerEntidades(customer.Id, esSigoDetal);
+
+                var usuario = new mRegistrarAccountBody()
+                {
+                    CodEntidad = EntityId,
+                    Usuario = model.Email,
+                    Clave = model.Password,
+                    Nombres = NombreCliente,
+                    Apellidos = ApellidoCliente,
+                    CodTipo = pTipoCodTipo,
+                    Documento = pDocumento,
+                    Telefono = model.Phone,
+                    Sexo = model.Gender == null ? "" : model.Gender,
+                    Direccion = model.StreetAddress == null ? "" : model.StreetAddress,
+                    Ciudad = model.City == null ? "" : model.City,
+                    Pais = model.County == null ? "" : model.County,
+                    CodApp = Convert.ToInt32(_settingService.GetSettingByKey("Customer.CodAplicacion".ToLower(), "", _storeContext.CurrentStore.Id, true))
+                };
+            
+                var Autenticar = Auth.RegistrarCuenta(usuario);
+                if (Autenticar.StatusCode == HttpStatusCode.OK)
+                {
+                    SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.Added"));
 
                 if (!continueEditing)
                     return RedirectToAction("List");
@@ -480,7 +568,33 @@ namespace Nop.Web.Areas.Admin.Controllers
                 //selected tab
                 SaveSelectedTabName();
 
-                return RedirectToAction("Edit", new { id = customer.Id });
+                    return RedirectToAction("Edit", new { id = customer.Id });
+                }
+                else if (Autenticar.StatusCode == HttpStatusCode.Conflict)
+                {
+
+                    ErrorNotification(_localizationService.GetResource("Account.Login.SSO.Invalid"), false);
+
+                    //prepare model
+                    model = _customerModelFactory.PrepareCustomerModel(model, null, true);
+
+                    //if we got this far, something failed, redisplay form
+                    return View(model);
+                }
+                else
+                {
+
+                    ErrorNotification(_localizationService.GetResource("Account.Login.SSO.ServerError"), false);
+
+                    //prepare model
+                    model = _customerModelFactory.PrepareCustomerModel(model, null, true);
+
+                    //if we got this far, something failed, redisplay form
+                    return View(model);
+                }
+
+                #endregion
+
             }
 
             //prepare model
@@ -554,8 +668,37 @@ namespace Nop.Web.Areas.Admin.Controllers
             {
                 try
                 {
-                    customer.AdminComment = model.AdminComment;
-                    customer.IsTaxExempt = model.IsTaxExempt;
+
+                    var selectedCustomerAttributesString = _genericAttributeService.GetAttribute<string>(customer, NopCustomerDefaults.CustomCustomerAttributes);
+                    var NombreCliente = _CustomerService.ParseValues(selectedCustomerAttributesString, 10).FirstOrDefault();
+                    var ApellidoCliente = _CustomerService.ParseValues(selectedCustomerAttributesString, 11).FirstOrDefault();
+                    var RazonSocial = _CustomerService.ParseValues(selectedCustomerAttributesString, 5).FirstOrDefault();
+                    var usuario = new mLoginBody()
+                    {
+                        User = model.Email
+                    };
+                    SSOInterface Auth = new SSOInterface();
+                    var DataCliente = Auth.Autenticar(usuario);
+                    mUpdateAccountBody DatosActualizados = new mUpdateAccountBody()
+                    {
+                        Usuario = model.Email,
+                        Nombres = DataCliente.detalle.Nombres,
+                        Apellidos = DataCliente.detalle.Apellidos,
+                        Sexo = DataCliente.detalle.Sexo == null ? "" : DataCliente.detalle.Sexo,
+                        Direccion = model.StreetAddress == null ? "" : model.StreetAddress,
+                        Ciudad = model.City == null ? "" : model.City,
+                        Pais = model.County == null ? "" : model.County,
+                        Telefono = model.Phone,
+                        CodApp = Convert.ToInt32(_settingService.GetSettingByKey("Customer.CodAplicacion".ToLower(), "", _storeContext.CurrentStore.Id, true))
+
+                    };
+                    var ActualizarRegistro = Auth.ActualizarCuenta(DatosActualizados);
+
+                    if (ActualizarRegistro.StatusCode == HttpStatusCode.OK)
+                    {
+
+                        customer.AdminComment = model.AdminComment;
+                        customer.IsTaxExempt = model.IsTaxExempt;
 
                     //prevent deactivation of the last active administrator
                     if (!customer.IsAdmin() || model.Active || SecondAdminAccountExists(customer))
@@ -743,7 +886,12 @@ namespace Nop.Web.Areas.Admin.Controllers
                     //selected tab
                     SaveSelectedTabName();
 
-                    return RedirectToAction("Edit", new { id = customer.Id });
+                        return RedirectToAction("Edit", new { id = customer.Id });
+                    }
+                    else
+                    {
+                        ErrorNotification(_localizationService.GetResource("Account.Login.SSO.ServerError"));
+                    }
                 }
                 catch (Exception exc)
                 {
@@ -780,14 +928,27 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!ModelState.IsValid)
                 return RedirectToAction("Edit", new { id = customer.Id });
 
-            var changePassRequest = new ChangePasswordRequest(model.Email,
+            var credenciales = new mUpdateClave()
+            {
+                Usuario = model.Email,
+                NuevaClave = model.Password,
+                CodApp = Convert.ToInt32(_settingService.GetSettingByKey("Customer.CodAplicacion".ToLower(), "", _storeContext.CurrentStore.Id, true))
+
+            };
+            SSOInterface SSO = new SSOInterface();
+            var CambiarClave = SSO.ActualizarClave(credenciales);
+            if (CambiarClave.StatusCode == HttpStatusCode.OK)
+            {
+                var changePassRequest = new ChangePasswordRequest(model.Email,
                 false, _customerSettings.DefaultPasswordFormat, model.Password);
-            var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
-            if (changePassResult.Success)
+                var changePassResult = _customerRegistrationService.ChangePassword(changePassRequest);
+                if (!changePassResult.Success)
+                {
+                    foreach (var error in changePassResult.Errors)
+                        ErrorNotification(error);
+                }
                 SuccessNotification(_localizationService.GetResource("Admin.Customers.Customers.PasswordChanged"));
-            else
-                foreach (var error in changePassResult.Errors)
-                    ErrorNotification(error);
+            }
 
             return RedirectToAction("Edit", new { id = customer.Id });
         }

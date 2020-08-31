@@ -93,8 +93,15 @@
     }
     @Html.NopInlineScripts(this.Url, ResourceLocation.Head)
     <!--Powered by nopCommerce - http://www.nopCommerce.com-->
-    <link href="~/Themes/Emporium/Content/DataTables/datatables.min.css" rel="stylesheet" type="text/css">
-    <link href="~/Themes/Emporium/Content/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    @* <link href="~/Themes/Emporium/Content/DataTables/datatables.min.css" rel="stylesheet" type="text/css">*@
+    <link rel="preload" href="~/Themes/Emporium/Content/DataTables/datatables.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="~/Themes/Emporium/Content/DataTables/datatables.min.css"></noscript>
+
+    @*<link href="~/Themes/Emporium/Content/css/bootstrap.min.css" rel="stylesheet" type="text/css">*@
+    <link href="~/Themes/Emporium/Content/intltelinput/css/intlTelInput.css" rel="stylesheet" type="text/css">
+    <link href="~/Themes/Emporium/Content/intltelinput/css/demo.css" rel="stylesheet" type="text/css">
+    <link rel="preload" href="~/Themes/Emporium/Content/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="~/Themes/Emporium/Content/css/bootstrap.min.css"></noscript>
 </head>
 <body class="@currentPageClass">
     @RenderBody()
@@ -103,10 +110,10 @@
     @Html.NopInlineScripts(this.Url, ResourceLocation.Footer)
     <div class="scroll-back-button" id="goToTop"></div>
     @*<script src="~/Themes/Emporium/Content\scripts\jquery-3.5.1.slim.min.js"></script>*@
-    <script src="~/Themes/Emporium/Content\scripts\bootstrap.min.js"></script>
-    <script src="~/Themes/Emporium/Content\scripts\popper.min.js"></script>
-    <script src="~/Themes/Emporium/Content\scripts\jquery.mask.js"></script>
-    <script src="~/Themes/Emporium/Content/scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script async src="~/Themes/Emporium/Content\scripts\bootstrap.min.js"></script>
+    <script async src="~/Themes/Emporium/Content\scripts\popper.min.js"></script>
+    <script async src="~/Themes/Emporium/Content\scripts\jquery.mask.js"></script>
+    <script async src="~/Themes/Emporium/Content/scripts/jquery.unobtrusive-ajax.min.js"></script>
     <script>
         inhabilitar(@inspeccion);
     </script>

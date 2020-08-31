@@ -1,7 +1,10 @@
 ﻿@using System.Text.Encodings.Web
 @using Nop.Core
+@using Nop.Core.Infrastructure;
+@using Nop.Services.Configuration
 @model CustomerInfoModel
 @inject Nop.Core.IWebHelper webHelper
+@inject IStoreContext storeContext;
 @{
     Layout = "_ColumnsTwo";
 
@@ -10,6 +13,8 @@
     //page class
     Html.AppendPageCssClassParts("html-account-page");
     Html.AppendPageCssClassParts("html-customer-info-page");
+    var esApi = EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("api.info".ToLower(), string.Empty, 0, false);
+
 }
 
 @section left
@@ -19,10 +24,59 @@
 
 @section accountPageTitle
     {
-    <div class="page-title">
-        <h1>@T("Account.MyAccount") - @T("Account.CustomerInfo")</h1>
-    </div>
+
+    @if (!string.IsNullOrWhiteSpace(esApi) && Convert.ToBoolean(esApi))
+    {
+        <div class="page-title">
+            <h1>@T("Account.Confimr") - @T("Account.CustomerInfoConfimr")</h1>
+        </div>
+
+    }
+    else
+    {
+        <div class="page-title">
+            <h1>@T("Account.MyAccount") - @T("Account.CustomerInfo")</h1>
+        </div>
+    }
 }
+
+<!--CSS utilizados por intlTelInput para telefonos con formatos y banderas intenacionales-->
+<link href="~/Themes/Emporium/Content/intltelinput/css/intlTelInput.css" rel="stylesheet" type="text/css">
+<link href="~/Themes/Emporium/Content/intltelinput/css/demo.css" rel="stylesheet" type="text/css">
+
+<style>
+    .iti.iti--allow-dropdown {
+        width: 100%;
+    }
+
+    .center-2 {
+        width: 70%;
+    }
+
+    #phone2 {
+        width: 100%;
+    }
+
+    #phoneLabelCol {
+        text-align: left !important;
+    }
+
+        #phoneLabelCol > label {
+            display: inline-block;
+            max-width: calc(100% - 10px);
+            width: auto;
+            font-size: 15px;
+            margin: 0 0 8px;
+            font-weight: bold;
+            color: #444;
+            text-align: left;
+            white-space: normal;
+        }
+
+    #phoneRequiredCol {
+        text-align: right !important;
+    }
+</style>
 
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
@@ -30,29 +84,29 @@
 
         $(document).ready(function () {
             $("#@Html.IdFor(model => model.CountryId)").on('change', function () {
-                var selectedItem = $(this).val();
-                var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
-                var statesProgress = $("#states-loading-progress");
-                statesProgress.show();
+            var selectedItem = $(this).val();
+            var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
+            var statesProgress = $("#states-loading-progress");
+            statesProgress.show();
                 $.ajax({
-                    cache: false,
+                cache: false,
                     type: "GET",
                     url: "@(Url.RouteUrl("GetStatesByCountryId"))",
                     data: { "countryId": selectedItem, "addSelectStateItem": "true" },
                     success: function (data) {
-                        ddlStates.html('');
+                    ddlStates.html('');
                         $.each(data, function (id, option) {
-                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
-                        });
-                        statesProgress.hide();
-                    },
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                    statesProgress.hide();
+                },
                     error: function (xhr, ajaxOptions, thrownError) {
-                        alert('Failed to retrieve states.');
-                        statesProgress.hide();
-                    }
-                });
+                    alert('Failed to retrieve states.');
+                    statesProgress.hide();
+                }
             });
         });
+    });
     </script>
 }
 
@@ -83,7 +137,7 @@
                     }
                     <div class="inputs" style="display:none">
                         <label asp-for="FirstName" asp-postfix=":"></label>
-                        <input asp-for="FirstName"  />
+                        <input asp-for="FirstName" />
                         <nop-required />
                         <span asp-validation-for="FirstName" id="FirstNameValidate"></span>
                     </div>
@@ -116,7 +170,7 @@
                     }
                     <div class="inputs">
                         <label asp-for="Email" asp-postfix=":"></label>
-                        <input asp-for="Email" />
+                        <input asp-for="Email" readonly />
                         <nop-required />
                         <span asp-validation-for="Email"></span>
                     </div>
@@ -188,12 +242,87 @@
                     </div>
                 </div>
             }
+            @if (Model.NewsletterEnabled || Model.CustomerAttributes.Count > 0)
+            {
+                <div class="fieldset">
+                    <div class="title">
+                        <strong>@T("Account.Options")</strong>
+                    </div>
+                    <div class="form-fields">
+                        @if (Model.NewsletterEnabled)
+                        {
+                            <div class="inputs">
+                                <input asp-for="Newsletter" />
+                                <label asp-for="Newsletter"></label>
+                                <span asp-validation-for="Newsletter"></span>
+                            </div>
+                        }
+                        @if (Model.CustomerAttributes.Count > 0)
+                        {
+                            @await Html.PartialAsync("_CustomerAttributesInfo", Model.CustomerAttributes)
+                        }
+                    </div>
+                </div>
+            }
+            @if (Model.PhoneEnabled || Model.FaxEnabled)
+            {
+                <div class="fieldset">
+                    <div class="title">
+                        <strong>@T("Account.YourContactInformation")</strong>
+                    </div>
+                    <div class="form-fields">
+                        @*@if (Model.PhoneEnabled)
+                            {
+                                <div class="inputs">
+                                    <label asp-for="Phone" asp-postfix=":"></label>
+                                    <input asp-for="Phone" onblur="numberPhone()" />
+                                    @if (Model.PhoneRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                    <span asp-validation-for="Phone" id="PhoneValidate"></span>
+                                </div>
+                            }*@
+                        @if (Model.PhoneEnabled)
+                        {
+                            <div class="row">
+                                <div class="col-6" id="phoneLabelCol">
+                                    <label asp-for="Phone" asp-postfix=":"></label>
+                                </div>
+                                <div class="col-6" id="phoneRequiredCol">
+                                    @if (Model.PhoneRequired)
+                                    {
+                                        <nop-required />
+                                    }
+                                </div>
+                            </div>
+                            <input asp-for="Phone" id="phone2" name="phone2" onblur="numberPhone()" placeholder="4241234567" />
+                            @*<input asp-for="Phone" id="phone" name="phone" placeholder="4241234567" />*@
+                            <span asp-validation-for="Phone" id="PhoneValidate"></span>
+                            <span>@T("Register.Mensaje.ValidatePhone") </span>
+                            <input asp-for="Phone" id="phone" name="phone" placeholder="4241234567" hidden />
+                        }
+                        @if (Model.FaxEnabled)
+                        {
+                            <div class="inputs">
+                                <label asp-for="Fax" asp-postfix=":"></label>
+                                <input asp-for="Fax" />
+                                @if (Model.FaxRequired)
+                                {
+                                    <nop-required />
+                                }
+                                <span asp-validation-for="Fax"></span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
             @if (Model.StreetAddressEnabled ||
-               Model.StreetAddress2Enabled ||
-               Model.ZipPostalCodeEnabled ||
-               Model.CityEnabled ||
-               Model.CountyEnabled ||
-               Model.CountryEnabled)
+          Model.StreetAddress2Enabled ||
+          Model.ZipPostalCodeEnabled ||
+          Model.CityEnabled ||
+          Model.CountyEnabled ||
+          Model.CountryEnabled)
             {
                 <div class="fieldset">
                     <div class="title">
@@ -288,87 +417,31 @@
                     </div>
                 </div>
             }
-            @if (Model.PhoneEnabled || Model.FaxEnabled)
-            {
-                <div class="fieldset">
-                    <div class="title">
-                        <strong>@T("Account.YourContactInformation")</strong>
+            @*@if (Model.AllowCustomersToSetTimeZone || Model.SignatureEnabled)
+                {
+                    <div class="fieldset">
+                        <div class="title">
+                            <strong>@T("Account.Preferences")</strong>
+                        </div>
+                        <div class="form-fields">
+                            @if (Model.AllowCustomersToSetTimeZone)
+                            {
+                                <div class="inputs">
+                                    <label asp-for="TimeZoneId" asp-postfix=":"></label>
+                                    <select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones"></select>
+                                    <span asp-validation-for="TimeZoneId"></span>
+                                </div>
+                            }
+                            @if (Model.SignatureEnabled)
+                            {
+                                <div class="inputs">
+                                    <label asp-for="Signature" asp-postfix=":"></label>
+                                    <textarea asp-for="Signature" class="account-signature-text"></textarea>
+                                </div>
+                            }
+                        </div>
                     </div>
-                    <div class="form-fields">
-                        @if (Model.PhoneEnabled)
-                        {
-                            <div class="inputs">
-                                <label asp-for="Phone" asp-postfix=":"></label>
-                                <input asp-for="Phone" onblur="numberPhone()" />
-                                @if (Model.PhoneRequired)
-                                {
-                                    <nop-required />
-                                }
-                                <span asp-validation-for="Phone" id="PhoneValidate"></span>
-                            </div>
-                        }
-                        @if (Model.FaxEnabled)
-                        {
-                            <div class="inputs">
-                                <label asp-for="Fax" asp-postfix=":"></label>
-                                <input asp-for="Fax" />
-                                @if (Model.FaxRequired)
-                                {
-                                    <nop-required />
-                                }
-                                <span asp-validation-for="Fax"></span>
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
-            @if (Model.NewsletterEnabled || Model.CustomerAttributes.Count > 0)
-            {
-                <div class="fieldset">
-                    <div class="title">
-                        <strong>@T("Account.Options")</strong>
-                    </div>
-                    <div class="form-fields">
-                        @if (Model.NewsletterEnabled)
-                        {
-                            <div class="inputs">
-                                <input asp-for="Newsletter" />
-                                <label asp-for="Newsletter"></label>
-                                <span asp-validation-for="Newsletter"></span>
-                            </div>
-                        }
-                        @if (Model.CustomerAttributes.Count > 0)
-                        {
-                            @await Html.PartialAsync("_CustomerAttributesInfo", Model.CustomerAttributes)
-                        }
-                    </div>
-                </div>
-            }
-            @if (Model.AllowCustomersToSetTimeZone || Model.SignatureEnabled)
-            {
-                <div class="fieldset">
-                    <div class="title">
-                        <strong>@T("Account.Preferences")</strong>
-                    </div>
-                    <div class="form-fields">
-                        @if (Model.AllowCustomersToSetTimeZone)
-                        {
-                            <div class="inputs">
-                                <label asp-for="TimeZoneId" asp-postfix=":"></label>
-                                <select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones"></select>
-                                <span asp-validation-for="TimeZoneId"></span>
-                            </div>
-                        }
-                        @if (Model.SignatureEnabled)
-                        {
-                            <div class="inputs">
-                                <label asp-for="Signature" asp-postfix=":"></label>
-                                <textarea asp-for="Signature" class="account-signature-text"></textarea>
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
+                }*@
             @if (Model.NumberOfExternalAuthenticationProviders > 0)
             {
                 <div class="fieldset">
@@ -471,40 +544,49 @@
                     </div>
                 </div>
             }
-            <div class="buttons">
+        <div class="buttons">
+
+            @if (!string.IsNullOrWhiteSpace(esApi.ToString()) && Convert.ToBoolean(esApi))
+            {
+                <input type="submit" id="save-info-button" value="@T("Common.Confirm")" name="save-info-button" class="button-1 save-customer-info-button" />
+            }
+            else
+            {
                 <input type="submit" id="save-info-button" value="@T("Common.Save")" name="save-info-button" class="button-1 save-customer-info-button" />
-            </div>
+            }
+
+        </div>
         </form>
     </div>
 </div>
 
 @*<div id="paypal-button-container"></div>
-<script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD" data-sdk-integration-source="button-factory"></script>
-<script>
-    paypal.Buttons({
-        style: {
-            shape: 'rect',
-            color: 'silver',
-            layout: 'vertical',
-            label: 'paypal',
+    <script src="https://www.paypal.com/sdk/js?client-id=AX2irOtx9WAr6aGkNxUftuismSmoY6MEw2OPll38eq9dImF2l09sfFG3MpBwJg2a-sOnKk7OYoEbZbAw&currency=USD" data-sdk-integration-source="button-factory"></script>
+    <script>
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'silver',
+                layout: 'vertical',
+                label: 'paypal',
 
-        },
-        createOrder: function (data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        value: '1'
-                    }
-                }]
-            });
-        },
-        onApprove: function (data, actions) {
-            return actions.order.capture().then(function (details) {
-                alert('Transaction completed by ' + details.payer.name.given_name + '!');
-            });
-        }
-    }).render('#paypal-button-container');
-</script>*@
+            },
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '1'
+                        }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+                    alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>*@
 
 
 <script type="text/javascript" asp-location="Footer">
@@ -533,6 +615,9 @@
 </script>
 
 <script src="~/js/jquery.mask.min.js"></script>
+@*<script src="~/Themes/Emporium/Content/intltelinput/js/intlTelInput.js"></script>*@
+<script src="@Url.Content("~/Themes/Emporium/Content/intltelinput/js/intlTelInput.js")"></script>
+
 <script type="text/javascript">
     $(document).ready(function () {
         document.getElementById('customer_attribute_1').style.textTransform = "uppercase";
@@ -544,12 +629,12 @@
         }
 
         document.getElementById('customer_attribute_1_1').innerHTML = "R.I.F."
-            $("#customer_attribute_5").css("display", "block");
-            $("#customer_attribute_5_5").css("display", "block");
-            $("#customer_attribute_10").css("display", "none");
-            $("#customer_attribute_10_10").css("display", "none");
-            $("#customer_attribute_11").css("display", "none"); 
-            $("#customer_attribute_11_11").css("display", "none");
+        $("#customer_attribute_5").css("display", "block");
+        $("#customer_attribute_5_5").css("display", "block");
+        $("#customer_attribute_10").css("display", "none");
+        $("#customer_attribute_10_10").css("display", "none");
+        $("#customer_attribute_11").css("display", "none");
+        $("#customer_attribute_11_11").css("display", "none");
     }
     else {
 
@@ -557,15 +642,37 @@
             $(document.getElementsByClassName('custom-attributes')[i]).show();
         }
         document.getElementById('customer_attribute_1_1').innerHTML = "Cédula";
-                    $("#customer_attribute_5").css("display", "none"); 
-            $("#customer_attribute_5_5").css("display", "none");
-            $("#customer_attribute_10").css("display", "block");
-            $("#customer_attribute_10_10").css("display", "block");
-            $("#customer_attribute_11").css("display", "block");
-            $("#customer_attribute_11_11").css("display", "block");
+        $("#customer_attribute_5").css("display", "none");
+        $("#customer_attribute_5_5").css("display", "none");
+        $("#customer_attribute_10").css("display", "block");
+        $("#customer_attribute_10_10").css("display", "block");
+        $("#customer_attribute_11").css("display", "block");
+        $("#customer_attribute_11_11").css("display", "block");
     }
 
-    $('#Phone').mask('(0000)000-0000');
+    window.onload = function () {
+        format(document.getElementById("phone"));
+        //format(document.getElementById("phone2"));
+    }
+
+    function format(VALOR) {
+        var tlf = VALOR.value.slice(-10);
+        var dialcode = VALOR.value.slice(0, -10);
+
+        //var text = iti.getSelectedCountryData(dialCode: dialcode);
+        iti.setNumber(dialcode);
+        document.getElementById("phone2").value = tlf;
+
+    }
+    //$('#Phone').mask('(0000)000-0000');
+    $('#phone2').mask('0000000000');
+
+    var input = document.querySelector("#phone2");
+    var iti = window.intlTelInput(input, {
+        //nationalMode: false,
+        preferredCountries: ['ve'],
+        //utilsScript: "/Themes/Emporium/Content/intltelinput/js/utils.js",
+    });
 
     $('#customer_attribute_8_1').click(function () {
         for (var i = 2; i < 7; i++) {
@@ -573,20 +680,20 @@
         }
         document.getElementById('customer_attribute_1_1').innerHTML = "Cédula";
 
-            $("#customer_attribute_5").css("display", "none"); 
-            $("#customer_attribute_5_5").css("display", "none");
-            $("#customer_attribute_10").css("display", "block");
-            $("#customer_attribute_10_10").css("display", "block");
-            $("#customer_attribute_11").css("display", "block");
-            $("#customer_attribute_11_11").css("display", "block");
+        $("#customer_attribute_5").css("display", "none");
+        $("#customer_attribute_5_5").css("display", "none");
+        $("#customer_attribute_10").css("display", "block");
+        $("#customer_attribute_10_10").css("display", "block");
+        $("#customer_attribute_11").css("display", "block");
+        $("#customer_attribute_11_11").css("display", "block");
 
         //Limpia los input
         $("#customer_attribute_5").removeClass("input-validation-error");
-        $("#customer_attribute_6").removeClass("input-validation-error");
+        //$("#customer_attribute_6").removeClass("input-validation-error");
         $("#customer_attribute_5Validate").removeClass("field-validation-error").addClass("field-validation-valid");
         document.getElementById("customer_attribute_5Validate").innerHTML = ""
-        $("#customer_attribute_6Validate").removeClass("field-validation-error").addClass("field-validation-valid");
-        document.getElementById("customer_attribute_6Validate").innerHTML = ""
+        //$("#customer_attribute_6Validate").removeClass("field-validation-error").addClass("field-validation-valid");
+        //document.getElementById("customer_attribute_6Validate").innerHTML = ""
         $("#customer_attribute_1").removeClass("input-validation-error");
         $("#customer_attribute_1Validate").removeClass("field-validation-error").addClass("field-validation-valid");
         document.getElementById("customer_attribute_1Validate").innerHTML = ""
@@ -598,12 +705,12 @@
             $(document.getElementsByClassName('custom-attributes')[i]).show();
         }
 
-            $("#customer_attribute_5").css("display", "block");
-            $("#customer_attribute_5_5").css("display", "block");
-            $("#customer_attribute_10").css("display", "none");
-            $("#customer_attribute_10_10").css("display", "none");
-            $("#customer_attribute_11").css("display", "none"); 
-            $("#customer_attribute_11_11").css("display", "none");
+        $("#customer_attribute_5").css("display", "block");
+        $("#customer_attribute_5_5").css("display", "block");
+        $("#customer_attribute_10").css("display", "none");
+        $("#customer_attribute_10_10").css("display", "none");
+        $("#customer_attribute_11").css("display", "none");
+        $("#customer_attribute_11_11").css("display", "none");
 
         document.getElementById('customer_attribute_1_1').innerHTML = "R.I.F."
         $("#customer_attribute_1").removeClass("input-validation-error");
@@ -619,21 +726,34 @@
 
 <script type="text/javascript">
     function numberPhone() {
-        var regexp = /^((\(\d{4}\)?)|(\d{3}-))?\d{3}-\d{4}$/;
-        var inputtxt = document.getElementById('Phone').value;
+        //var regexp = /^((\(\d{4}\)?)|(\d{3}-))?\d{3}-\d{4}$/;
+        var regexp = /^[0-9]{10}$/;
+        //var text = iti.getSelectedCountryData();
+        //var dial = text.dialCode;
+        var inputtxt = document.getElementById('phone2').value;
         if (regexp.test(inputtxt)) {
-            $("#Phone").removeClass("input-validation-error");
-            $("#PhoneValidate").removeClass("field - validation - error").addClass("field - validation - valid");
-            document.getElementById("Phone").innerHTML = "";
+            $("#Phone2").removeClass("input-validation-error");
+            $("#PhoneValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("PhoneValidate").innerHTML = "";
+
+            if (inputtxt.length < 11) {
+                var text = iti.getSelectedCountryData();
+                var dial = text.dialCode;
+
+                var elementphone = "+" + dial + inputtxt;
+
+                document.getElementById("phone").value = elementphone;
+
+            }
         }
         else {
-            $("#Phone").addClass("input-validation-error");
+            $("#phone2").addClass("input-validation-error");
             $("#PhoneValidate").removeClass("field-validation-valid").addClass("field-validation-error");
 
-            if (document.getElementById("Phone").value.length > 0 && document.getElementById("Phone").value.length != 14) {
+            if (document.getElementById("phone2").value.length > 0 && document.getElementById("phone2").value.length != 10) {
                 document.getElementById("PhoneValidate").innerHTML = "El Teléfono es inválido.";
             } else {
-                if (document.getElementById("Phone").value.length == 0)
+                if (document.getElementById("phone2").value.length == 0)
                     document.getElementById("PhoneValidate").innerHTML = "Se requiere el Teléfono.";
             }
         }
@@ -764,7 +884,7 @@
                 }
                 break;
             }
-			            case 'customer_attribute_10': {
+            case 'customer_attribute_10': {
                 if (document.getElementById('customer_attribute_8_1').checked) {
                     isValid = input.value.match(letters);
                     if (isValid == null) {
@@ -855,18 +975,16 @@
                 $("#customer_attribute_5Validate").removeClass("field-validation-valid").addClass("field-validation-error");
                 document.getElementById("customer_attribute_5Validate").innerHTML = "La Razón Social es requerida"
             }
-            document.getElementById("customer_attribute_10").value = "";
-            document.getElementById("customer_attribute_11").value = "";
-           
+
+
         } else {
-             document.getElementById("customer_attribute_5").value = "";
+            document.getElementById("customer_attribute_5").value = "";
             var element5 = document.getElementById("customer_attribute_10").value;
             if (element5.length == 0) {
                 $("#customer_attribute_10").addClass("input-validation-error");
                 $("#customer_attribute_10Validate").removeClass("field-validation-valid").addClass("field-validation-error");
                 document.getElementById("customer_attribute_10Validate").innerHTML = "El nombre es requerido"
             }
-
 
             var element6 = document.getElementById("customer_attribute_11").value;
             if (element6.length == 0) {
@@ -878,8 +996,18 @@
 
             //document.getElementById("customer_attribute_3").value = "";
             //document.getElementById("customer_attribute_4").value = "";
-           
+            document.getElementById("customer_attribute_5").value = "";
             //document.getElementById("customer_attribute_6").value = "";
+
+
+            var inputtxt = document.getElementById('phone2').value;
+            if (inputtxt.length < 11) {
+                var text = iti.getSelectedCountryData();
+                var dial = text.dialCode;
+
+                var elementphone = "+" + dial + inputtxt;
+                document.getElementById("phone").value = elementphone;
+            }
         }
     }
 </script>

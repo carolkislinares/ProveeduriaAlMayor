@@ -22,23 +22,17 @@
                 <span class="caret"></span>
                 <span class="sr-only">&nbsp;</span>
             </button>
-            <ul class="dropdown-menu" role="menu">
+            <ul class="dropdown-menu" role="menu">          
                 <li>
-                    <a asp-action="ExportXlsx">
+                    <a asp-action="ExportXlsxExitoso">
                         <i class="fa fa-file-excel-o"></i>
-                        @T("Admin.Common.ExportToExcel")
+                        @T("Admin.Common.ExportToExcel") Exitoso
                     </a>
                 </li>
                 <li>
-                    <a asp-action="ExportXlsxPendiente">
+                    <a asp-action="ExportXlsxSinAbonar">
                         <i class="fa fa-file-excel-o"></i>
-                        @T("Admin.Common.ExportToExcel") Pendientes
-                    </a>
-                </li>
-                <li>
-                    <a asp-action="ExportXlsxConsolidado">
-                        <i class="fa fa-file-excel-o"></i>
-                        @T("Admin.Common.ExportToExcel") Consolidados
+                        @T("Admin.Common.ExportToExcel") Sin Abonar
                     </a>
                 </li>
 
@@ -107,8 +101,8 @@
                                 </div>
                                 <div class="col-md-8">
                                     <select class="form-control" asp-for="Transaccion.Estatus_Operacion">
-                                        <option selected value="true">Exitoso</option>
-                                        <option value="false">Sin abonar</option>
+                                        <option selected value="1">Exitoso</option>
+                                        <option value="0">Sin abonar</option>
                                     </select>
                                 </div>
                             </div>

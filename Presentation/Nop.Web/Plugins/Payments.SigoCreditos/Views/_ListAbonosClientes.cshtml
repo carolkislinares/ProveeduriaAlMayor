@@ -10,19 +10,19 @@
     var gridPageSizes = adminAreaSettings.GridPageSizes;
 
 }
-    <style>
-        .panel-group .panel + .panel {
-            margin-top: 5px;
-        }
-    </style>
+<style>
+    .panel-group .panel + .panel {
+        margin-top: 5px;
+    }
+</style>
 <nop-antiforgery-token />
 
-            <div style="margin-top: 5px;" class="panel panel-default">
-                <div class="panel-body">
-                    <div id="AbonosClientes-grid"></div>
+<div style="margin-top: 5px;" class="panel panel-default">
+    <div class="panel-body">
+        <div id="AbonosClientes-grid"></div>
 
-                    <script>
-                        $(document).ready(function() {
+        <script>
+                        $(document).ready(function () {
                             $("#AbonosClientes-grid").kendoGrid({
                                 dataSource: {
                                     type: "json",
@@ -40,7 +40,7 @@
                                                         TransaccionPaypalID: $('#@Html.IdFor(model => model.Transaccion.TransaccionPaypalID)').val(),
                                                         TransaccionCreditID: $('#@Html.IdFor(model => model.Transaccion.TransaccionCreditID)').val(),
                                                         NombreReceptor: $('#@Html.IdFor(model => model.Transaccion.TransaccionCreditID)').val(),
-                                                        Estatus_Operacion: $('#@Html.IdFor(model => model.Transaccion.Estatus_Operacion)').val()
+                                                        Estatus_Operacion: new Boolean(parseInt($('#@Html.IdFor(model => model.Transaccion.Estatus_Operacion)').val()))
 
                                                     },
 
@@ -80,14 +80,14 @@
                                     {
                                         field: "Transaccion.FechaCreacion".toString("dd/MM/yyyy"),
                                         title: "@T("Account.CreateDate")",
-                                        width: 150,
+                                        width: 120,
                                         type: "date",
                                         format: "{0:dd-MMM-yyyy hh:mm:ss tt}",
                                         parseFormats: ["yyyy-MM-dd'T'HH:mm:ss.zz"]
                                     },{
                                         field: "Nombre",
                                          title: "@T("Account.NombreEmisor")",
-                                         width: 200,
+                                         width: 20,
                                          headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         template: "<a href=@Url.Action("Edit", "Customer")/#=@Html.IdFor(model => model.EcommerceId)# name='Id#:@Html.IdFor(model => model.EcommerceId)#' id='order#:@Html.IdFor(model => model.EcommerceId)#'>#:Nombre#</a>"
@@ -106,6 +106,10 @@
                                         title: "@T("Account.ReferenceSigoCreditos")",
                                         width: 150
                                     },{
+                                        field: "Transaccion.CedulaReceptor",
+                                        title: "@T("Account.CedulaReceptor")",
+                                        width: 150
+                                    },{
                                         field: "Transaccion.NombreReceptor",
                                         title: "@T("Account.NombreReceptor")",
                                         width: 150
@@ -113,7 +117,7 @@
                                         //field: "Transaccion.Monto".ToString("N", new CultureInfo("is-IS")),
                                         field: "Transaccion.Monto",
                                         title: "@T("Account.Monto")",
-                                        width: 50,
+                                        width: 150,
                                         format:"{0:c2}"
                                     }
                                     ,{
@@ -126,9 +130,9 @@
                             });
                         });
 
-                    </script>
+        </script>
 
-                    <script>
+        <script>
                         $(document).ready(function() {
                             //search button
                             $('#search-categories').click(function() {
@@ -146,7 +150,6 @@
                                 }
                             });*@
                         });
-                    </script>
-                </div>
-            </div>
- 
+        </script>
+    </div>
+</div>

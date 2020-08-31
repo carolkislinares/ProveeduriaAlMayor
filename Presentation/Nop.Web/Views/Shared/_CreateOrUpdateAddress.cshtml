@@ -22,6 +22,39 @@
 
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
+    <!--CSS utilizados por intlTelInput para telefonos con formatos y banderas intenacionales-->
+<link href="~/Themes/Emporium/Content/intltelinput/css/intlTelInput.css" rel="stylesheet" type="text/css">
+<link href="~/Themes/Emporium/Content/intltelinput/css/demo.css" rel="stylesheet" type="text/css">
+
+<style>
+    .iti.iti--allow-dropdown {
+        width: 100%;
+    }
+    .center-2 {
+        width: 70%;
+    }
+    #phone2 {
+        width: 100%;
+    }
+    #phoneLabelCol {
+        text-align: left !important;
+    }
+    #phoneLabelCol > label {
+        display: inline-block;
+        max-width: calc(100% - 10px);
+        width: auto;
+        font-size: 15px;
+        margin: 0 0 8px;
+        font-weight: bold;
+        color: #444;
+        text-align: left;
+        white-space: normal;
+    }
+    #phoneRequiredCol {
+        text-align: right !important;
+    }
+</style>
+
     //we don't move this script to the footer as it's used in Ajax requests where footer is not available
     <script>
         $(document).ready(function () {
@@ -172,15 +205,33 @@
     }
     @if (Model.PhoneEnabled)
     {
-        <div class="inputs">
-            <label asp-for="PhoneNumber" asp-postfix=":"></label>
-            <input asp-for="PhoneNumber" />
-            @if (Model.PhoneRequired)
-            {
-                <nop-required />
-            }
-            <span asp-validation-for="PhoneNumber"></span>
+        @*<div class="inputs">
+                <label asp-for="PhoneNumber" asp-postfix=":"></label>
+                    <input asp-for="PhoneNumber" />
+                    @if (Model.PhoneRequired)
+                    {
+                        <nop-required />
+                    }
+                    <span asp-validation-for="PhoneNumber"></span>
+            </div>*@
+
+        <div class="row">
+            <div class="col-6" id="phoneLabelCol">
+                <label asp-for="PhoneNumber" asp-postfix=":"></label>
+            </div>
+            <div class="col-6" id="phoneRequiredCol">
+                @if (Model.PhoneRequired)
+                {
+                    <nop-required />
+                }
+            </div>
         </div>
+        <input id="PhoneNumber2" name="PhoneNumber2" onblur="numberPhone()" placeholder="4241234567" />
+
+        <span asp-validation-for="PhoneNumber" id="PhoneValidate"></span>
+        <span>@T("Register.Mensaje.ValidatePhone") </span>
+        <input  id="PhoneNumber" name="PhoneNumber" hidden />
+        <input asp-for="PhoneNumber" hidden />
     }
     @if (Model.FaxEnabled)
     {
@@ -201,8 +252,37 @@
 </div>
 
 <script src="~/js/jquery.mask.min.js"></script>
+<script src="~/Themes/Emporium/Content/intltelinput/js/intlTelInput.js"></script>
 <script type="text/javascript">
-    $('#@Html.IdFor(model => model.PhoneNumber)').mask('(0000)000-0000');
+@*$('#@Html.IdFor(model => model.PhoneNumber)').mask('(0000)000-0000');*@
+    $('#PhoneNumber2').mask('0000000000');
+
+    var input = document.querySelector("#PhoneNumber2");
+    var iti = window.intlTelInput(input, {
+        preferredCountries: ['ve'],
+        //utilsScript: "Themes/Emporium/Content/intltelinput/js/utils.js",
+    });
+
+
+    if (document.getElementById("Address_FirstName").value.length > 0 && document.getElementById("Address_LastName").value.length > 0 && document.getElementById("Address_Email").value.length > 0) {
+        window.onload = function () {
+            format(document.getElementById("Address_PhoneNumber"))
+            //format(document.getElementById("PhoneNumber"));
+            //format(document.getElementById("PhoneNumber2"));
+        }
+
+        function format(VALOR) {
+            var tlf = VALOR.value.slice(-10);
+            var dialcode = VALOR.value.slice(0, -10);
+
+            //var text = iti.getSelectedCountryData(dialCode: dialcode);
+            iti.setNumber(dialcode);
+            document.getElementById("PhoneNumber2").value = tlf;
+
+        }
+
+    }
+
      var enviar = true;
      @*var input = document.getElementById('ShippingNewAddress_StateProvinceId');
     if (input != null) {
@@ -240,7 +320,7 @@
 
 
     $(document).ready(function () {
-        //debugger
+
         if (document.getElementById("@Html.IdFor(model => model.CountryId)") != null) {
             document.getElementById('@Html.IdFor(model => model.CountryId)').value = 86;
         }
@@ -269,6 +349,41 @@
                     });*@
 
         });
+
+    function numberPhone() {
+        var regexp = /^[0-9]{10}$/;
+        var inputtxt = document.getElementById('PhoneNumber2').value;
+        if (regexp.test(inputtxt)) {
+            $("#PhoneNumber2").removeClass("input-validation-error");
+            $("#PhoneValidate").removeClass("field-validation-error").addClass("field-validation-valid");
+            document.getElementById("PhoneValidate").innerHTML = "";
+
+            if (inputtxt.length < 11) {
+                var text = iti.getSelectedCountryData();
+                var dial = text.dialCode;
+
+                var elementphone = "+" + dial + inputtxt;
+
+                document.getElementById("PhoneNumber").value = elementphone;
+
+
+                $("#@Html.IdFor(x => x.PhoneNumber)").val(elementphone) 
+            }
+
+        }
+        else {
+            $("#phone2").addClass("input-validation-error");
+            $("#PhoneValidate").removeClass("field-validation-valid").addClass("field-validation-error");
+
+            if (document.getElementById("PhoneNumber2").value.length > 0 && document.getElementById("PhoneNumber").value.length != 10) {
+                document.getElementById("PhoneValidate").innerHTML = "El Teléfono es inválido.";
+            } else {
+                if (document.getElementById("PhoneNumber2").value.length == 0)
+                    document.getElementById("PhoneValidate").innerHTML = "Se requiere el Teléfono.";
+            }
+        }
+
+    }
 
       function HabilitarCombo() {
           $("#@Html.IdFor(model => model.CountryId)").removeAttr('disabled');

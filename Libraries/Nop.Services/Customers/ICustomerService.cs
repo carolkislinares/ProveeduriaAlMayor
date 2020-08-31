@@ -324,5 +324,12 @@ namespace Nop.Services.Customers
         bool PasswordIsExpired(Customer customer);
 
         #endregion
+
+        #region Generacion Customer en Entidades
+        long CreateCustomerEntidades(int CustomerId, bool esSigoDetal);
+
+        int ValidarDocumentoCredenciales(int TipoDocumento, string Documento);
+
+        #endregion
     }
 }

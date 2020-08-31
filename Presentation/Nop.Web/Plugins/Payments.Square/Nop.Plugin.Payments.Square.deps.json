@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.1",
-    "signature": "31debff04cb0876b3d5b36eafa50d64f4ac590a4"
+    "signature": "3038a6aa12a831c2083f2533320cc67f96634dba"
   },
   "compilationOptions": {},
   "targets": {
@@ -2547,6 +2547,14 @@
           }
         }
       },
+      "RestSharp/106.11.4": {
+        "runtime": {
+          "lib/netstandard2.0/RestSharp.dll": {
+            "assemblyVersion": "106.11.4.0",
+            "fileVersion": "106.11.4.0"
+          }
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
         "runtimeTargets": {
           "runtime/debian.8-x64/native/_._": {
@@ -4094,10 +4102,12 @@
           "Nop.Data": "4.1.0",
           "Nop.Services": "4.1.0",
           "Nop.Web.Framework": "4.1.0",
+          "RestSharp": "106.11.4",
           "System.ServiceModel.Duplex": "4.4.4",
           "System.ServiceModel.Http": "4.5.3",
           "System.ServiceModel.NetTcp": "4.4.4",
-          "System.ServiceModel.Security": "4.4.4"
+          "System.ServiceModel.Security": "4.4.4",
+          "SSO.Interface": "1.0.0.1"
         },
         "runtime": {
           "Nop.Web.dll": {}
@@ -4123,11 +4133,11 @@
           }
         }
       },
-      "RestSharp/106.2.2.0": {
+      "SSO.Interface.Reference/1.0.0.1": {
         "runtime": {
-          "RestSharp.dll": {
-            "assemblyVersion": "106.2.2.0",
-            "fileVersion": "106.2.2.20"
+          "SSO.Interface.dll": {
+            "assemblyVersion": "1.0.0.1",
+            "fileVersion": "1.0.0.1"
           }
         }
       }
@@ -5434,6 +5444,13 @@
       "path": "remotion.linq/2.2.0",
       "hashPath": "remotion.linq.2.2.0.nupkg.sha512"
     },
+    "RestSharp/106.11.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vx35q52cM3UQNOiN3UqSQ9U7I5UeoyzVmjsWKQxOxn6FVu+n01+SNwhxc/jvf92WPBmmwzTV4VYTeTg4KviJdA==",
+      "path": "restsharp/106.11.4",
+      "hashPath": "restsharp.106.11.4.nupkg.sha512"
+    },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
       "type": "package",
       "serviceable": true,
@@ -6423,7 +6440,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "RestSharp/106.2.2.0": {
+    "SSO.Interface.Reference/1.0.0.1": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

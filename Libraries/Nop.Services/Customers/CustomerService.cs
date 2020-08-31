@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
@@ -1185,6 +1186,58 @@ namespace Nop.Services.Customers
         }
 
         #endregion
+
+        #endregion
+
+        #region Generacion Customer en Entidades
+        
+
+        public virtual long CreateCustomerEntidades(int CustomerId, bool esSigoDetal)
+        {
+            try
+            {
+                var pId = _dataProvider.GetInt32Parameter("Id", CustomerId);
+                var RC = _dataProvider.GetOutputInt64Parameter("result");
+
+                //invoke stored procedure
+                if (esSigoDetal)
+                {
+                    var result = _dbContext.ExecuteSqlCommand("exec [MDW_ECOM_SIGO].[Ecommerce].[SpCrearCustomerEnEntidadesDetal] @Id,@result out", false, null, pId, RC);
+                    return Convert.ToInt64(RC.Value);
+                }
+                else
+                {
+                    var result = _dbContext.ExecuteSqlCommand("exec [MDW_ECOM_SIGO].[Ecommerce].[SpCrearCustomerEnEntidades] @Id,@result out", false, null, pId, RC);
+                    return Convert.ToInt64(RC.Value);
+                }
+            }
+            catch (SqlException exDb)
+            {
+                return exDb.ErrorCode;
+            }
+
+
+
+        }
+		
+	   public virtual int ValidarDocumentoCredenciales(int TipoDocumento , string Documento)
+        {
+            try
+            {
+                var pCedula = _dataProvider.GetInt64Parameter("Cedula", Convert.ToInt64(Documento));
+                var pCodTipo = _dataProvider.GetInt32Parameter("Cod_tipo", TipoDocumento);
+                var RC = _dataProvider.GetOutputInt32Parameter("RC");
+
+                var result = _dbContext.ExecuteSqlCommand("exec [Biometrico].[dbo].[Mstg_CredencialesValidarCedula] @Cedula,@Cod_tipo", false, null, pCedula, pCodTipo);
+                return  Convert.ToInt32(RC.Value);
+               // return 0;
+            }
+            catch (SqlException exDb)
+            {
+                return exDb.ErrorCode;
+            }
+
+        }
 
         #endregion
     }

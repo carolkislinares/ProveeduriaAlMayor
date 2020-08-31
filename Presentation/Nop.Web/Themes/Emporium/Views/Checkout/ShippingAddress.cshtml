@@ -25,7 +25,7 @@
     var CantidadMinima = (int)EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("minimumQuantityOrderProduct".ToLower(), 0, storeContext.CurrentStore.Id, true);
     //int a = (int)CantidadMinima;
 
-    var CompraMinimaSetting = EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("minimumPurchaseAmountOrder".ToLower(), 0, storeContext.CurrentStore.Id, true);
+    var CompraMinimaSetting = EngineContext.Current.Resolve<ISettingService>().GetSettingByKey("minimumPurchaseAmountOrder".ToLower(), 0.00, storeContext.CurrentStore.Id, true);
     double CompraMinima;
     if (workContext.WorkingCurrency.Id == 13 ){
         CompraMinima = Convert.ToDouble(CompraMinimaSetting) * Convert.ToDouble(workContext.WorkingCurrency.Rate);

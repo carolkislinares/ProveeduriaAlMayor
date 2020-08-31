@@ -703,7 +703,7 @@ namespace Nop.Services.Common
 
             var orderItems = order.OrderItems;
 
-            var count = 4 + (_catalogSettings.ShowSkuOnProductDetailsPage ? 1 : 0)
+            var count = 5 + (_catalogSettings.ShowSkuOnProductDetailsPage ? 1 : 0)
                         + (_vendorSettings.ShowVendorOnOrderDetailsPage ? 1 : 0);
 
             var productsTable = new PdfPTable(count)
@@ -723,6 +723,12 @@ namespace Nop.Services.Common
 
             //product name
             var cellProductItem = GetPdfCell("PDFInvoice.ProductName", lang, font);
+            cellProductItem.BackgroundColor = BaseColor.LightGray;
+            cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+            productsTable.AddCell(cellProductItem);
+
+            //Gtin
+            cellProductItem = GetPdfCell("PDFInvoice.Gtin", lang, font);
             cellProductItem.BackgroundColor = BaseColor.LightGray;
             cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
             productsTable.AddCell(cellProductItem);
@@ -806,6 +812,13 @@ namespace Nop.Services.Common
                 }
 
                 productsTable.AddCell(pAttribTable);
+
+
+                //Gtin
+                string Gtin = p.Gtin;
+                cellProductItem = GetPdfCell(Gtin ?? string.Empty, font);
+                cellProductItem.HorizontalAlignment = Element.ALIGN_CENTER;
+                productsTable.AddCell(cellProductItem);
 
                 //SKU
                 if (_catalogSettings.ShowSkuOnProductDetailsPage)

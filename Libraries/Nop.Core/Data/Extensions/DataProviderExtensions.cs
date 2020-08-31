@@ -73,6 +73,11 @@ namespace Nop.Core.Data.Extensions
             return dataProvider.GetOutputParameter(DbType.String, parameterName);
         }
 
+        public static DbParameter GetOutputInt64Parameter(this IDataProvider dataProvider, string parameterName)
+        {
+            return dataProvider.GetOutputParameter(DbType.Int64, parameterName);
+        }
+
         /// <summary>
         /// Get int parameter
         /// </summary>
@@ -84,7 +89,13 @@ namespace Nop.Core.Data.Extensions
         {
             return dataProvider.GetParameter(DbType.Int32, parameterName, parameterValue.HasValue ? (object)parameterValue.Value : DBNull.Value);
         }
-        
+
+
+        public static DbParameter GetInt64Parameter(this IDataProvider dataProvider, string parameterName, long? parameterValue)
+        {
+            return dataProvider.GetParameter(DbType.Int64, parameterName, parameterValue.HasValue ? (object)parameterValue.Value : DBNull.Value);
+        }
+
         /// <summary>
         /// Get output int32 parameter
         /// </summary>
